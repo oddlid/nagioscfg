@@ -9,32 +9,41 @@ Odd, 2016-08-10 17:51
 import (
 )
 
-type Key interface {
-	Name() string
-}
+type CfgType int
 
-type Value interface {
-	String() string
-	Int() int
-	Set(val string)
-}
+const (
+	T_COMMAND CfgType = iota
+	T_CONTACTGROUP
+	T_CONTACT
+	T_HOSTESCALATION
+	T_HOSTGROUP
+	T_HOST
+	T_SERVICEESCALATION
+	T_SERVICEGROUP
+	T_SERVICE
+	T_TIMEPERIOD
+)
 
-type ConfigItem interface {
-	Key() string
-	Value() string
-	String(pad, align int) string
-	Set(key,  val string)
-}
-
-type Cfg struct {
-}
-
-type CfgItem struct {
-	Key Key
-	Val Value
+var CfgTypes = [...]string {
+	"command",
+	"contactgroup",
+	"contact",
+	"hostescalation",
+	"hostgroup",
+	"host",
+	"serviceescalation",
+	"servicegroup",
+	"service",
+	"timeperiod",
 }
 
 type CfgObj struct {
 	Type string
-	Items []ConfigItem
+	Items map[string]string
+}
+
+// methods - move to separate file when it grows
+
+func (ct CfgType) String() string {
+	return CfgTypes[ct]
 }
