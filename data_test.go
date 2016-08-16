@@ -12,22 +12,34 @@ var keys = [...]string {
 	"retain_nonstatus_information",
 }
 
-func TestAddProp(t *testing.T) {
-	err := co.AddProp(keys[0], "11")
-	if err != nil {
-		t.Error(err)
+func TestAdd(t *testing.T) {
+	ok := co.Add(keys[0], "11")
+	if !ok {
+		t.Error("Failed to add first key")
+	}
+	ok = co.Add(keys[0], "gris")
+	if ok {
+		t.Error("Should not be allowed to add same key more than once")
 	}
 	co.Print(os.Stdout)
 }
 
-func TestSetProp(t *testing.T) {
-	overwritten := co.SetProp(keys[0], "gaupe")
+func TestSet(t *testing.T) {
+	overwritten := co.Set(keys[0], "gaupe")
 	if !overwritten {
 		t.Errorf("%q should have been overwritten", keys[0])
 	}
-	ow2 := co.SetProp(keys[1], "jalla")
+	ow2 := co.Set(keys[1], "jalla")
 	if ow2 {
 		t.Error("Key should not exist yet")
+	}
+}
+
+func TestLongestKey(t *testing.T) {
+	lk := co.LongestKey()
+	correct_len := len(keys[1])
+	if lk != correct_len {
+		t.Errorf("LongestKey() returned %d when correct length is %d", lk, correct_len)
 	}
 }
 

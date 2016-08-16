@@ -45,12 +45,30 @@ var CfgTypes = [...]string {
 	"timeperiod",
 }
 
+type PropertyCollection interface {
+	Add(key, val string) bool      // should only add if key does not yet exist. Return false if key exists
+	Set(key, val string) bool      // adds or overwrites. Return true if key was overwritten
+	Get(key string) (string, bool) // return val, success
+	Del(key string) bool           // return true if key was present
+	LongestKey() int
+}
+
+type Printer interface {
+	Print(w io.Writer)
+}
+
+
 type CfgObj struct {
 	Type   CfgType
 	Props  map[string]string
 	Indent int
 	Align  int
 }
+
+//type CmdItem struct {
+//	Key string
+//	Cmd string
+//}
 
 func NewCfgObj(ct CfgType) *CfgObj {
 	p := make(map[string]string)
@@ -62,37 +80,46 @@ func NewCfgObj(ct CfgType) *CfgObj {
 	}
 }
 
+
+//func SplitList(separator string) []string {
+//	var list []string
+//	return list
+//}
+//
+//func JoinList(separator string, args ...string) string {
+//	return ""
+//}
+
 // methods - move to separate file when it grows
 
 func (ct CfgType) String() string {
 	return CfgTypes[ct]
 }
 
-// AddProp adds a config property to an object if it doesn't already exist. Returns error if the key already exists.
-func (co *CfgObj) AddProp(k, v string) error {
-	_, exists := co.Props[k]
+func (co *CfgObj) Add(key, val string) bool {
+	_, exists := co.Props[key]
 	if exists {
-		return fmt.Errorf("Key %q already exists with value %q", k, v)
+		return !exists
 	}
-	co.Props[k] = v
-	return nil
+	co.Props[key] = val
+	return true
 }
 
-func (co *CfgObj) SetProp(k, v string) bool {
-	_, exists := co.Props[k]
-	co.Props[k] = v
+func (co *CfgObj) Set(key, val string) bool {
+	_, exists := co.Props[key]
+	co.Props[key] = val
 	return exists // true = key was overwritten, false = key was added
 }
 
-func (co *CfgObj) DelProp(k string) bool {
-	_, ok := co.Props[k]
-	delete(co.Props, k)
-	return ok // just signals if there was anything there to be deleted in the first place
+func (co *CfgObj) Del(key string) bool {
+	_, exists := co.Props[key]
+	delete(co.Props, key)
+	return exists // just signals if there was anything there to be deleted in the first place
 }
 
-func (co *CfgObj) Prop(k string) (string, bool) {
-	v, exists := co.Props[k]
-	return v, exists
+func (co *CfgObj) Get(key string) (string, bool) {
+	val, exists := co.Props[key]
+	return val, exists
 }
 
 func (co *CfgObj) LongestKey() int {
