@@ -99,7 +99,7 @@ func (ct CfgType) String() string {
 func (co *CfgObj) Add(key, val string) bool {
 	_, exists := co.Props[key]
 	if exists {
-		return !exists
+		return false
 	}
 	co.Props[key] = val
 	return true
@@ -111,15 +111,15 @@ func (co *CfgObj) Set(key, val string) bool {
 	return exists // true = key was overwritten, false = key was added
 }
 
+func (co *CfgObj) Get(key string) (string, bool) {
+	val, exists := co.Props[key]
+	return val, exists
+}
+
 func (co *CfgObj) Del(key string) bool {
 	_, exists := co.Props[key]
 	delete(co.Props, key)
 	return exists // just signals if there was anything there to be deleted in the first place
-}
-
-func (co *CfgObj) Get(key string) (string, bool) {
-	val, exists := co.Props[key]
-	return val, exists
 }
 
 func (co *CfgObj) LongestKey() int {
@@ -144,5 +144,22 @@ func (co *CfgObj) Print(w io.Writer) {
 		fmt.Fprintf(w, fstr, k, v)
 	}
 	fmt.Fprintf(w, "%s}\n", prefix)
+}
+
+
+func (co *CfgObj) GetList(key, sep string) []string {
+	val, exists := co.Get(key)
+	if !exists {
+		return nil
+	}
+	return strings.Split(val, sep)
+}
+
+func (co *CfgObj) SetList(key, sep string, list ...string) bool {
+	lstr := strings.Join(list, sep)
+	return co.Set(key, lstr)
+}
+
+func (co *CfgObj) GetCmd() {
 }
 
