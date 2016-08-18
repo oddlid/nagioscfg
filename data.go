@@ -13,6 +13,7 @@ import (
 )
 
 type CfgType int
+//type CfgKey int
 
 const (
 	T_COMMAND CfgType = iota
@@ -45,6 +46,79 @@ var CfgTypes = [...]string {
 	"timeperiod",
 }
 
+var CfgKeys = [...]string{
+	"active_checks_enabled",
+	"address",
+	"alias",
+	"can_submit_commands",
+	"check_command",
+	"check_freshness",
+	"check_interval",
+	"check_period",
+	"command_line",
+	"command_name",
+	"contact_groups",
+	"contact_name",
+	"contactgroup_name",
+	"contactgroups",
+	"contacts",
+	"display_name",
+	"email",
+	"escalation_options",
+	"escalation_period",
+	"event_handler_enabled",
+	"first_notification",
+	"flap_detection_enabled",
+	"flap_detection_options",
+	"friday",
+	"host_name",
+	"host_notification_commands",
+	"host_notification_options",
+	"host_notification_period",
+	"host_notifications_enabled",
+	"hostgroup_members",
+	"hostgroup_name",
+	"hostgroups",
+	"icon_image",
+	"is_volatile",
+	"last_notification",
+	"max_check_attempts",
+	"monday",
+	"name",
+	"notes",
+	"notes_url",
+	"notification_interval",
+	"notification_options",
+	"notification_period",
+	"notifications_enabled",
+	"obsess",
+	"pager",
+	"parallelize_check",
+	"parents",
+	"passive_checks_enabled",
+	"process_perf_data",
+	"register",
+	"retain_nonstatus_information",
+	"retain_status_information",
+	"retry_interval",
+	"saturday",
+	"service_description",
+	"service_notification_commands",
+	"service_notification_options",
+	"service_notification_period",
+	"service_notifications_enabled",
+	"servicegroup_name",
+	"servicegroups",
+	"stalking_options",
+	"statusmap_image",
+	"sunday",
+	"thursday",
+	"timeperiod_name",
+	"tuesday",
+	"use",
+	"wednesday",
+}
+
 type PropertyCollection interface {
 	Add(key, val string) bool      // should only add if key does not yet exist. Return false if key exists
 	Set(key, val string) bool      // adds or overwrites. Return true if key was overwritten
@@ -65,11 +139,6 @@ type CfgObj struct {
 	Align  int
 }
 
-//type CmdItem struct {
-//	Key string
-//	Cmd string
-//}
-
 func NewCfgObj(ct CfgType) *CfgObj {
 	p := make(map[string]string)
 	return &CfgObj{
@@ -80,15 +149,6 @@ func NewCfgObj(ct CfgType) *CfgObj {
 	}
 }
 
-
-//func SplitList(separator string) []string {
-//	var list []string
-//	return list
-//}
-//
-//func JoinList(separator string, args ...string) string {
-//	return ""
-//}
 
 // methods - move to separate file when it grows
 
@@ -160,6 +220,30 @@ func (co *CfgObj) SetList(key, sep string, list ...string) bool {
 	return co.Set(key, lstr)
 }
 
-func (co *CfgObj) GetCmd() {
+func (co *CfgObj) GetCheckCommand() []string {
+	if co.Type != T_SERVICE {
+		return nil
+	}
+	lst := co.GetList(CfgKeys[4], "!") // make sure to update index here if CfgKeys is updated
+	if lst == nil {
+		return nil
+	}
+	return lst
+}
+
+func (co *CfgObj) GetCheckCommandCmd() (string, bool) {
+	lst := co.GetCheckCommand()
+	if lst == nil {
+		return "", false
+	}
+	return lst[0], true
+}
+
+func (co *CfgObj) GetCheckCommandArgs() []string {
+	lst := co.GetCheckCommand()
+	if lst == nil {
+		return nil
+	}
+	return lst[1:]
 }
 
