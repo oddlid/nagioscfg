@@ -5,7 +5,6 @@ Defines the data structures that maps to Nagios config items
 Odd, 2016-08-10 17:51
 */
 
-
 import (
 	"fmt"
 	"io"
@@ -13,6 +12,7 @@ import (
 )
 
 type CfgType int
+
 //type CfgKey int
 
 const (
@@ -33,7 +33,7 @@ const (
 	DEF_ALIGN  int = 32
 )
 
-var CfgTypes = [...]string {
+var CfgTypes = [...]string{
 	"command",
 	"contactgroup",
 	"contact",
@@ -131,7 +131,6 @@ type Printer interface {
 	Print(w io.Writer)
 }
 
-
 type CfgObj struct {
 	Type    CfgType
 	Props   map[string]string
@@ -150,7 +149,6 @@ func NewCfgObj(ct CfgType) *CfgObj {
 		Comment: "# " + ct.String() + "'%s'",
 	}
 }
-
 
 // methods - move to separate file when it grows
 
@@ -208,7 +206,6 @@ func (co *CfgObj) Print(w io.Writer) {
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
-
 func (co *CfgObj) GetList(key, sep string) []string {
 	val, exists := co.Get(key)
 	if !exists {
@@ -248,7 +245,6 @@ func (co *CfgObj) GetCheckCommandArgs() []string {
 	}
 	return lst[1:]
 }
-
 
 func (co *CfgObj) GetName() (string, bool) {
 	key := co.Type.String() + "_name"
