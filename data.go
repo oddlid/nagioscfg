@@ -133,19 +133,21 @@ type Printer interface {
 
 
 type CfgObj struct {
-	Type   CfgType
-	Props  map[string]string
-	Indent int
-	Align  int
+	Type    CfgType
+	Props   map[string]string
+	Indent  int
+	Align   int
+	Comment string
 }
 
 func NewCfgObj(ct CfgType) *CfgObj {
 	p := make(map[string]string)
 	return &CfgObj{
-		Type:   ct,
-		Props:  p,
-		Indent: DEF_INDENT,
-		Align:  DEF_ALIGN,
+		Type:    ct,
+		Props:   p,
+		Indent:  DEF_INDENT,
+		Align:   DEF_ALIGN,
+		Comment: "# " + ct.String() + "'%s'",
 	}
 }
 
@@ -196,10 +198,10 @@ func (co *CfgObj) LongestKey() int {
 func (co *CfgObj) Print(w io.Writer) {
 	prefix := strings.Repeat(" ", co.Indent)
 	//co.Align = co.LongestKey() + 1
-	ct := co.Type.String()
 	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
-	//fmt.Fprintf(w, "# %s '%s'\n", ct, "bogus")
-	fmt.Fprintf(w, "define %s{\n", ct)
+	co.generateComment() // this might fail, but don't care yet
+	fmt.Fprintf(w, "# %s\n", co.Comment)
+	fmt.Fprintf(w, "define %s{\n", co.Type.String())
 	for k, v := range co.Props {
 		fmt.Fprintf(w, fstr, k, v)
 	}
@@ -247,3 +249,28 @@ func (co *CfgObj) GetCheckCommandArgs() []string {
 	return lst[1:]
 }
 
+
+func (co *CfgObj) GetName() (string, bool) {
+	key := co.Type.String() + "_name"
+	return co.Get(key)
+}
+
+func (co *CfgObj) GetDescription() (string, bool) {
+	key := co.Type.String() + "_description"
+	return co.Get(key)
+}
+
+// generateComment is set as private, as it makes "unsafe" assumptions about the existing format of the comment
+func (co *CfgObj) generateComment() bool {
+	var name string
+	var success bool
+	if co.Type == T_SERVICE {
+		name, success = co.GetDescription()
+	} else {
+		name, success = co.GetName()
+	}
+	if success {
+		co.Comment = fmt.Sprintf(co.Comment, name)
+	}
+	return success
+}
