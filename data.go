@@ -270,3 +270,4 @@ func (co *CfgObj) generateComment() bool {
 	}
 	return success
 }
+

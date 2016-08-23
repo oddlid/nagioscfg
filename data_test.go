@@ -47,3 +47,14 @@ func TestPrint(t *testing.T) {
 	co.Align = co.LongestKey() + 2
 	co.Print(os.Stdout)
 }
+
+func TestRead(t *testing.T) {
+	fpath := "../op5_automation/cfg/etc/services.cfg"
+	file, err := os.Open(fpath)
+	if err != nil {
+		t.Fatalf("Unable to open config file %q", fpath)
+	}
+	defer file.Close()
+
+	Read(file)
+}
