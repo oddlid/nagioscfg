@@ -12,6 +12,10 @@ var keys = [...]string {
 	"retain_nonstatus_information",
 }
 
+var comment = []byte("					    #    lkdsglknag  \n")
+var notcomment = []byte("			 define gris")
+var blankline = []byte("						    \n")
+
 func TestAdd(t *testing.T) {
 	ok := co.Add(keys[0], "11")
 	if !ok {
@@ -49,6 +53,7 @@ func TestPrint(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
+	t.Skip("TestRead temporarily disabled")
 	fpath := "../op5_automation/cfg/etc/services.cfg"
 	file, err := os.Open(fpath)
 	if err != nil {
@@ -57,4 +62,34 @@ func TestRead(t *testing.T) {
 	defer file.Close()
 
 	Read(file)
+}
+
+func TestIsComment(t *testing.T) {
+	if !IsComment(comment) {
+		t.Error("Should be detected as a comment")
+	}
+	if IsComment(notcomment) {
+		t.Error("Should be detected as not a comment")
+	}
+}
+
+func TestIsBlankLine(t *testing.T) {
+	if !IsBlankLine(blankline) {
+		t.Error("Should be detected as a blank line")
+	}
+	if IsBlankLine(notcomment) {
+		t.Error("Should be detected as not a blank line")
+	}
+}
+
+func BenchmarkIsComment(b *testing.B) {
+	for n:= 0; n < b.N; n++ {
+		IsComment(comment)
+	}
+}
+
+func BenchmarkIsBlankLine(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		IsBlankLine(blankline)
+	}
 }
