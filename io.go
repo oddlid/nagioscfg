@@ -100,6 +100,16 @@ func (r *Reader) parseLine() {
 	//...
 }
 
+// Read reads from a Nagios config stream and returns the next config object. 
+// Should be called repeatedly. Returns err = io.EOF when done
+func (r *Reader) Read() (*CfgObj, error) {
+	return nil, nil
+}
+
+// ReadAll calls Read repeatedly and returns all config objects it collects
+func (r *Reader) ReadAll() ([]CfgObj, error) {
+	return nil, nil
+}
 
 
 // *** Stuff below is temporary kept for reference to what I was first thinking. For later removal. ***
