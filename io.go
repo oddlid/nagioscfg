@@ -100,11 +100,16 @@ func (r *Reader) parseLine() {
 	//...
 }
 
+
+
+// *** Stuff below is temporary kept for reference to what I was first thinking. For later removal. ***
+
 // IsComment and IsBlankLine could possibly be replaced by something doing the same checks at once, to avoid looping through
 // the same line twice, which will be the case when encountering blank lines when the check is "IsComment || IsBlankLine"
 
 // IsComment loops through a line (byte slice) and looks for '#'.
 // If it is found, and only, optionally, preceeded by whitespace, it returns true, otherwise false.
+/*
 func IsComment(buf []byte) bool {
 	for i := range buf {
 		if buf[i] == '#' {
@@ -116,7 +121,8 @@ func IsComment(buf []byte) bool {
 	}
 	return false
 }
-
+*/
+/*
 func IsBlankLine(buf []byte) bool {
 	for i := range buf {
 		if !unicode.IsSpace(rune(buf[i])) {
@@ -128,7 +134,9 @@ func IsBlankLine(buf []byte) bool {
 
 func ReadKeyVal() {
 }
+*/
 
+/*
 // - check for comments and discard
 // - check for blank lines and discard
 // - check for beginning of a definition and enter a mode/set a flag
@@ -148,3 +156,4 @@ func Read(r io.Reader) {
 		fmt.Printf("Scanner error: %v+\n", err)
 	}
 }
+*/

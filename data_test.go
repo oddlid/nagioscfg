@@ -52,6 +52,7 @@ func TestPrint(t *testing.T) {
 	co.Print(os.Stdout)
 }
 
+/*
 func TestRead(t *testing.T) {
 	t.Skip("TestRead temporarily disabled")
 	fpath := "../op5_automation/cfg/etc/services.cfg"
@@ -93,3 +94,4 @@ func BenchmarkIsBlankLine(b *testing.B) {
 		IsBlankLine(blankline)
 	}
 }
+*/
