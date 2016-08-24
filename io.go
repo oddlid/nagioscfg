@@ -1,5 +1,11 @@
 package nagioscfg
 
+/*
+IO-related stuff for nagioscfg
+Much of the stuff here is taken from Golangs encoding/json source and modified to the specific needs of this package.
+See: https://golang.org/LICENSE
+*/
+
 import (
 	"bufio"
 	//"bytes"
@@ -8,16 +14,48 @@ import (
 	"unicode"
 )
 
+// A ParseError is returned for parsing errors.
+// The first line is 1.  The first column is 0.
+type ParseError struct {
+	Line   int   // Line where the error occurred
+	Column int   // Column (rune index) where the error occurred
+	Err    error // The actual error
+}
+
+func (e *ParseError) Error() string {
+	return fmt.Sprintf("line %d, column %d: %s", e.Line, e.Column, e.Err)
+}
+
+// These are the errors that can be returned in ParseError.Error
+var (
+	ErrNoValue("only key given where key/value expected")
+	ErrUnknown("unknown parsing error")
+)
+
 
 type Reader struct {
 	Comment rune
-	r       *bufio.Reader
-	field   bytes.Buffer
 	line    int
 	column  int
+	field   bytes.Buffer
+	r       *bufio.Reader
 }
 
-// copy of https://golang.org/src/encoding/csv/reader.go
+func NewReader(r io.Reader) *Reader {
+	return &Reader{
+		Comment: '#',
+		r:       bufio.NewReader(r),
+	}
+}
+
+func (r *Reader) error(err error) error {
+	return &ParseError{
+		Line:   r.line,
+		Column: r.column,
+		Err:    err,
+	}
+}
+
 func (r *Reader) readRune() (rune, error) {
 	r1, _, err := r.r.ReadRune()
 	if r1 == '\r' {
