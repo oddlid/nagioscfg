@@ -56,6 +56,7 @@ func (r *Reader) error(err error) error {
 	}
 }
 
+// this is basically "dos2unix"
 func (r *Reader) readRune() (rune, error) {
 	r1, _, err := r.r.ReadRune()
 	if r1 == '\r' {
@@ -71,6 +72,7 @@ func (r *Reader) readRune() (rune, error) {
 	return r1, err
 }
 
+// skip advances the reader until it reaches delim, ignoring everything it reads
 func (r *Reader) skip(delim rune) error {
 	for {
 		r1, err := r.readRune()
@@ -88,16 +90,15 @@ func (r *Reader) parseLine() {
 	r.column = -1
 
 	r1, _, err := r.r.ReadRune()
-
 	if err != nil {
 		//return nil, err
 	}
-
 	if r.Comment != 0 && r1 == r.Comment {
 		//return nil, r.skip('\n')
 	}
 	r.r.UnreadRune()
-	//...
+
+	// Find out if we have a blank line, and if not, start parsing
 }
 
 // Read reads from a Nagios config stream and returns the next config object. 
