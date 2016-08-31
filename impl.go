@@ -18,7 +18,7 @@ func NewCfgObj(ct CfgType) *CfgObj {
 		Props:   p,
 		Indent:  DEF_INDENT,
 		Align:   DEF_ALIGN,
-		Comment: "# " + ct.String() + "'%s'",
+		Comment: "# " + ct.String() + " '%s'",
 	}
 }
 
@@ -26,19 +26,18 @@ func (ct CfgType) String() string {
 	return CfgTypes[ct]
 }
 
+func (co *CfgObj) Set(key, val string) bool {
+	_, exists := co.Props[key]
+	co.Props[key] = val
+	return exists // true = key was overwritten, false = key was added
+}
+
 func (co *CfgObj) Add(key, val string) bool {
 	_, exists := co.Props[key]
 	if exists {
 		return false
 	}
-	co.Props[key] = val
-	return true
-}
-
-func (co *CfgObj) Set(key, val string) bool {
-	_, exists := co.Props[key]
-	co.Props[key] = val
-	return exists // true = key was overwritten, false = key was added
+	return !co.Set(key, val) // Set should return false, as the key doesn't exist yet, so we inverse the result
 }
 
 func (co *CfgObj) Get(key string) (string, bool) {
@@ -68,7 +67,7 @@ func (co *CfgObj) Print(w io.Writer) {
 	//co.Align = co.LongestKey() + 1
 	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
 	co.generateComment() // this might fail, but don't care yet
-	fmt.Fprintf(w, "# %s\n", co.Comment)
+	fmt.Fprintf(w, "%s\n", co.Comment)
 	fmt.Fprintf(w, "define %s{\n", co.Type.String())
 	for k, v := range co.Props {
 		fmt.Fprintf(w, fstr, k, v)

@@ -8,10 +8,11 @@ See: https://golang.org/LICENSE
 
 import (
 	"bufio"
-	//"bytes"
+	"bytes"
+	"errors"
 	"fmt"
 	"io"
-	"unicode"
+	//"unicode"
 )
 
 // A ParseError is returned for parsing errors.
@@ -28,8 +29,8 @@ func (e *ParseError) Error() string {
 
 // These are the errors that can be returned in ParseError.Error
 var (
-	ErrNoValue("only key given where key/value expected")
-	ErrUnknown("unknown parsing error")
+	ErrNoValue = errors.New("only key given where key/value expected")
+	ErrUnknown = errors.New("unknown parsing error")
 )
 
 
@@ -85,20 +86,21 @@ func (r *Reader) skip(delim rune) error {
 	}
 }
 
-func (r *Reader) parseLine() {
+func (r *Reader) parseLine() error {
 	r.line++
 	r.column = -1
 
 	r1, _, err := r.r.ReadRune()
 	if err != nil {
-		//return nil, err
+		return err
 	}
 	if r.Comment != 0 && r1 == r.Comment {
-		//return nil, r.skip('\n')
+		return r.skip('\n')
 	}
 	r.r.UnreadRune()
 
 	// Find out if we have a blank line, and if not, start parsing
+	return nil
 }
 
 // Read reads from a Nagios config stream and returns the next config object. 

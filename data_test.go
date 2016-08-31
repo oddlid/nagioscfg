@@ -5,38 +5,39 @@ import (
 	"os"
 )
 
-var co = NewCfgObj(T_COMMAND)
+var co = NewCfgObj(T_SERVICE)
 var keys = [...]string {
 	"max_check_attempts",
 	"active_checks_enabled",
 	"retain_nonstatus_information",
+	"service_description",
 }
 
 var comment = []byte("					    #    lkdsglknag  \n")
 var notcomment = []byte("			 define gris")
 var blankline = []byte("						    \n")
 
-func TestAdd(t *testing.T) {
-	ok := co.Add(keys[0], "11")
-	if !ok {
-		t.Error("Failed to add first key")
-	}
-	ok = co.Add(keys[0], "gris")
-	if ok {
-		t.Error("Should not be allowed to add same key more than once")
-	}
-	co.Print(os.Stdout)
-}
-
 func TestSet(t *testing.T) {
 	overwritten := co.Set(keys[0], "gaupe")
-	if !overwritten {
-		t.Errorf("%q should have been overwritten", keys[0])
+	if overwritten {
+		t.Errorf("%q should not exist yet", keys[0])
 	}
-	ow2 := co.Set(keys[1], "jalla")
-	if ow2 {
-		t.Error("Key should not exist yet")
+	ow2 := co.Set(keys[0], "11")
+	if !ow2 {
+		t.Errorf("Key %q should have been overwritten", keys[0])
 	}
+}
+
+func TestAdd(t *testing.T) {
+	ok := co.Add(keys[1], "1")
+	if !ok {
+		t.Error("Failed to add second key")
+	}
+	ok = co.Add(keys[1], "gris")
+	if ok {
+		t.Errorf("Should not be allowed to add same key %q more than once", keys[1])
+	}
+	//co.Print(os.Stdout)
 }
 
 func TestLongestKey(t *testing.T) {
@@ -48,6 +49,7 @@ func TestLongestKey(t *testing.T) {
 }
 
 func TestPrint(t *testing.T) {
+	co.Add(keys[3], "Disk usage /var")
 	co.Align = co.LongestKey() + 2
 	co.Print(os.Stdout)
 }

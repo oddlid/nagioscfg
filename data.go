@@ -5,6 +5,10 @@ Defines the data structures that maps to Nagios config items
 Odd, 2016-08-10 17:51
 */
 
+import (
+	"io"
+)
+
 type CfgType int
 
 //type CfgKey int
