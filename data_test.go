@@ -7,7 +7,7 @@ import (
 )
 
 var co = NewCfgObj(T_SERVICE)
-var keys = [...]string {
+var keys = [...]string{
 	"max_check_attempts",
 	"active_checks_enabled",
 	"retain_nonstatus_information",
@@ -16,13 +16,13 @@ var keys = [...]string {
 	"contact_groups",
 }
 var cmd = []string{
-		"vgt_check_graphite_v2",
-		"192.168.0.1",
-		"some.prod.solution.queues.queue.DLQ",
-		"4000",
-		"5000",
-		"gt",
-	}
+	"vgt_check_graphite_v2",
+	"192.168.0.1",
+	"some.prod.solution.queues.queue.DLQ",
+	"4000",
+	"5000",
+	"gt",
+}
 var cgs = []string{
 	"devs",
 	"ops",
@@ -119,7 +119,6 @@ func TestGetCheckCommandArgs(t *testing.T) {
 		t.Error("GetCheckCommandArgs() returned nil")
 	}
 }
-
 
 func TestPrint(t *testing.T) {
 	co.Add(keys[3], "Graphite DLQ") // just to get a description/comment as well
