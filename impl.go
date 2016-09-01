@@ -88,11 +88,19 @@ func (co *CfgObj) SetList(key, sep string, list ...string) bool {
 	return co.Set(key, lstr)
 }
 
+func (co *CfgObj) AddList(key, sep string, list ...string) bool {
+	_, exists := co.Props[key]
+	if exists {
+		return false
+	}
+	return !co.SetList(key, sep, list...) // SetList should return false as key does not exist, so invert the result
+}
+
 func (co *CfgObj) GetCheckCommand() []string {
 	if co.Type != T_SERVICE {
 		return nil
 	}
-	lst := co.GetList(CfgKeys[4], "!") // make sure to update index here if CfgKeys is updated
+	lst := co.GetList(CfgKeys[4], SEP_CMD) // make sure to update index here if CfgKeys is updated
 	if lst == nil {
 		return nil
 	}

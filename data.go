@@ -27,8 +27,10 @@ const (
 )
 
 const (
-	DEF_INDENT int = 4
-	DEF_ALIGN  int = 32
+	DEF_INDENT int    = 4
+	DEF_ALIGN  int    = 32
+	SEP_CMD    string = "!"
+	SEP_LST    string = ","
 )
 
 var CfgTypes = [...]string{
