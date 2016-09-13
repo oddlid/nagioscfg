@@ -126,6 +126,7 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 				break
 			}
 			if r1 == '\n' {
+				_debug("End of line, returning")
 				return true, r1, nil
 			}
 		}
