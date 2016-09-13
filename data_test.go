@@ -34,6 +34,14 @@ var comment = []byte("					    #    lkdsglknag  \n")
 var notcomment = []byte("			 define gris")
 var blankline = []byte("						    \n")
 
+func TestString(t *testing.T) {
+	str := co.Type.String()
+	exp := "service"
+	if str != exp {
+		t.Errorf("Expected String() to return %q, but got %q", exp, str)
+	}
+}
+
 func TestSet(t *testing.T) {
 	overwritten := co.Set(keys[0], "gaupe")
 	if overwritten {
@@ -54,7 +62,34 @@ func TestAdd(t *testing.T) {
 	if ok {
 		t.Errorf("Should not be allowed to add same key %q more than once", keys[1])
 	}
-	//co.Print(os.Stdout)
+}
+
+func TestGet(t *testing.T) {
+	ret, exists := co.Get(keys[0])
+	if !exists {
+		t.Error("Get returned false")
+	}
+	if ret != "11" { // set in TestSet()
+		t.Errorf("Expected %q, but got %q", "11", ret)
+	}
+}
+
+func TestDel(t *testing.T) {
+	k := "dkey"
+	v := "dval"
+	deleted := co.Del(k)
+	if deleted {
+		t.Error("Delete non-existing key should return false")
+	}
+	co.Add(k, v)
+	deleted = co.Del(k)
+	if !deleted {
+		t.Errorf("Failed to delete key %q", k)
+	}
+	ret, exists := co.Get(k)
+	if exists {
+		t.Errorf("Key %q should be deleted, but got value %q", k, ret)
+	}
 }
 
 func TestLongestKey(t *testing.T) {
@@ -120,8 +155,48 @@ func TestGetCheckCommandArgs(t *testing.T) {
 	}
 }
 
+func TestGetName(t *testing.T) {
+	o := NewCfgObj(T_COMMAND)
+	key := "command_name"
+	name := "testcommand"
+	o.Set(key, name)
+	ret, exists := o.GetName()
+	if !exists {
+		t.Errorf("Expected %q, but got nothing", name)
+	}
+	if ret != name {
+		t.Errorf("Expected %q, but got %q", name, ret)
+	}
+}
+
+func TestGetDescription(t *testing.T) {
+	o := NewCfgObj(T_SERVICE)
+	key := "service_description"
+	name := "testservice"
+	o.Set(key, name)
+	ret, exists := o.GetDescription()
+	if !exists {
+		t.Errorf("Expected %q, but got nothing", name)
+	}
+	if ret != name {
+		t.Errorf("Expected %q, but got %q", name, ret)
+	}
+}
+
+func TestGenerateComment(t *testing.T) {
+	co.Add(keys[3], "Graphite DLQ")
+	ok := co.generateComment()
+	if !ok {
+		t.Error("Attempt to generate comment returned false")
+	}
+	exp_comment := "# service 'Graphite DLQ'"
+	if co.Comment != exp_comment {
+		t.Errorf("Expected comment %q, but got %q", exp_comment, co.Comment)
+	}
+
+}
+
 func TestPrint(t *testing.T) {
-	co.Add(keys[3], "Graphite DLQ") // just to get a description/comment as well
 	co.Align = co.LongestKey() + 2
 	co.Print(os.Stdout)
 }

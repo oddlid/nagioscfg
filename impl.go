@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-
 func NewCfgObj(ct CfgType) *CfgObj {
 	p := make(map[string]string)
 	return &CfgObj{
@@ -142,9 +141,8 @@ func (co *CfgObj) generateComment() bool {
 	} else {
 		name, success = co.GetName()
 	}
-	if success {
+	if success && strings.Index(co.Comment, "%") > -1 {
 		co.Comment = fmt.Sprintf(co.Comment, name)
 	}
 	return success
 }
-
