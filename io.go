@@ -12,7 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	//"unicode"
+	"unicode"
 )
 
 // A ParseError is returned for parsing errors.
@@ -40,6 +40,10 @@ type Reader struct {
 	column  int
 	field   bytes.Buffer
 	r       *bufio.Reader
+}
+
+func _debug(args ...interface{}) {
+	fmt.Println(args)
 }
 
 func NewReader(r io.Reader) *Reader {
@@ -86,26 +90,104 @@ func (r *Reader) skip(delim rune) error {
 	}
 }
 
-func (r *Reader) parseLine() error {
+func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
+	r.field.Reset() // clear buffer at each call
+
+	r1, err := r.readRune()
+	for err == nil && r1 != '\n' && unicode.IsSpace(r1) {
+		//_debug("Skipping space")
+		r1, err = r.readRune()
+	}
+	if err == io.EOF && r.column != 0 {
+		return true, 0, err
+	}
+	if err != nil {
+		return false, 0, err
+	}
+
+	switch r1 {
+	case '\n':
+		if r.column == 0 {
+			_debug("Bailing out from newline in first column")
+			return false, r1, nil
+		}
+		_debug("Bailing out from newline not in first column")
+		return true, r1, nil
+	case ' ':
+		_debug("Encountered space")
+		return false, r1, nil
+	default:
+		for {
+			//_debug("Writing rune", r1)
+			r.field.WriteRune(r1)
+			r1, err = r.readRune()
+			if err != nil || r1 == '{' || r1 == '}' {
+				_debug("Came across { or } or had an error")
+				break
+			}
+			if r1 == '\n' {
+				return true, r1, nil
+			}
+		}
+	}
+
+	if err != nil {
+		if err == io.EOF {
+			return true, 0, err
+		}
+		return false, 0, err
+	}
+
+	return true, r1, nil
+}
+
+func (r *Reader) parseLine() (fields []string, err error) {
 	r.line++
 	r.column = -1
 
 	r1, _, err := r.r.ReadRune()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if r.Comment != 0 && r1 == r.Comment {
-		return r.skip('\n')
+		return nil, r.skip('\n')
 	}
 	r.r.UnreadRune()
 
-	// Find out if we have a blank line, and if not, start parsing
-	return nil
+	for {
+		haveField, delim, err := r.parseFields()
+		if haveField {
+			if fields == nil {
+				fields = make([]string, 0, 2) // never more than 2 fields in nagios config, just key/val
+			}
+			fields = append(fields, r.field.String())
+			fmt.Printf("%#v\n", fields)
+		}
+		if delim == '\n' || err == io.EOF {
+			return fields, err
+		} else if err != nil {
+			return nil, err
+		}
+	}
 }
 
 // Read reads from a Nagios config stream and returns the next config object. 
 // Should be called repeatedly. Returns err = io.EOF when done
 func (r *Reader) Read() (*CfgObj, error) {
+	var fields []string
+	var err error
+	for {
+		fields, err = r.parseLine()
+		if fields != nil {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	fmt.Println("Fields: ", fields)
+
 	return nil, nil
 }
 
