@@ -95,7 +95,6 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 
 	r1, err := r.readRune()
 	for err == nil && r1 != '\n' && unicode.IsSpace(r1) {
-		//_debug("Skipping space")
 		r1, err = r.readRune()
 	}
 	if err == io.EOF && r.column != 0 {
@@ -106,22 +105,6 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 	}
 
 	switch r1 {
-//	case '\n':
-//		if r.column == 0 {
-//			_debug("Bailing out from newline in first column")
-//			return false, r1, nil
-//		}
-//		_debug("Bailing out from newline not in first column")
-//		return false, r1, nil
-//	case ' ':
-//		_debug("Encountered space")
-//		return false, r1, nil
-//	case '{':
-//		_debug("Found {")
-//		return false, r1, nil
-//	case '}':
-//		_debug("Found }")
-//		return false, r1, nil
 	case '\n':
 		fallthrough
 	case '\t':
@@ -134,20 +117,17 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 		return false, r1, nil
 	default:
 		for {
-			//_debug("Writing rune", r1)
 			if !unicode.IsSpace(r1) {
 				r.field.WriteRune(r1)
 			}
 			r1, err = r.readRune()
 			if err != nil || r1 == '{' || r1 == '}' || unicode.IsSpace(r1) {
-			//if err != nil || unicode.IsSpace(r1) {
-				//_debug("Came across { or } or had an error")
 				break
 			}
-			if r1 == '\n' {
-				_debug("End of line, returning")
-				return true, r1, nil
-			}
+			//if r1 == '\n' {
+			//	_debug("End of line, returning")
+			//	return true, r1, nil
+			//}
 		}
 	}
 
@@ -178,10 +158,9 @@ func (r *Reader) parseLine() (fields []string, err error) {
 		haveField, delim, err := r.parseFields()
 		if haveField {
 			if fields == nil {
-				fields = make([]string, 0, 6) 
+				fields = make([]string, 0, 6) // 6 is a random guess at what is suitable
 			}
 			fields = append(fields, r.field.String())
-			//fmt.Printf("%#v\n", fields)
 		}
 		if delim == '\n' || delim == '{' || delim == '}' || err == io.EOF {
 			return fields, err

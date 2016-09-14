@@ -12,6 +12,11 @@ define service{
 	  a_key                  Some value
     }
 	
+define command{
+	command_name gris
+	gris_fest roligt
+}
+
 `
 
 func TestRead(t *testing.T) {

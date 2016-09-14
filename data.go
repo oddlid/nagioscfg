@@ -10,6 +10,7 @@ import (
 )
 
 type CfgType int
+type CfgName string
 
 //type CfgKey int
 
@@ -33,7 +34,7 @@ const (
 	SEP_LST    string = ","
 )
 
-var CfgTypes = [...]string{
+var CfgTypes = [...]CfgName{
 	"command",
 	"contactgroup",
 	"contact",

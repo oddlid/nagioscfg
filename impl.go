@@ -22,7 +22,17 @@ func NewCfgObj(ct CfgType) *CfgObj {
 }
 
 func (ct CfgType) String() string {
-	return CfgTypes[ct]
+	return string(CfgTypes[ct])
+}
+
+// Type returns the int value for the given CfgName, or -1 it not valid
+func (cn CfgName) Type() CfgType {
+	for i := range CfgTypes {
+		if CfgTypes[i] == cn {
+			return CfgType(i)
+		}
+	}
+	return -1
 }
 
 func (co *CfgObj) Set(key, val string) bool {
