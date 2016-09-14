@@ -106,23 +106,42 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 	}
 
 	switch r1 {
+//	case '\n':
+//		if r.column == 0 {
+//			_debug("Bailing out from newline in first column")
+//			return false, r1, nil
+//		}
+//		_debug("Bailing out from newline not in first column")
+//		return false, r1, nil
+//	case ' ':
+//		_debug("Encountered space")
+//		return false, r1, nil
+//	case '{':
+//		_debug("Found {")
+//		return false, r1, nil
+//	case '}':
+//		_debug("Found }")
+//		return false, r1, nil
 	case '\n':
-		if r.column == 0 {
-			_debug("Bailing out from newline in first column")
-			return false, r1, nil
-		}
-		_debug("Bailing out from newline not in first column")
-		return true, r1, nil
+		fallthrough
+	case '\t':
+		fallthrough
 	case ' ':
-		_debug("Encountered space")
+		fallthrough
+	case '{':
+		fallthrough
+	case '}':
 		return false, r1, nil
 	default:
 		for {
 			//_debug("Writing rune", r1)
-			r.field.WriteRune(r1)
+			if !unicode.IsSpace(r1) {
+				r.field.WriteRune(r1)
+			}
 			r1, err = r.readRune()
-			if err != nil || r1 == '{' || r1 == '}' {
-				_debug("Came across { or } or had an error")
+			if err != nil || r1 == '{' || r1 == '}' || unicode.IsSpace(r1) {
+			//if err != nil || unicode.IsSpace(r1) {
+				//_debug("Came across { or } or had an error")
 				break
 			}
 			if r1 == '\n' {
@@ -159,12 +178,12 @@ func (r *Reader) parseLine() (fields []string, err error) {
 		haveField, delim, err := r.parseFields()
 		if haveField {
 			if fields == nil {
-				fields = make([]string, 0, 2) // never more than 2 fields in nagios config, just key/val
+				fields = make([]string, 0, 6) 
 			}
 			fields = append(fields, r.field.String())
-			fmt.Printf("%#v\n", fields)
+			//fmt.Printf("%#v\n", fields)
 		}
-		if delim == '\n' || err == io.EOF {
+		if delim == '\n' || delim == '{' || delim == '}' || err == io.EOF {
 			return fields, err
 		} else if err != nil {
 			return nil, err
@@ -187,7 +206,7 @@ func (r *Reader) Read() (*CfgObj, error) {
 		}
 	}
 
-	fmt.Println("Fields: ", fields)
+	fmt.Printf("Fields: %#v\n", fields)
 
 	return nil, nil
 }
