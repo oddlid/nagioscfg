@@ -157,11 +157,7 @@ func (co *CfgObj) generateComment() bool {
 	return success
 }
 
-//func (co *CfgObj) Align(row int) int {
-//	if row == 0 { // "auto"
-//		co.Align = co.LongestKey() + 2
-//	} else {
-//		co.Align = row
-//	}
-//	return co.Align
-//}
+func (co *CfgObj) AutoAlign() int {
+	co.Align = co.LongestKey() + 2
+	return co.Align
+}

@@ -197,7 +197,13 @@ func (r *Reader) Read() (*CfgObj, error) {
 				}
 				co = NewCfgObj(ct)
 			case IO_OBJ_IN:
-				co.Add(fields[0], strings.Join(fields[1:len(fields)], " "))
+				fl := len(fields)
+				//_debug(fields)
+				if fl < 2 || co == nil {
+					//return nil, r.error(ErrNoValue)
+					continue
+				}
+				co.Add(fields[0], strings.Join(fields[1:fl], " "))
 			case IO_OBJ_END:
 				return co, nil
 			default:

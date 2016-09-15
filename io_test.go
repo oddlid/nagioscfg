@@ -7,7 +7,7 @@ import (
 )
 
 var cfgobjstr string = `# some comment
-define service{
+define service {
 	  service_description    A service name with spaces
 # embedded comment
 	  a_key                  Some value
@@ -26,7 +26,11 @@ func TestRead(t *testing.T) {
 	rdr := NewReader(str_r)
 	co, err := rdr.Read()
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
+	if co == nil {
+		t.Fatal("CfgObj is nil")
+	}
+	co.AutoAlign()
 	co.Print(os.Stdout)
 }
