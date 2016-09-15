@@ -11,6 +11,7 @@ define service{
 	  service_description    A service name with spaces
 # embedded comment
 	  a_key                  Some value
+		singlekey
     }
 	
 define command {
@@ -24,7 +25,8 @@ func TestRead(t *testing.T) {
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
 	co, err := rdr.Read()
-	if err == nil {
-		co.Print(os.Stdout)
+	if err != nil {
+		t.Error(err)
 	}
+	co.Print(os.Stdout)
 }
