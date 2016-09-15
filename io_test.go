@@ -3,6 +3,7 @@ package nagioscfg
 import (
 	"testing"
 	"strings"
+	"os"
 )
 
 var cfgobjstr string = `# some comment
@@ -12,7 +13,7 @@ define service{
 	  a_key                  Some value
     }
 	
-define command{
+define command {
 	command_name gris
 	gris_fest roligt
 }
@@ -22,9 +23,8 @@ define command{
 func TestRead(t *testing.T) {
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
-	rdr.Read()
-	rdr.Read()
-	rdr.Read()
-	rdr.Read()
-	rdr.Read()
+	co, err := rdr.Read()
+	if err == nil {
+		co.Print(os.Stdout)
+	}
 }

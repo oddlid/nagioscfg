@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"unicode"
 )
 
@@ -112,16 +113,17 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 	case ' ':
 		fallthrough
 	case '{':
-		fallthrough
-	case '}':
 		return false, r1, nil
+	case '}':
+		return true, r1, nil
 	default:
 		for {
 			if !unicode.IsSpace(r1) {
 				r.field.WriteRune(r1)
 			}
 			r1, err = r.readRune()
-			if err != nil || r1 == '{' || r1 == '}' || unicode.IsSpace(r1) {
+			//if err != nil || r1 == '{' || r1 == '}' || unicode.IsSpace(r1) {
+			if err != nil || r1 == '{' || unicode.IsSpace(r1) {
 				break
 			}
 			//if r1 == '\n' {
@@ -141,16 +143,16 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 	return true, r1, nil
 }
 
-func (r *Reader) parseLine() (fields []string, err error) {
+func (r *Reader) parseLine() (fields []string, state IoState, err error) {
 	r.line++
 	r.column = -1
 
 	r1, _, err := r.r.ReadRune()
 	if err != nil {
-		return nil, err
+		return nil, IO_OBJ_OUT, err
 	}
 	if r.Comment != 0 && r1 == r.Comment {
-		return nil, r.skip('\n')
+		return nil, IO_OBJ_OUT, r.skip('\n')
 	}
 	r.r.UnreadRune()
 
@@ -162,10 +164,16 @@ func (r *Reader) parseLine() (fields []string, err error) {
 			}
 			fields = append(fields, r.field.String())
 		}
-		if delim == '\n' || delim == '{' || delim == '}' || err == io.EOF {
-			return fields, err
+		if delim == '{' {
+			return fields, IO_OBJ_BEGIN, nil
+		} else if delim == '}' {
+			return fields, IO_OBJ_END, nil
+		} else if delim == '\n' {
+			return fields, IO_OBJ_IN, nil
+		} else if err == io.EOF {
+			return fields, IO_OBJ_OUT, err
 		} else if err != nil {
-			return nil, err
+			return nil, IO_OBJ_OUT, err
 		}
 	}
 }
@@ -174,20 +182,35 @@ func (r *Reader) parseLine() (fields []string, err error) {
 // Should be called repeatedly. Returns err = io.EOF when done
 func (r *Reader) Read() (*CfgObj, error) {
 	var fields []string
+	var state IoState
 	var err error
+	var co *CfgObj
+
 	for {
-		fields, err = r.parseLine()
+		fields, state, err = r.parseLine()
 		if fields != nil {
-			break
+			//break
+			switch state {
+			case IO_OBJ_BEGIN:
+				ct := CfgName(fields[1]).Type()
+				if ct != -1 {
+					co = NewCfgObj(ct)
+				}
+			case IO_OBJ_IN:
+				co.Add(fields[0], strings.Join(fields[1:len(fields)], " "))
+			case IO_OBJ_END:
+				return co, nil
+			default:
+				return nil, r.error(ErrUnknown)
+			}
 		}
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	fmt.Printf("Fields: %#v\n", fields)
-
-	return nil, nil
+	// should not get here
+	return nil, r.error(ErrUnknown)
 }
 
 // ReadAll calls Read repeatedly and returns all config objects it collects

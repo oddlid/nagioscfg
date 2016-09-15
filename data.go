@@ -11,6 +11,7 @@ import (
 
 type CfgType int
 type CfgName string
+type IoState int
 
 //type CfgKey int
 
@@ -32,6 +33,13 @@ const (
 	DEF_ALIGN  int    = 32
 	SEP_CMD    string = "!"
 	SEP_LST    string = ","
+)
+
+const (
+	IO_OBJ_OUT IoState = iota
+	IO_OBJ_BEGIN
+	IO_OBJ_IN
+	IO_OBJ_END
 )
 
 var CfgTypes = [...]CfgName{
