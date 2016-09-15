@@ -189,13 +189,13 @@ func (r *Reader) Read() (*CfgObj, error) {
 	for {
 		fields, state, err = r.parseLine()
 		if fields != nil {
-			//break
 			switch state {
 			case IO_OBJ_BEGIN:
 				ct := CfgName(fields[1]).Type()
-				if ct != -1 {
-					co = NewCfgObj(ct)
+				if ct == -1 {
+					return nil, r.error(ErrUnknown)
 				}
+				co = NewCfgObj(ct)
 			case IO_OBJ_IN:
 				co.Add(fields[0], strings.Join(fields[1:len(fields)], " "))
 			case IO_OBJ_END:
