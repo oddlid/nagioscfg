@@ -21,11 +21,12 @@ func NewCfgObj(ct CfgType) *CfgObj {
 	}
 }
 
+// String returns the string representation of the CfgType
 func (ct CfgType) String() string {
 	return string(CfgTypes[ct])
 }
 
-// Type returns the int value for the given CfgName, or -1 it not valid
+// Type returns the int (CfgType) value for the given CfgName, or -1 if not valid
 func (cn CfgName) Type() CfgType {
 	for i := range CfgTypes {
 		if CfgTypes[i] == cn {
@@ -35,12 +36,14 @@ func (cn CfgName) Type() CfgType {
 	return -1
 }
 
+// Set adds the given key/value to CfgObj.Props, returning true if the key was overwritten, and false if it was added fresh
 func (co *CfgObj) Set(key, val string) bool {
 	_, exists := co.Props[key]
 	co.Props[key] = val
 	return exists // true = key was overwritten, false = key was added
 }
 
+// Add adds the given key/value to CfgObj.Props only if the key does not already exist. Returns true if added, false otherwise.
 func (co *CfgObj) Add(key, val string) bool {
 	_, exists := co.Props[key]
 	if exists {
@@ -49,17 +52,20 @@ func (co *CfgObj) Add(key, val string) bool {
 	return !co.Set(key, val) // Set should return false, as the key doesn't exist yet, so we inverse the result
 }
 
-func (co *CfgObj) Get(key string) (string, bool) {
-	val, exists := co.Props[key]
-	return val, exists
+// Get returns the value for the given key, if it exists. "found" will be false if no such key exists.
+func (co *CfgObj) Get(key string) (val string, found bool) {
+	val, found = co.Props[key]
+	return val, found
 }
 
+// Del deletes the entry with the given key. It returns true if anything was deleted, false otherwise.
 func (co *CfgObj) Del(key string) bool {
 	_, exists := co.Props[key]
 	delete(co.Props, key)
 	return exists // just signals if there was anything there to be deleted in the first place
 }
 
+// LongestKey returns the length of the longest key in CfgObj.Props at the time of calling
 func (co *CfgObj) LongestKey() int {
 	max := 0
 	for k, _ := range co.Props {
@@ -71,6 +77,7 @@ func (co *CfgObj) LongestKey() int {
 	return max
 }
 
+// Print prints out a CfgObj in Nagios format
 func (co *CfgObj) Print(w io.Writer) {
 	prefix := strings.Repeat(" ", co.Indent)
 	//co.Align = co.LongestKey() + 1
@@ -84,6 +91,7 @@ func (co *CfgObj) Print(w io.Writer) {
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
+// GetList gets a value from CfgObj.Props and returns a string slice after splitting the value on the separator given
 func (co *CfgObj) GetList(key, sep string) []string {
 	val, exists := co.Get(key)
 	if !exists {
@@ -92,11 +100,13 @@ func (co *CfgObj) GetList(key, sep string) []string {
 	return strings.Split(val, sep)
 }
 
+// SetList takes a slice and joins it using the given separator, then sets it as the value for the given key
 func (co *CfgObj) SetList(key, sep string, list ...string) bool {
 	lstr := strings.Join(list, sep)
 	return co.Set(key, lstr)
 }
 
+// AddList does the same as SetList, but only if the key does not already exist
 func (co *CfgObj) AddList(key, sep string, list ...string) bool {
 	_, exists := co.Props[key]
 	if exists {
@@ -105,6 +115,7 @@ func (co *CfgObj) AddList(key, sep string, list ...string) bool {
 	return !co.SetList(key, sep, list...) // SetList should return false as key does not exist, so invert the result
 }
 
+// GetCheckCommand returns the list value for check_command in a service object
 func (co *CfgObj) GetCheckCommand() []string {
 	if co.Type != T_SERVICE {
 		return nil
@@ -116,6 +127,7 @@ func (co *CfgObj) GetCheckCommand() []string {
 	return lst
 }
 
+// GetCheckCommandCmd returns the command name part from GetCheckCommand
 func (co *CfgObj) GetCheckCommandCmd() (string, bool) {
 	lst := co.GetCheckCommand()
 	if lst == nil {
@@ -124,6 +136,7 @@ func (co *CfgObj) GetCheckCommandCmd() (string, bool) {
 	return lst[0], true
 }
 
+// GetCheckCommandArgs returns the argument list part from GetCheckCommand
 func (co *CfgObj) GetCheckCommandArgs() []string {
 	lst := co.GetCheckCommand()
 	if lst == nil {
@@ -132,11 +145,13 @@ func (co *CfgObj) GetCheckCommandArgs() []string {
 	return lst[1:]
 }
 
+// GetName tries to return the name for the given object, if set
 func (co *CfgObj) GetName() (string, bool) {
 	key := co.Type.String() + "_name"
 	return co.Get(key)
 }
 
+// GetDescription tries to get the description for the given object, if set
 func (co *CfgObj) GetDescription() (string, bool) {
 	key := co.Type.String() + "_description"
 	return co.Get(key)
@@ -157,6 +172,7 @@ func (co *CfgObj) generateComment() bool {
 	return success
 }
 
+// AutoAlign sets the CfgObj slignment/spacing to LongestKey + 2
 func (co *CfgObj) AutoAlign() int {
 	co.Align = co.LongestKey() + 2
 	return co.Align
