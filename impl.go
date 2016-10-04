@@ -80,7 +80,6 @@ func (co *CfgObj) LongestKey() int {
 // Print prints out a CfgObj in Nagios format
 func (co *CfgObj) Print(w io.Writer) {
 	prefix := strings.Repeat(" ", co.Indent)
-	//co.Align = co.LongestKey() + 1
 	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
 	co.generateComment() // this might fail, but don't care yet
 	fmt.Fprintf(w, "%s\n", co.Comment)
@@ -172,8 +171,34 @@ func (co *CfgObj) generateComment() bool {
 	return success
 }
 
-// AutoAlign sets the CfgObj slignment/spacing to LongestKey + 2
+// AutoAlign sets the CfgObj alignment/spacing to LongestKey + 2
 func (co *CfgObj) AutoAlign() int {
 	co.Align = co.LongestKey() + 2
 	return co.Align
+}
+
+func (cos CfgObjs) LongestKey() int {
+	max := 0
+	for i := range cos {
+		curmax := cos[i].LongestKey()
+		if curmax > max {
+			max = curmax
+		}
+	}
+	return max
+}
+
+func (cos CfgObjs) AutoAlign() int {
+	align := cos.LongestKey() + 2
+	for i := range cos {
+		cos[i].Align = align
+	}
+	return align
+}
+
+func (cos CfgObjs) Print(w io.Writer) {
+	for i := range cos {
+		cos[i].Print(w)
+		fmt.Fprint(w, "\n")
+	}
 }

@@ -50,8 +50,7 @@ func TestReadAll(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		for i := range cos {
-			cos[i].Print(os.Stdout)
-		}
+		cos.AutoAlign()
+		cos.Print(os.Stdout)
 	}
 }

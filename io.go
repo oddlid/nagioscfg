@@ -220,7 +220,7 @@ func (r *Reader) Read() (*CfgObj, error) {
 }
 
 // ReadAll calls Read repeatedly and returns all config objects it collects
-func (r *Reader) ReadAll() ([]CfgObj, error) {
+func (r *Reader) ReadAll() (CfgObjs, error) {
 	objs := make([]CfgObj, 0, 10) // 10 should be a better guessed value
 	var obj *CfgObj
 	var err error

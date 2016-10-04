@@ -12,6 +12,7 @@ import (
 type CfgType int
 type CfgName string
 type IoState int
+type CfgObjs []CfgObj
 
 //type CfgKey int
 
