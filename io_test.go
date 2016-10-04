@@ -19,6 +19,13 @@ define command {
 	gris_fest roligt
 }
 
+# Bla bla, some comment crap
+# I'm really too tired now
+
+define service{
+	service_description Disk usage /my/ass
+	contact_group toilet
+}
 `
 
 func TestRead(t *testing.T) {
@@ -33,4 +40,18 @@ func TestRead(t *testing.T) {
 	}
 	co.AutoAlign()
 	co.Print(os.Stdout)
+}
+
+func TestReadAll(t *testing.T) {
+	//t.Skip("Not implemented yet")
+	str_r := strings.NewReader(cfgobjstr)
+	rdr := NewReader(str_r)
+	cos, err := rdr.ReadAll()
+	if err != nil {
+		t.Error(err)
+	} else {
+		for i := range cos {
+			cos[i].Print(os.Stdout)
+		}
+	}
 }

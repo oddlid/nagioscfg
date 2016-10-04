@@ -179,7 +179,7 @@ func (r *Reader) parseLine() (fields []string, state IoState, err error) {
 }
 
 // Read reads from a Nagios config stream and returns the next config object. 
-// Should be called repeatedly. Returns err = io.EOF when done
+// Should be called repeatedly. Returns err = io.EOF when done (really? Does it?)
 func (r *Reader) Read() (*CfgObj, error) {
 	var fields []string
 	var state IoState
@@ -221,7 +221,23 @@ func (r *Reader) Read() (*CfgObj, error) {
 
 // ReadAll calls Read repeatedly and returns all config objects it collects
 func (r *Reader) ReadAll() ([]CfgObj, error) {
-	return nil, nil
+	objs := make([]CfgObj, 0, 10) // 10 should be a better guessed value
+	var obj *CfgObj
+	var err error
+	for {
+		obj, err = r.Read()
+		if err == nil && obj != nil {
+			objs = append(objs, *obj)
+		}
+		if err != nil {
+			if err != io.EOF {
+				return objs, err
+			} else {
+				break
+			}
+		}
+	}
+	return objs, nil
 }
 
 
