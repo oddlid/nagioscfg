@@ -129,6 +129,7 @@ var CfgKeys = [...]string{
 	"wednesday",
 }
 
+/*
 type PropertyCollection interface {
 	Add(key, val string) bool      // should only add if key does not yet exist. Return false if key exists
 	Set(key, val string) bool      // adds or overwrites. Return true if key was overwritten
@@ -136,6 +137,7 @@ type PropertyCollection interface {
 	Del(key string) bool           // return true if key was present
 	LongestKey() int
 }
+*/
 
 type Printer interface {
 	Print(w io.Writer)
