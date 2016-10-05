@@ -239,6 +239,27 @@ func (r *Reader) ReadAll() (CfgObjs, error) {
 	return objs, nil
 }
 
+// Print prints out a CfgObj in Nagios format
+func (co *CfgObj) Print(w io.Writer) {
+	prefix := strings.Repeat(" ", co.Indent)
+	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
+	co.generateComment() // this might fail, but don't care yet
+	fmt.Fprintf(w, "%s\n", co.Comment)
+	fmt.Fprintf(w, "define %s{\n", co.Type.String())
+	for k, v := range co.Props {
+		fmt.Fprintf(w, fstr, k, v)
+	}
+	fmt.Fprintf(w, "%s}\n", prefix)
+}
+
+// Print writes a collection of CfgObj to a given stream
+func (cos CfgObjs) Print(w io.Writer) {
+	for i := range cos {
+		cos[i].Print(w)
+		fmt.Fprint(w, "\n")
+	}
+}
+
 func ReadFile(fileName string) (CfgObjs, error) {
 	return nil, nil
 }

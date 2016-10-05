@@ -77,19 +77,6 @@ func (co *CfgObj) LongestKey() int {
 	return max
 }
 
-// Print prints out a CfgObj in Nagios format
-func (co *CfgObj) Print(w io.Writer) {
-	prefix := strings.Repeat(" ", co.Indent)
-	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
-	co.generateComment() // this might fail, but don't care yet
-	fmt.Fprintf(w, "%s\n", co.Comment)
-	fmt.Fprintf(w, "define %s{\n", co.Type.String())
-	for k, v := range co.Props {
-		fmt.Fprintf(w, fstr, k, v)
-	}
-	fmt.Fprintf(w, "%s}\n", prefix)
-}
-
 // GetList gets a value from CfgObj.Props and returns a string slice after splitting the value on the separator given
 func (co *CfgObj) GetList(key, sep string) []string {
 	val, exists := co.Get(key)
@@ -177,6 +164,7 @@ func (co *CfgObj) AutoAlign() int {
 	return co.Align
 }
 
+// LongestKey returns the length of the longest key in a collection of CfgObj
 func (cos CfgObjs) LongestKey() int {
 	max := 0
 	for i := range cos {
@@ -188,6 +176,7 @@ func (cos CfgObjs) LongestKey() int {
 	return max
 }
 
+// AutoAlign sets the alignment for a collection of CfgObj
 func (cos CfgObjs) AutoAlign() int {
 	align := cos.LongestKey() + 2
 	for i := range cos {
@@ -196,13 +185,7 @@ func (cos CfgObjs) AutoAlign() int {
 	return align
 }
 
-func (cos CfgObjs) Print(w io.Writer) {
-	for i := range cos {
-		cos[i].Print(w)
-		fmt.Fprint(w, "\n")
-	}
-}
-
+// Find returns a collection of CfgObj based on a string match
 func (cos CfgObjs) Find(match string) (CfgObjs, error) {
 	return nil, nil
 }
