@@ -34,7 +34,6 @@ var (
 	ErrUnknown = errors.New("unknown parsing error")
 )
 
-
 type Reader struct {
 	Comment rune
 	line    int
@@ -178,7 +177,7 @@ func (r *Reader) parseLine() (fields []string, state IoState, err error) {
 	}
 }
 
-// Read reads from a Nagios config stream and returns the next config object. 
+// Read reads from a Nagios config stream and returns the next config object.
 // Should be called repeatedly. Returns err = io.EOF when done (really? Does it?)
 func (r *Reader) Read() (*CfgObj, error) {
 	var fields []string
@@ -240,59 +239,10 @@ func (r *Reader) ReadAll() (CfgObjs, error) {
 	return objs, nil
 }
 
-
-// *** Stuff below is temporary kept for reference to what I was first thinking. For later removal. ***
-
-// IsComment and IsBlankLine could possibly be replaced by something doing the same checks at once, to avoid looping through
-// the same line twice, which will be the case when encountering blank lines when the check is "IsComment || IsBlankLine"
-
-// IsComment loops through a line (byte slice) and looks for '#'.
-// If it is found, and only, optionally, preceeded by whitespace, it returns true, otherwise false.
-/*
-func IsComment(buf []byte) bool {
-	for i := range buf {
-		if buf[i] == '#' {
-			return true
-		}
-		if !unicode.IsSpace(rune(buf[i])) {
-			return false
-		}
-	}
-	return false
-}
-*/
-/*
-func IsBlankLine(buf []byte) bool {
-	for i := range buf {
-		if !unicode.IsSpace(rune(buf[i])) {
-			return false
-		}
-	}
-	return true
+func ReadFile(fileName string) (CfgObjs, error) {
+	return nil, nil
 }
 
-func ReadKeyVal() {
+func WriteFile(fileName string) error {
+	return nil
 }
-*/
-
-/*
-// - check for comments and discard
-// - check for blank lines and discard
-// - check for beginning of a definition and enter a mode/set a flag
-// - check for end of definition if "within-flag" set, unset flag if '}' encountered
-// - split lines into key/value if within object definition
-// - feed result to a consumer that creates object instances
-func Read(r io.Reader) {
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		if IsComment(scanner.Bytes()) || IsBlankLine(scanner.Bytes()) {
-			//fmt.Printf("Seems we have a comment: %q\n", buf)
-			continue
-		}
-		// ...
-	}
-	if err := scanner.Err(); err != nil {
-		fmt.Printf("Scanner error: %v+\n", err)
-	}
-}
-*/

@@ -202,3 +202,7 @@ func (cos CfgObjs) Print(w io.Writer) {
 		fmt.Fprint(w, "\n")
 	}
 }
+
+func (cos CfgObjs) Find(match string) (CfgObjs, error) {
+	return nil, nil
+}
