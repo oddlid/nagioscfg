@@ -197,6 +197,19 @@ func (cos CfgObjs) AutoAlign() int {
 	return align
 }
 
+// Del deletes an objet from CfgObjs based on index and returns the new length of the slice
+// See also: https://github.com/golang/go/wiki/SliceTricks
+func (cos CfgObjs) Del(index int) int {
+	cos = append(cos[:index], cos[index+1:]...)
+	return len(cos)
+	// Should this have memory leak problems, try this instead:
+	/*
+	copy(cos[i:], cos[i+1:])
+	cos[len(cos)-1] = nil
+	cos = cos[:len(cos)-1]
+	*/
+}
+
 // Find returns a collection of CfgObj based on a string match
 func (cos CfgObjs) Find(match string) (CfgObjs, error) {
 	return nil, nil
