@@ -1,9 +1,9 @@
 package nagioscfg
 
 import (
-	"testing"
-	"strings"
 	"os"
+	"strings"
+	"testing"
 )
 
 var cfgobjstr string = `# some comment
@@ -52,5 +52,28 @@ func TestReadAll(t *testing.T) {
 	} else {
 		cos.AutoAlign()
 		cos.Print(os.Stdout)
+	}
+}
+
+func TestReadFile(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	objs, err := ReadFile(path)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(len(objs))
+}
+
+func TestWriteFile(t *testing.T) {
+	src := "../op5_automation/cfg/etc/services.cfg"
+	dst := "/tmp/services.cfg"
+	objs, err := ReadFile(src)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(len(objs))
+	err = WriteFile(dst, objs)
+	if err != nil {
+		t.Error(err)
 	}
 }

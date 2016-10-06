@@ -205,6 +205,7 @@ func (r *Reader) Read() (*CfgObj, error) {
 				}
 				co.Add(fields[0], strings.Join(fields[1:fl], " "))
 			case IO_OBJ_END:
+				co.generateComment() // might not be the right place to set this. Maybe at write-out instead...
 				return co, nil
 			default:
 				return nil, r.error(ErrUnknown)
@@ -221,7 +222,7 @@ func (r *Reader) Read() (*CfgObj, error) {
 
 // ReadAll calls Read repeatedly and returns all config objects it collects
 func (r *Reader) ReadAll() (CfgObjs, error) {
-	objs := make([]CfgObj, 0, 10) // 10 should be a better guessed value
+	objs := make(CfgObjs, 0, 10) // 10 should be a better guessed value
 	var obj *CfgObj
 	var err error
 	for {
@@ -288,8 +289,10 @@ func WriteFile(fileName string, objs CfgObjs) error {
 }
 
 func NewCfgFile(path string) *CfgFile {
+	objs := make(CfgObjs, 0)
 	return &CfgFile{
 		Path: path,
+		Objs: objs,
 	}
 }
 

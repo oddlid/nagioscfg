@@ -6,7 +6,6 @@ package nagioscfg
 
 import (
 	"fmt"
-	"io"
 	"strings"
 )
 
@@ -134,7 +133,11 @@ func (co *CfgObj) GetCheckCommandArgs() []string {
 // GetName tries to return the name for the given object, if set
 func (co *CfgObj) GetName() (string, bool) {
 	key := co.Type.String() + "_name"
-	return co.Get(key)
+	name, found := co.Get(key)
+	if !found {
+		return co.Get("name")
+	}
+	return name, found
 }
 
 // GetDescription tries to get the description for the given object, if set
@@ -147,13 +150,22 @@ func (co *CfgObj) GetDescription() (string, bool) {
 func (co *CfgObj) generateComment() bool {
 	var name string
 	var success bool
+	var is_template bool
 	if co.Type == T_SERVICE {
 		name, success = co.GetDescription()
+		if !success {
+			name, success = co.GetName() // in case it's a template, not a real service
+			is_template = success
+		}
 	} else {
 		name, success = co.GetName()
 	}
 	if success && strings.Index(co.Comment, "%") > -1 {
-		co.Comment = fmt.Sprintf(co.Comment, name)
+		if is_template {
+			co.Comment = fmt.Sprintf("# %s template '%s'", co.Type.String(), name)
+		} else {
+			co.Comment = fmt.Sprintf(co.Comment, name)
+		}
 	}
 	return success
 }
