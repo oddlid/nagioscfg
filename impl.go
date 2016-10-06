@@ -197,6 +197,7 @@ func (cos CfgObjs) AutoAlign() int {
 	return align
 }
 
+// Add appends an object to CfgObjs
 func (cos CfgObjs) Add(co *CfgObj) {
 	// Should have some duplicate checking here
 	cos = append(cos, *co)
