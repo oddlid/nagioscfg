@@ -200,19 +200,17 @@ func (cos CfgObjs) AutoAlign() int {
 // Add appends an object to CfgObjs
 func (cos CfgObjs) Add(co *CfgObj) {
 	// Should have some duplicate checking here
-	cos = append(cos, *co)
+	cos = append(cos, co)
 }
 
 // Del deletes an object from CfgObjs based on index
 // See also: https://github.com/golang/go/wiki/SliceTricks
 func (cos CfgObjs) Del(index int) {
-	cos = append(cos[:index], cos[index+1:]...)
+	//cos = append(cos[:index], cos[index+1:]...)
 	// Should this have memory leak problems, try this instead:
-	/*
-	copy(cos[i:], cos[i+1:])
+	copy(cos[index:], cos[index+1:])
 	cos[len(cos)-1] = nil // or CfgObj{} instead of nil
 	cos = cos[:len(cos)-1]
-	*/
 }
 
 // Find returns a collection of CfgObj based on a string match

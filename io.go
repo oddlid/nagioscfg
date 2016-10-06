@@ -228,7 +228,7 @@ func (r *Reader) ReadAll() (CfgObjs, error) {
 	for {
 		obj, err = r.Read()
 		if err == nil && obj != nil {
-			objs = append(objs, *obj)
+			objs = append(objs, obj)
 		}
 		if err != nil {
 			if err != io.EOF {

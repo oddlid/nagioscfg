@@ -64,6 +64,16 @@ func TestReadFile(t *testing.T) {
 	t.Log("Number of objets read: ", len(objs))
 }
 
+func TestObjReadFile(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	cf := NewCfgFile(path)
+	err := cf.Read()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log("Number of objets read: ", len(cf.Objs))
+}
+
 func TestWriteFile(t *testing.T) {
 	src := "../op5_automation/cfg/etc/services.cfg"
 	dst := "/tmp/services.cfg"
@@ -73,6 +83,22 @@ func TestWriteFile(t *testing.T) {
 	}
 	t.Log("Number of objets read: ", len(objs))
 	err = WriteFile(dst, objs)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestObjWriteFile(t *testing.T) {
+	src := "../op5_automation/cfg/etc/services.cfg"
+	dst := "/tmp/services.cfg"
+	cf := NewCfgFile(src)
+	err := cf.Read()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log("Number of objets read: ", len(cf.Objs))
+	cf.Path = dst
+	err = cf.Write()
 	if err != nil {
 		t.Error(err)
 	}
