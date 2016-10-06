@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"unicode"
 )
@@ -261,9 +262,48 @@ func (cos CfgObjs) Print(w io.Writer) {
 }
 
 func ReadFile(fileName string) (CfgObjs, error) {
-	return nil, nil
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	r := NewReader(file)
+	objs, err := r.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+	return objs, nil
 }
 
-func WriteFile(fileName string) error {
+func WriteFile(fileName string, objs CfgObjs) error {
+	file, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	w := bufio.NewWriter(file)
+	objs.Print(w)
+	w.Flush()
 	return nil
+}
+
+func NewCfgFile(path string) *CfgFile {
+	return &CfgFile{
+		Path: path,
+	}
+}
+
+func (cf *CfgFile) Read() error {
+	objs, err := ReadFile(cf.Path)
+	if err != nil {
+		return err
+	}
+	if objs != nil {
+		cf.Objs = objs
+	}
+	return nil
+}
+
+func (cf *CfgFile) Write() error {
+	return WriteFile(cf.Path, cf.Objs)
 }

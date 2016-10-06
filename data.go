@@ -151,3 +151,7 @@ type CfgObj struct {
 	Comment string
 }
 
+type CfgFile struct {
+	Path string
+	Objs CfgObjs
+}
