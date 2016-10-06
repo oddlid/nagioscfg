@@ -61,7 +61,7 @@ func TestReadFile(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(len(objs))
+	t.Log("Number of objets read: ", len(objs))
 }
 
 func TestWriteFile(t *testing.T) {
@@ -71,7 +71,7 @@ func TestWriteFile(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Log(len(objs))
+	t.Log("Number of objets read: ", len(objs))
 	err = WriteFile(dst, objs)
 	if err != nil {
 		t.Error(err)
