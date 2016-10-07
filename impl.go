@@ -176,6 +176,18 @@ func (co *CfgObj) AutoAlign() int {
 	return co.Align
 }
 
+// size returns the runtime bytes size for the given objects map ( to calculate objs from input file size). Only for debugging.
+/*
+func (co *CfgObj) size() int {
+	var size int
+	for k, v := range co.Props {
+		size += co.Indent + (co.Align - len(k)) + len(v)
+	}
+	size += 64 // approx buffer for comments etc.
+	return size
+}
+*/
+
 // LongestKey returns the length of the longest key in a collection of CfgObj
 func (cos CfgObjs) LongestKey() int {
 	max := 0
@@ -215,5 +227,6 @@ func (cos CfgObjs) Del(index int) {
 
 // Find returns a collection of CfgObj based on a string match
 func (cos CfgObjs) Find(match string) (CfgObjs, error) {
+	// Oh my fucking Odd, how am I gonna approach this....gagaaajjjjhhhhhh
 	return nil, nil
 }

@@ -145,10 +145,10 @@ type Printer interface {
 
 type CfgObj struct {
 	Type    CfgType
-	Props   map[string]string
 	Indent  int
 	Align   int
 	Comment string
+	Props   map[string]string
 }
 
 type CfgFile struct {

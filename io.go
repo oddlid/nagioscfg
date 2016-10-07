@@ -205,7 +205,7 @@ func (r *Reader) Read() (*CfgObj, error) {
 				}
 				co.Add(fields[0], strings.Join(fields[1:fl], " "))
 			case IO_OBJ_END:
-				//co.generateComment() // might not be the right place to set this. Maybe at write-out instead...
+				//fmt.Printf("Obj size: %d\n", co.size()) // approx avg turned out to be ~362 bytes per declaration for our services.cfg file
 				return co, nil
 			default:
 				return nil, r.error(ErrUnknown)
@@ -222,7 +222,8 @@ func (r *Reader) Read() (*CfgObj, error) {
 
 // ReadAll calls Read repeatedly and returns all config objects it collects
 func (r *Reader) ReadAll() (CfgObjs, error) {
-	objs := make(CfgObjs, 0, 6163) // 10 should be a better guessed value
+	// Should make a version of this that approximates the number of entries based on the bytes size of the file and allocates near that number
+	objs := make(CfgObjs, 0, 64) // should find a way to calculate the approx number of entries from file/stream size, to avoid more re-alloc than needed and just hit the sweet spot at first try here
 	var obj *CfgObj
 	var err error
 	for {
