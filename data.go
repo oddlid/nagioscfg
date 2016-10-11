@@ -13,6 +13,7 @@ type CfgType int
 type CfgName string
 type IoState int
 type CfgObjs []*CfgObj
+type CfgMap map[string]*CfgObj
 
 //type CfgKey int
 

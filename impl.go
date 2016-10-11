@@ -212,6 +212,42 @@ func (co *CfgObj) size() int {
 }
 */
 
+// GetMap returns a CfgMap filtered on the given type
+func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
+	if len(cos) == 0 {
+		return nil
+	}
+	objmap := make(CfgMap)
+	for i := range cos {
+		if cos[i].Type == typ {
+			var key string
+			switch typ {
+			case T_SERVICE:
+				if global {
+					ret, ok := cos[i].GetUniqueCheckName()
+					if ok {
+						key = ret
+					}
+				} else {
+					ret, ok := cos[i].GetDescription()
+					if ok {
+						key = ret
+					}
+				}
+			default:
+				ret, ok := cos[i].GetName()
+				if ok {
+					key = ret
+				}
+			}
+			if key != "" {
+				objmap[key] = cos[i]
+			}
+		}
+	}
+	return objmap
+}
+
 // LongestKey returns the length of the longest key in a collection of CfgObj
 func (cos CfgObjs) LongestKey() int {
 	max := 0
