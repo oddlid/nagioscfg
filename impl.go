@@ -100,6 +100,14 @@ func (co *CfgObj) AddList(key, sep string, list ...string) bool {
 	return !co.SetList(key, sep, list...) // SetList should return false as key does not exist, so invert the result
 }
 
+// GetHostname returns the value for "host_name" if it exists and the object is a service
+func (co *CfgObj) GetHostname() (name string, ok bool) {
+	if co.Type != T_SERVICE && co.Type != T_HOST {
+		return
+	}
+	return co.Get(CfgKeys[24]) // "host_name"
+}
+
 // GetCheckCommand returns the list value for check_command in a service object
 func (co *CfgObj) GetCheckCommand() []string {
 	if co.Type != T_SERVICE {
@@ -135,7 +143,7 @@ func (co *CfgObj) GetName() (string, bool) {
 	key := co.Type.String() + "_name"
 	name, found := co.Get(key)
 	if !found {
-		return co.Get("name")
+		return co.Get(CfgKeys[37]) // "name"
 	}
 	return name, found
 }
@@ -144,6 +152,22 @@ func (co *CfgObj) GetName() (string, bool) {
 func (co *CfgObj) GetDescription() (string, bool) {
 	key := co.Type.String() + "_description"
 	return co.Get(key)
+}
+
+// GetUniqueCheckName returns host_name + service_description, just as op5 does for a unique ID in the system
+func (co *CfgObj) GetUniqueCheckName() (id string, ok bool) {
+	hostname, ok := co.GetHostname()
+	if !ok {
+		//log.Error("Service has no hostname")
+		return
+	}
+	desc, ok := co.GetDescription()
+	if !ok {
+		return
+	}
+	id = fmt.Sprintf("%s;%s", hostname, desc)
+	ok = true
+	return
 }
 
 // generateComment is set as private, as it makes "unsafe" assumptions about the existing format of the comment

@@ -1,6 +1,7 @@
 package nagioscfg
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"testing"
@@ -167,6 +168,33 @@ func TestGetName(t *testing.T) {
 	if ret != name {
 		t.Errorf("Expected %q, but got %q", name, ret)
 	}
+
+	o = NewCfgObj(T_HOST)
+	key = "name"
+	name = "host-template-something"
+	o.Set(key, name)
+	ret, exists = o.GetName()
+	if !exists {
+		t.Errorf("Expected %q, but got nothing", name)
+	}
+	if ret != name {
+		t.Errorf("Expected %q, but got %q", name, ret)
+	}
+}
+
+func TestGetHostname(t *testing.T) {
+	o := NewCfgObj(T_HOST)
+	k := CfgKeys[24] //"host_name"
+	v := "printserver"
+	o.Set(k, v)
+	ret, exists := o.GetHostname()
+	if !exists {
+		t.Errorf("Expected %q, but got nothing", v)
+		//o.Print(os.Stdout)
+	}
+	if ret != v {
+		t.Errorf("Expected %q, but got %q", v, ret)
+	}
 }
 
 func TestGetDescription(t *testing.T) {
@@ -180,6 +208,24 @@ func TestGetDescription(t *testing.T) {
 	}
 	if ret != name {
 		t.Errorf("Expected %q, but got %q", name, ret)
+	}
+}
+
+func TestGetUniqueCheckName(t *testing.T) {
+	o := NewCfgObj(T_SERVICE)
+	k1 := "host_name"
+	k2 := "service_description"
+	v1 := "host.domain.tld"
+	v2 := "PLING_PLONG_LuftBallong"
+	exp := fmt.Sprintf("%s;%s", v1, v2)
+	o.Set(k1, v1)
+	o.Set(k2, v2)
+	ret, ok := o.GetUniqueCheckName()
+	if !ok {
+		t.Errorf("Expected %q but got nothing", exp)
+	}
+	if exp == "" {
+		t.Errorf("Expected %q but got %q", exp, ret)
 	}
 }
 
