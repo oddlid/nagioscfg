@@ -247,3 +247,40 @@ func TestPrint(t *testing.T) {
 	co.Align = co.LongestKey() + 2
 	co.Print(os.Stdout)
 }
+
+func TestGetMap(t *testing.T) {
+	cos := make(CfgObjs, 0, 3)
+	o := NewCfgObj(T_SERVICE)
+	o.Add("service_description", "Service_1")
+	o.Add("host_name", "testhost")
+	cos = append(cos, o)
+
+	o = NewCfgObj(T_HOST)
+	o.Add("host_name", "testhost")
+	o.Add("address", "127.0.0.1")
+	cos = append(cos, o)
+
+	o = NewCfgObj(T_HOST)
+	o.Add("host_name", "excludedhost")
+	o.Add("address", "127.0.0.1")
+	cos = append(cos, o)
+
+	cos.Print(os.Stdout)
+
+	smap := cos.GetMap(T_SERVICE, true)
+	if smap != nil {
+		fmt.Println("===> Service map:")
+		for k, v := range smap {
+			fmt.Printf("Key: %q\n", k)
+			v.Print(os.Stdout)
+		}
+	}
+	hmap := cos.GetMap(T_HOST, false)
+	if hmap != nil {
+		fmt.Println("===> Host map:")
+		for k, v := range hmap {
+			fmt.Printf("Key: %q\n", k)
+			v.Print(os.Stdout)
+		}
+	}
+}
