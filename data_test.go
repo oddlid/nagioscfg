@@ -227,6 +227,7 @@ func TestGetUniqueCheckName(t *testing.T) {
 	if exp == "" {
 		t.Errorf("Expected %q but got %q", exp, ret)
 	}
+	t.Logf("Unique name: %q", ret)
 }
 
 func TestGenerateComment(t *testing.T) {
