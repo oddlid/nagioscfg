@@ -6,6 +6,7 @@ package nagioscfg
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -170,6 +171,35 @@ func (co *CfgObj) GetUniqueCheckName() (id string, ok bool) {
 	return
 }
 
+// MatchKeys searches the values of the given keys for a match against the given regex. Returns true if all matches, false if not.
+func (co *CfgObj) MatchKeys(rx *Regexp, keys ...string) bool {
+	klen := len(keys)
+	var num_matches int
+	for i := range keys {
+		v, ok := co.Get(keys[i])
+		if !ok {
+			break
+		}
+		if rx.MatchString(v) {
+			num_matches++
+		}
+	}
+	if num_matches == klen {
+		return true
+	}
+	return false
+}
+
+// MatchAny searches all values for an object for a string match. Returns true at first match, or false if no match.
+func (co *CfgObj) MatchAny(rx *Regexp) bool {
+	for k := range co.Props {
+		if rx.MatchString(co.Props[k]) {
+			return true
+		}
+	}
+	return false
+}
+
 // generateComment is set as private, as it makes "unsafe" assumptions about the existing format of the comment
 func (co *CfgObj) generateComment() bool {
 	var name string
@@ -246,6 +276,16 @@ func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
 		}
 	}
 	return objmap
+}
+
+// GetFilteredMap returns a map of objects matching the given filters
+func (cos CfgObjs) GetFilteredMap() CfgMap {
+	// I'm not taking type as an argument, as one might want to seach for stuff that can be attached to several kinds of object, like contact_groups on both hosts and services
+	if len(cos) == 0 {
+		return nil
+	}
+	//matches := make(CfgMap)
+	return nil
 }
 
 // GetServiceMap is a wrapper for GetMap(T_SERVICE, ...)
