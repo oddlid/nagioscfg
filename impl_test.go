@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"testing"
 )
 
@@ -286,4 +287,29 @@ func TestGetMap(t *testing.T) {
 	}
 
 	//...
+}
+
+func TestMatchAny(t *testing.T) {
+	k1 := CfgKeys[24]
+	k2 := CfgKeys[55]
+	rx := regexp.MustCompile(`host[0-9]`)
+	o := NewCfgObj(T_SERVICE)
+	o.Add(k2, "MatchingService")
+	o.Add(k1, "host5")
+
+	if !o.MatchAny(rx) {
+		t.Error("Should find match, but did not")
+	}
+
+	o.Set(k1, "hostfive")
+	if o.MatchAny(rx) {
+		t.Error("Should not match, but it did")
+	}
+
+	o.Add("bogus_key", "somehost666name")
+	if !o.MatchAny(rx) {
+		t.Error("Should find match, but did not")
+	}
+
+	o.Print(os.Stdout)
 }

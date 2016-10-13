@@ -58,76 +58,76 @@ var CfgTypes = [...]CfgName{
 }
 
 var CfgKeys = [...]string{
-	"active_checks_enabled",
-	"address",
-	"alias",
-	"can_submit_commands",
-	"check_command",
-	"check_freshness",
-	"check_interval",
-	"check_period",
-	"command_line",
-	"command_name",
-	"contact_groups",
-	"contact_name",
-	"contactgroup_name",
-	"contactgroups",
-	"contacts",
-	"display_name",
-	"email",
-	"escalation_options",
-	"escalation_period",
-	"event_handler_enabled",
-	"first_notification",
-	"flap_detection_enabled",
-	"flap_detection_options",
-	"friday",
-	"host_name",
-	"host_notification_commands",
-	"host_notification_options",
-	"host_notification_period",
-	"host_notifications_enabled",
-	"hostgroup_members",
-	"hostgroup_name",
-	"hostgroups",
-	"icon_image",
-	"is_volatile",
-	"last_notification",
-	"max_check_attempts",
-	"monday",
-	"name",
-	"notes",
-	"notes_url",
-	"notification_interval",
-	"notification_options",
-	"notification_period",
-	"notifications_enabled",
-	"obsess",
-	"pager",
-	"parallelize_check",
-	"parents",
-	"passive_checks_enabled",
-	"process_perf_data",
-	"register",
-	"retain_nonstatus_information",
-	"retain_status_information",
-	"retry_interval",
-	"saturday",
-	"service_description",
-	"service_notification_commands",
-	"service_notification_options",
-	"service_notification_period",
-	"service_notifications_enabled",
-	"servicegroup_name",
-	"servicegroups",
-	"stalking_options",
-	"statusmap_image",
-	"sunday",
-	"thursday",
-	"timeperiod_name",
-	"tuesday",
-	"use",
-	"wednesday",
+	"active_checks_enabled",         // 00
+	"address",                       // 01
+	"alias",                         // 02
+	"can_submit_commands",           // 03
+	"check_command",                 // 04
+	"check_freshness",               // 05
+	"check_interval",                // 06
+	"check_period",                  // 07
+	"command_line",                  // 08
+	"command_name",                  // 09
+	"contact_groups",                // 10
+	"contact_name",                  // 11
+	"contactgroup_name",             // 12
+	"contactgroups",                 // 13
+	"contacts",                      // 14
+	"display_name",                  // 15
+	"email",                         // 16
+	"escalation_options",            // 17
+	"escalation_period",             // 18
+	"event_handler_enabled",         // 19
+	"first_notification",            // 20
+	"flap_detection_enabled",        // 21
+	"flap_detection_options",        // 22
+	"friday",                        // 23
+	"host_name",                     // 24
+	"host_notification_commands",    // 25
+	"host_notification_options",     // 26
+	"host_notification_period",      // 27
+	"host_notifications_enabled",    // 28
+	"hostgroup_members",             // 29
+	"hostgroup_name",                // 30
+	"hostgroups",                    // 31
+	"icon_image",                    // 32
+	"is_volatile",                   // 33
+	"last_notification",             // 34
+	"max_check_attempts",            // 35
+	"monday",                        // 36
+	"name",                          // 37
+	"notes",                         // 38
+	"notes_url",                     // 39
+	"notification_interval",         // 40
+	"notification_options",          // 41
+	"notification_period",           // 42
+	"notifications_enabled",         // 43
+	"obsess",                        // 44
+	"pager",                         // 45
+	"parallelize_check",             // 46
+	"parents",                       // 47
+	"passive_checks_enabled",        // 48
+	"process_perf_data",             // 49
+	"register",                      // 50
+	"retain_nonstatus_information",  // 51
+	"retain_status_information",     // 52
+	"retry_interval",                // 53
+	"saturday",                      // 54
+	"service_description",           // 55
+	"service_notification_commands", // 56
+	"service_notification_options",  // 57
+	"service_notification_period",   // 58
+	"service_notifications_enabled", // 59
+	"servicegroup_name",             // 60
+	"servicegroups",                 // 61
+	"stalking_options",              // 62
+	"statusmap_image",               // 63
+	"sunday",                        // 64
+	"thursday",                      // 65
+	"timeperiod_name",               // 66
+	"tuesday",                       // 67
+	"use",                           // 68
+	"wednesday",                     // 69
 }
 
 /*
