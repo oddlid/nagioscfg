@@ -351,12 +351,11 @@ func (cos CfgObjs) Add(co *CfgObj) {
 }
 
 // Del deletes an object from CfgObjs based on index
-// See also: https://github.com/golang/go/wiki/SliceTricks
 func (cos CfgObjs) Del(index int) {
 	//cos = append(cos[:index], cos[index+1:]...)
 	// Should this have memory leak problems, try this instead:
 	copy(cos[index:], cos[index+1:])
-	cos[len(cos)-1] = nil // or CfgObj{} instead of nil
+	cos[len(cos)-1] = nil 
 	cos = cos[:len(cos)-1]
 }
 
