@@ -249,6 +249,7 @@ func TestPrint(t *testing.T) {
 }
 
 func TestGetMap(t *testing.T) {
+	// This test does not fail, just shows stuff (yet)
 	cos := make(CfgObjs, 0, 3)
 	o := NewCfgObj(T_SERVICE)
 	o.Add("service_description", "Service_1")
@@ -269,7 +270,7 @@ func TestGetMap(t *testing.T) {
 
 	smap := cos.GetMap(T_SERVICE, true)
 	if smap != nil {
-		fmt.Println("===> Service map:")
+		fmt.Printf("===> Service map (%d):\n", len(smap))
 		for k, v := range smap {
 			fmt.Printf("Key: %q\n", k)
 			v.Print(os.Stdout)
@@ -277,10 +278,12 @@ func TestGetMap(t *testing.T) {
 	}
 	hmap := cos.GetMap(T_HOST, false)
 	if hmap != nil {
-		fmt.Println("===> Host map:")
+		fmt.Printf("===> Host map (%d):\n", len(hmap))
 		for k, v := range hmap {
 			fmt.Printf("Key: %q\n", k)
 			v.Print(os.Stdout)
 		}
 	}
+
+	//...
 }

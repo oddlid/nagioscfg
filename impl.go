@@ -248,6 +248,41 @@ func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
 	return objmap
 }
 
+// GetServiceMap is a wrapper for GetMap(T_SERVICE, ...)
+func (cos CfgObjs) GetServiceMap(global bool) CfgMap {
+	return cos.GetMap(T_SERVICE, global)
+}
+
+// GetHostMap is a wrapper for GetMap(T_HOST, ...)
+func (cos CfgObjs) GetHostMap() CfgMap {
+	return cos.GetMap(T_HOST, false)
+}
+
+// GetCommandMap is a wrapper for GetMap(T_COMMAND, ...)
+func (cos CfgObjs) GetCommandMap() CfgMap {
+	return cos.GetMap(T_COMMAND, false)
+}
+
+// GetContactGroupMap is a wrapper for GetMap(T_CONTACTGROUP, ...)
+func (cos CfgObjs) GetContactGroupMap() CfgMap {
+	return cos.GetMap(T_CONTACTGROUP, false)
+}
+
+// GetContactMap is a wrapper for GetMap(T_CONTACT, ...)
+func (cos CfgObjs) GetContactMap() CfgMap {
+	return cos.GetMap(T_CONTACT, false)
+}
+
+// GetHostGroupMap is a wrapper for GetMap(T_HOSTGROUP, ...)
+func (cos CfgObjs) GetHostGroupMap() CfgMap {
+	return cos.GetMap(T_HOSTGROUP, false)
+}
+
+// GetServiceGroupMap is a wrapper for GetMap(T_SERVICEGROUP, ...)
+func (cos CfgObjs) GetServiceGroupMap() CfgMap {
+	return cos.GetMap(T_SERVICEGROUP, false)
+}
+
 // LongestKey returns the length of the longest key in a collection of CfgObj
 func (cos CfgObjs) LongestKey() int {
 	max := 0
