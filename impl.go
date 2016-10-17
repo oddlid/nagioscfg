@@ -250,7 +250,7 @@ func (cos CfgObjs) MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjs {
 	}
 	m := make(CfgObjs, 0, objlen)
 	for i := range cos {
-		if cos[i].MatchKeys(rx, keys) {
+		if cos[i].MatchKeys(rx, keys...) {
 			m = append(m, cos[i])
 		}
 	}
@@ -382,17 +382,26 @@ func (cos CfgObjs) AutoAlign() int {
 }
 
 // Add appends an object to CfgObjs
-func (cos CfgObjs) Add(co *CfgObj) {
+func (cos *CfgObjs) Add(co *CfgObj) {
 	// Should have some duplicate checking here
-	cos = append(cos, co)
+	*cos = append(*cos, co)
 }
 
 // Del deletes an object from CfgObjs based on index
-func (cos CfgObjs) Del(index int) {
+func (cos *CfgObjs) Del(index int) {
 	//cos = append(cos[:index], cos[index+1:]...)
 	// Should this have memory leak problems, try this instead:
-	copy(cos[index:], cos[index+1:])
-	cos[len(cos)-1] = nil
-	cos = cos[:len(cos)-1]
+	//copy(cos[index:], cos[index+1:])
+	//cos[len(cos)-1] = nil
+	//cos = cos[:len(cos)-1]
+	// The above solutions have problems, so seems we need to come up with something more safe
+	// Until I can figure out something better, we allocate a new slie and copy over
+	o := make(CfgObjs, 0, len(*cos)-1)
+	for i := range *cos {
+		if i != index {
+			o = append(o, (*cos)[i])
+		}
+	}
+	*cos = o
 }
 
