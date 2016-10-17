@@ -313,3 +313,45 @@ func TestMatchAny(t *testing.T) {
 
 	o.Print(os.Stdout)
 }
+
+func TestMatchKeys(t *testing.T) {
+	k1 := CfgKeys[24] // host_name
+	k2 := CfgKeys[55] // service_description
+	k3 := CfgKeys[0]  // active_checks_enabled
+
+	objs := make(CfgObjs, 0, 3)
+	objs = append(objs, NewCfgObj(T_SERVICE))
+	objs[0].Add(k1, "DummyHost")
+	objs[0].Add(k2, "DummyCheck")
+	objs[0].Add(k3, "0")
+
+	objs = append(objs, NewCfgObj(T_HOST))
+	objs[1].Add(k1, "DummyHost2")
+	objs[1].Add(k3, "1")
+
+	objs = append(objs, NewCfgObj(T_SERVICE))
+	objs[2].Add(k1, "otherhost")
+	objs[2].Add(k2, "OtherCheck")
+	objs[2].Add(k3, "1")
+
+	rx := regexp.MustCompile(`Dummy.*`)
+
+	objs.Print(os.Stdout)
+
+	if !objs[0].MatchKeys(rx, k1, k2) {
+		t.Error("Should match, but did not")
+	}
+	if objs[1].MatchKeys(rx, k1, k2) {
+		t.Error("Should not match, but did")
+	}
+	if objs[2].MatchKeys(rx, k1, k2) {
+		t.Error("Should not match, but did")
+	}
+
+	rx = regexp.MustCompile(`[01]`)
+	for i := range objs {
+		if !objs[i].MatchKeys(rx, k3) {
+			t.Error("Should match, but did not")
+		}
+	}
+}

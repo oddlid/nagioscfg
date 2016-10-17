@@ -280,7 +280,8 @@ func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
 
 // GetFilteredMap returns a map of objects matching the given filters
 func (cos CfgObjs) GetFilteredMap() CfgMap {
-	// I'm not taking type as an argument, as one might want to seach for stuff that can be attached to several kinds of object, like contact_groups on both hosts and services
+	// I'm not taking type as an argument, as one might want to seach for stuff that can be 
+	// attached to several kinds of objects, like contact_groups on both hosts and services
 	if len(cos) == 0 {
 		return nil
 	}
@@ -355,7 +356,7 @@ func (cos CfgObjs) Del(index int) {
 	//cos = append(cos[:index], cos[index+1:]...)
 	// Should this have memory leak problems, try this instead:
 	copy(cos[index:], cos[index+1:])
-	cos[len(cos)-1] = nil 
+	cos[len(cos)-1] = nil
 	cos = cos[:len(cos)-1]
 }
 
