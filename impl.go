@@ -242,6 +242,42 @@ func (co *CfgObj) size() int {
 }
 */
 
+// MatchKeys runs MatchKeys for each obj and returns a collection of CfgObjs that match
+func (cos CfgObjs) MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjs {
+	objlen := len(cos)
+	if objlen == 0 {
+		return nil
+	}
+	m := make(CfgObjs, 0, objlen)
+	for i := range cos {
+		if cos[i].MatchKeys(rx, keys) {
+			m = append(m, cos[i])
+		}
+	}
+	if len(m) > 0 {
+		return m
+	}
+	return nil
+}
+
+// MatchAny runs MatchAny for each obj and returns a collection of CfgObjs that match
+func (cos CfgObjs) MatchAny(rx *regexp.Regexp) CfgObjs {
+	objlen := len(cos)
+	if objlen == 0 {
+		return nil
+	}
+	m := make(CfgObjs, 0, objlen)
+	for i := range cos {
+		if cos[i].MatchAny(rx) {
+			m = append(m, cos[i])
+		}
+	}
+	if len(m) > 0 {
+		return m
+	}
+	return nil
+}
+
 // GetMap returns a CfgMap filtered on the given type
 func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
 	if len(cos) == 0 {
@@ -360,8 +396,3 @@ func (cos CfgObjs) Del(index int) {
 	cos = cos[:len(cos)-1]
 }
 
-// Find returns a collection of CfgObj based on a string match
-func (cos CfgObjs) Find(match string) (CfgObjs, error) {
-	// Oh my fucking Odd, how am I gonna approach this....gagaaajjjjhhhhhh
-	return nil, nil
-}
