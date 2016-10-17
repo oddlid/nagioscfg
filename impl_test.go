@@ -301,6 +301,19 @@ func TestDel2(t *testing.T) {
 	o.Print(os.Stdout)
 }
 
+func BenchmarkDel2(b *testing.B) {
+	o := make(CfgObjs, b.N, b.N)
+	for i := 0; i < b.N; i++ {
+		o[i] = &CfgObj{}
+		//o.Add(NewCfgObj(T_SERVICE))
+		//o[i].Add("host_name", string(i))
+		//o[i].Add("service_description", string(i))
+	}
+	for i := 0; i < b.N; i++ {
+		o.Del(0)
+	}
+}
+
 func TestGetMap(t *testing.T) {
 	// This test does not fail, just shows stuff (yet)
 	cos := make(CfgObjs, 0, 3)
