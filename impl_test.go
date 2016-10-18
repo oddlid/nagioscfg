@@ -1,6 +1,7 @@
 package nagioscfg
 
 import (
+	"container/list"
 	"fmt"
 	"os"
 	"reflect"
@@ -309,8 +310,22 @@ func BenchmarkDel2(b *testing.B) {
 		//o[i].Add("host_name", string(i))
 		//o[i].Add("service_description", string(i))
 	}
+	// Testing shows that deleting from the end of the slice is very fast, while deleting from the middle or beginning is horrendously slow.
+	// I should try to test the swap-last-and-shrink technique as well
 	for i := 0; i < b.N; i++ {
+		//o.Del(len(o)-1)
 		o.Del(0)
+	}
+}
+
+func BenchmarkDelFromList(b *testing.B) {
+	l := list.New()
+	for i := 0; i <= b.N; i++ {
+		//l.PushBack(&CfgObj{})
+		l.PushBack(NewCfgObj(T_SERVICE))
+	}
+	for e := l.Front(); e != nil; e = e.Next() {
+		l.Remove(e)
 	}
 }
 

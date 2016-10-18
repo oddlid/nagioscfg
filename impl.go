@@ -316,7 +316,7 @@ func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
 
 // GetFilteredMap returns a map of objects matching the given filters
 func (cos CfgObjs) GetFilteredMap() CfgMap {
-	// I'm not taking type as an argument, as one might want to seach for stuff that can be 
+	// I'm not taking type as an argument, as one might want to seach for stuff that can be
 	// attached to several kinds of objects, like contact_groups on both hosts and services
 	if len(cos) == 0 {
 		return nil
@@ -390,12 +390,20 @@ func (cos *CfgObjs) Add(co *CfgObj) {
 // Del deletes an object from CfgObjs based on index
 func (cos *CfgObjs) Del(index int) {
 	//cos = append(cos[:index], cos[index+1:]...)
+
 	// Should this have memory leak problems, try this instead:
-	copy((*cos)[index:], (*cos)[index+1:])
+	//copy((*cos)[index:], (*cos)[index+1:])
+	//(*cos)[len(*cos)-1] = nil
+	//(*cos) = (*cos)[:len(*cos)-1]
+
+	// Without preserving order:
+	// This is after benchmarking the by far most efficient method, even better than using container/List,
+	// which is almost as fast
+	(*cos)[index] = (*cos)[len(*cos)-1]
 	(*cos)[len(*cos)-1] = nil
 	(*cos) = (*cos)[:len(*cos)-1]
-	// The above solutions have problems, so seems we need to come up with something more safe
-	// Until I can figure out something better, we allocate a new slie and copy over
+
+	// This version uses a lot more memory (~1000x), but is much faster if deleting from the beginning of the slice (~3x)
 	//o := make(CfgObjs, 0, len(*cos)-1)
 	//for i := range *cos {
 	//	if i != index {
@@ -404,4 +412,3 @@ func (cos *CfgObjs) Del(index int) {
 	//}
 	//*cos = o
 }
-
