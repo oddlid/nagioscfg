@@ -5,6 +5,7 @@ Function/method implementations for types from data.go
 package nagioscfg
 
 import (
+	"container/list"
 	"fmt"
 	"regexp"
 	"strings"
@@ -241,6 +242,14 @@ func (co *CfgObj) size() int {
 	return size
 }
 */
+
+func (cos CfgObjs) ToList() *list.List {
+	l := list.New()
+	for i := range cos {
+		l.PushBack(cos[i])
+	}
+	return l
+}
 
 // MatchKeys runs MatchKeys for each obj and returns a collection of CfgObjs that match
 func (cos CfgObjs) MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjs {
