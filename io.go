@@ -9,6 +9,7 @@ See: https://golang.org/LICENSE
 import (
 	"bufio"
 	"bytes"
+	"container/list"
 	"errors"
 	"fmt"
 	"io"
@@ -240,6 +241,25 @@ func (r *Reader) ReadAll() (CfgObjs, error) {
 		}
 	}
 	return objs, nil
+}
+
+// ReadAllList does the same as ReadAll, but returns a list instead of a slice
+func (r *Reader) ReadAllList() (*list.List, error) {
+	l := list.New()
+	for {
+		obj, err := r.Read()
+		if err == nil && obj != nil {
+			l.PushBack(obj)
+		}
+		if err != nil {
+			if err != io.EOF {
+				return l, err
+			} else {
+				break
+			}
+		}
+	}
+	return l, nil
 }
 
 // Print prints out a CfgObj in Nagios format
