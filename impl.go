@@ -5,11 +5,28 @@ Function/method implementations for types from data.go
 package nagioscfg
 
 import (
+	"bytes"
 	"container/list"
+	"crypto/rand"
 	"fmt"
 	"regexp"
 	"strings"
 )
+
+func NewUUIDv4() UUID {
+	u := UUID{}
+	_, err := rand.Read(u[:])
+	if err != nil {
+		panic(err)
+	}
+	u[6] = (u[6] & 0x0f) | (4 << 4) // set version 4
+	u[8] = (u[8] & 0xbf) | 0x80     // set variant
+	return u
+}
+
+func (u UUID) Equals(u2 UUID) bool {
+	return bytes.Equal(u[:], u2[:])
+}
 
 func NewCfgObj(ct CfgType) *CfgObj {
 	p := make(map[string]string)
@@ -18,6 +35,7 @@ func NewCfgObj(ct CfgType) *CfgObj {
 		Props:   p,
 		Indent:  DEF_INDENT,
 		Align:   DEF_ALIGN,
+		UUID:    NewUUIDv4(),
 		Comment: "# " + ct.String() + " '%s'",
 	}
 }

@@ -329,6 +329,12 @@ func BenchmarkDelFromList(b *testing.B) {
 	}
 }
 
+func BenchmarkNewUUIDv4(b *testing.B) {
+	for i := 0; i <= b.N; i++ {
+		NewUUIDv4()
+	}
+}
+
 func TestGetMap(t *testing.T) {
 	// This test does not fail, just shows stuff (yet)
 	cos := make(CfgObjs, 0, 3)

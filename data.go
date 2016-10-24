@@ -17,6 +17,10 @@ type CfgMap map[string]*CfgObj
 
 //type CfgKey int
 
+// UUID representation compliant with specification
+// described in RFC 4122.
+type UUID [16]byte
+
 const (
 	T_COMMAND CfgType = iota
 	T_CONTACTGROUP
@@ -146,8 +150,10 @@ type Printer interface {
 
 type CfgObj struct {
 	Type    CfgType
+	UUID    UUID
 	Indent  int
 	Align   int
+	FileID  string
 	Comment string
 	Props   map[string]string
 }
