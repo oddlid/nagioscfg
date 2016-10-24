@@ -7,15 +7,16 @@ package nagioscfg
 import (
 	"bytes"
 	"container/list"
-	"crypto/rand"
+	//"crypto/rand"
 	"fmt"
 	"regexp"
 	"strings"
 )
 
 func NewUUIDv4() UUID {
+	// I should probably find another way to generate IDs, as this seems unnecessary slow...
 	u := UUID{}
-	_, err := rand.Read(u[:])
+	_, err := rand.Read(u[:]) // this step seems to be quite slow, like about 138 times slower than when the values are statically set...
 	if err != nil {
 		panic(err)
 	}
@@ -29,10 +30,9 @@ func (u UUID) Equals(u2 UUID) bool {
 }
 
 func NewCfgObj(ct CfgType) *CfgObj {
-	p := make(map[string]string)
 	return &CfgObj{
 		Type:    ct,
-		Props:   p,
+		Props:   make(map[string]string),
 		Indent:  DEF_INDENT,
 		Align:   DEF_ALIGN,
 		UUID:    NewUUIDv4(),
@@ -438,4 +438,15 @@ func (cos *CfgObjs) Del(index int) {
 	//	}
 	//}
 	//*cos = o
+}
+
+// DelUUID deletes the object with a matching UUID. Does not keep slice in order.
+func (cos *CfgObjs) DelUUID(u UUID) {
+	for i := range (*cos) {
+		if (*cos)[i].UUID.Equals(u) {
+			(*cos)[i] = (*cos)[len(*cos)-1]
+			(*cos)[len(*cos)-1] = nil
+			(*cos) = (*cos)[:len(*cos)-1]
+		}
+	}
 }
