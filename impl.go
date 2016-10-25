@@ -5,29 +5,11 @@ Function/method implementations for types from data.go
 package nagioscfg
 
 import (
-	"bytes"
 	"container/list"
-	//"crypto/rand"
 	"fmt"
 	"regexp"
 	"strings"
 )
-
-func NewUUIDv4() UUID {
-	// I should probably find another way to generate IDs, as this seems unnecessary slow...
-	u := UUID{}
-	_, err := rand.Read(u[:]) // this step seems to be quite slow, like about 138 times slower than when the values are statically set...
-	if err != nil {
-		panic(err)
-	}
-	u[6] = (u[6] & 0x0f) | (4 << 4) // set version 4
-	u[8] = (u[8] & 0xbf) | 0x80     // set variant
-	return u
-}
-
-func (u UUID) Equals(u2 UUID) bool {
-	return bytes.Equal(u[:], u2[:])
-}
 
 func NewCfgObj(ct CfgType) *CfgObj {
 	return &CfgObj{
@@ -35,7 +17,7 @@ func NewCfgObj(ct CfgType) *CfgObj {
 		Props:   make(map[string]string),
 		Indent:  DEF_INDENT,
 		Align:   DEF_ALIGN,
-		UUID:    NewUUIDv4(),
+		//UUID:    NewUUIDv4(),
 		Comment: "# " + ct.String() + " '%s'",
 	}
 }
