@@ -335,6 +335,12 @@ func BenchmarkNewCfgObj(b *testing.B) {
 	}
 }
 
+func BenchmarkNewCfgObjWithUUID(b *testing.B) {
+	for i := 0; i <= b.N; i++ {
+		NewCfgObjWithUUID(T_SERVICE)
+	}
+}
+
 func TestGetMap(t *testing.T) {
 	// This test does not fail, just shows stuff (yet)
 	cos := make(CfgObjs, 0, 3)

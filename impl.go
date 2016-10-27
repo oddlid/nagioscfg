@@ -11,15 +11,22 @@ import (
 	"strings"
 )
 
+// NewCfgObj returns an initialized CfgObj instance, but without UUID set, as that is a slightly costly operation
 func NewCfgObj(ct CfgType) *CfgObj {
 	return &CfgObj{
 		Type:    ct,
 		Props:   make(map[string]string),
 		Indent:  DEF_INDENT,
 		Align:   DEF_ALIGN,
-		//UUID:    NewUUIDv4(),
 		Comment: "# " + ct.String() + " '%s'",
 	}
+}
+
+// NewCfgObjWithUUID returns ad initialized CfgObj instance, with UUID set
+func NewCfgObjWithUUID(ct CfgType) *CfgObj {
+	o := NewCfgObj(ct)
+	o.UUID = NewUUIDv1()
+	return o
 }
 
 // String returns the string representation of the CfgType
@@ -323,6 +330,9 @@ func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
 	return objmap
 }
 
+// GetUUIDMap returns a CfgMap with each CfgObj's UUID as the key
+
+/*
 // GetFilteredMap returns a map of objects matching the given filters
 func (cos CfgObjs) GetFilteredMap() CfgMap {
 	// I'm not taking type as an argument, as one might want to seach for stuff that can be
@@ -333,6 +343,7 @@ func (cos CfgObjs) GetFilteredMap() CfgMap {
 	//matches := make(CfgMap)
 	return nil
 }
+*/
 
 // GetServiceMap is a wrapper for GetMap(T_SERVICE, ...)
 func (cos CfgObjs) GetServiceMap(global bool) CfgMap {
