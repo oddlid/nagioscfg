@@ -1,5 +1,11 @@
 package nagioscfg
 
+/*
+This file is a very compressed and simplified version of:
+https://github.com/satori/go.uuid/blob/master/uuid.go
+adjusted to only cater for my specific needs here.
+*/
+
 import (
 	"bytes"
 	"crypto/rand"
@@ -10,57 +16,50 @@ import (
 )
 
 var (
-	storageMutex  sync.Mutex
-	storageOnce   sync.Once
-	clockSequence uint16
-	lastTime      uint64
-	hardwareAddr  [6]byte
+	sMutex   sync.Mutex
+	sOnce    sync.Once
+	clockSeq uint16
+	lastTime uint64
+	hwAddr   [6]byte
 )
-
-func safeRandom(dest []byte) {
-	if _, err := rand.Read(dest); err != nil {
-		panic(err)
-	}
-}
-
-func initStorage() {
-	buf := make([]byte, 2)
-	safeRandom(buf)
-	clockSequence = binary.BigEndian.Uint16(buf)
-
-	interfaces, err := net.Interfaces()
-	if err == nil {
-		for _, iface := range interfaces {
-			if len(iface.HardwareAddr) >= 6 {
-				copy(hardwareAddr[:], iface.HardwareAddr)
-				return
-			}
-		}
-	}
-	hardwareAddr[0] |= 0x01
-}
 
 func NewUUIDv1() UUID {
 	u := UUID{}
 
-	storageOnce.Do(initStorage)
+	sOnce.Do(func() {
+		buf := make([]byte, 2)
+		if _, err := rand.Read(buf); err != nil {
+			panic(err)
+		}
+		clockSeq = binary.BigEndian.Uint16(buf)
+		interfaces, err := net.Interfaces()
+		if err == nil {
+			for _, iface := range interfaces {
+				if len(iface.HardwareAddr) >= 6 {
+					copy(hwAddr[:], iface.HardwareAddr)
+					return
+				}
+			}
+		}
+		hwAddr[0] |= 0x01
+	})
 
-	storageMutex.Lock()
+	sMutex.Lock()
 	timeNow := 122192928000000000 + uint64(time.Now().UnixNano()/100)
-	// Clock changed backwards since last UUID generation.
-	// Should increase clock sequence.
+	// If clock changed backwards since last UUID generation,
+	// we should increase clock sequence.
 	if timeNow <= lastTime {
-		clockSequence++
+		clockSeq++
 	}
 	lastTime = timeNow
-	storageMutex.Unlock()
+	sMutex.Unlock()
 
 	binary.BigEndian.PutUint32(u[0:], uint32(timeNow))
 	binary.BigEndian.PutUint16(u[4:], uint16(timeNow>>32))
 	binary.BigEndian.PutUint16(u[6:], uint16(timeNow>>48))
-	binary.BigEndian.PutUint16(u[8:], clockSequence)
+	binary.BigEndian.PutUint16(u[8:], clockSeq)
 
-	copy(u[10:], hardwareAddr[:])
+	copy(u[10:], hwAddr[:])
 
 	u[6] = (u[6] & 0x0f) | (1 << 4) // set version 4
 	u[8] = (u[8] & 0xbf) | 0x80     // set variant
