@@ -31,7 +31,7 @@ define service{
 func TestRead(t *testing.T) {
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
-	co, err := rdr.Read()
+	co, err := rdr.Read(false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestReadAll(t *testing.T) {
 	//t.Skip("Not implemented yet")
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
-	cos, err := rdr.ReadAll()
+	cos, err := rdr.ReadAll(false)
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -57,7 +57,7 @@ func TestReadAll(t *testing.T) {
 
 func TestReadFile(t *testing.T) {
 	path := "../op5_automation/cfg/etc/services.cfg"
-	objs, err := ReadFile(path)
+	objs, err := ReadFile(path, false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -67,7 +67,7 @@ func TestReadFile(t *testing.T) {
 func TestObjReadFile(t *testing.T) {
 	path := "../op5_automation/cfg/etc/services.cfg"
 	cf := NewCfgFile(path)
-	err := cf.Read()
+	err := cf.Read(false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -77,7 +77,7 @@ func TestObjReadFile(t *testing.T) {
 func TestWriteFile(t *testing.T) {
 	src := "../op5_automation/cfg/etc/services.cfg"
 	dst := "/tmp/services.cfg"
-	objs, err := ReadFile(src)
+	objs, err := ReadFile(src, false)
 	if err != nil {
 		t.Error(err)
 	}
@@ -92,7 +92,7 @@ func TestObjWriteFile(t *testing.T) {
 	src := "../op5_automation/cfg/etc/services.cfg"
 	dst := "/tmp/services.cfg"
 	cf := NewCfgFile(src)
-	err := cf.Read()
+	err := cf.Read(false)
 	if err != nil {
 		t.Error(err)
 	}

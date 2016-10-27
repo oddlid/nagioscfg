@@ -181,7 +181,7 @@ func (r *Reader) parseLine() (fields []string, state IoState, err error) {
 
 // Read reads from a Nagios config stream and returns the next config object.
 // Should be called repeatedly. Returns err = io.EOF when done (really? Does it?)
-func (r *Reader) Read() (*CfgObj, error) {
+func (r *Reader) Read(setUUID bool) (*CfgObj, error) {
 	var fields []string
 	var state IoState
 	var err error
@@ -196,7 +196,11 @@ func (r *Reader) Read() (*CfgObj, error) {
 				if ct == -1 {
 					return nil, r.error(ErrUnknown)
 				}
-				co = NewCfgObj(ct)
+				if setUUID {
+					co = NewCfgObjWithUUID(ct)
+				} else {
+					co = NewCfgObj(ct)
+				}
 			case IO_OBJ_IN:
 				fl := len(fields)
 				//_debug(fields)
@@ -222,13 +226,13 @@ func (r *Reader) Read() (*CfgObj, error) {
 }
 
 // ReadAll calls Read repeatedly and returns all config objects it collects
-func (r *Reader) ReadAll() (CfgObjs, error) {
+func (r *Reader) ReadAll(setUUID bool) (CfgObjs, error) {
 	// Should make a version of this that approximates the number of entries based on the bytes size of the file and allocates near that number
 	objs := make(CfgObjs, 0, 64) // should find a way to calculate the approx number of entries from file/stream size, to avoid more re-alloc than needed and just hit the sweet spot at first try here
 	var obj *CfgObj
 	var err error
 	for {
-		obj, err = r.Read()
+		obj, err = r.Read(setUUID)
 		if err == nil && obj != nil {
 			objs = append(objs, obj)
 		}
@@ -244,10 +248,10 @@ func (r *Reader) ReadAll() (CfgObjs, error) {
 }
 
 // ReadAllList does the same as ReadAll, but returns a list instead of a slice
-func (r *Reader) ReadAllList() (*list.List, error) {
+func (r *Reader) ReadAllList(setUUID bool) (*list.List, error) {
 	l := list.New()
 	for {
-		obj, err := r.Read()
+		obj, err := r.Read(setUUID)
 		if err == nil && obj != nil {
 			l.PushBack(obj)
 		}
@@ -283,14 +287,14 @@ func (cos CfgObjs) Print(w io.Writer) {
 	}
 }
 
-func ReadFile(fileName string) (CfgObjs, error) {
+func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 	r := NewReader(file)
-	objs, err := r.ReadAll()
+	objs, err := r.ReadAll(setUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -317,8 +321,8 @@ func NewCfgFile(path string) *CfgFile {
 	}
 }
 
-func (cf *CfgFile) Read() error {
-	objs, err := ReadFile(cf.Path)
+func (cf *CfgFile) Read(setUUID bool) error {
+	objs, err := ReadFile(cf.Path, setUUID)
 	if err != nil {
 		return err
 	}
