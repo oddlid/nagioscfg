@@ -55,6 +55,17 @@ func TestReadAll(t *testing.T) {
 	}
 }
 
+func TestReadAllMap(t *testing.T) {
+	str_r := strings.NewReader(cfgobjstr)
+	rdr := NewReader(str_r)
+	m, err := rdr.ReadAllMap()
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Logf("=== Map: ===\n%s\n", m.Dump())
+	}
+}
+
 func TestReadFile(t *testing.T) {
 	path := "../op5_automation/cfg/etc/services.cfg"
 	objs, err := ReadFile(path, false)

@@ -435,7 +435,7 @@ func (cos *CfgObjs) Del(index int) {
 
 // DelUUID deletes the object with a matching UUID. Does not keep slice in order.
 func (cos *CfgObjs) DelUUID(u UUID) {
-	for i := range (*cos) {
+	for i := range *cos {
 		if (*cos)[i].UUID.Equals(u) {
 			(*cos)[i] = (*cos)[len(*cos)-1]
 			(*cos)[len(*cos)-1] = nil

@@ -266,6 +266,24 @@ func (r *Reader) ReadAllList(setUUID bool) (*list.List, error) {
 	return l, nil
 }
 
+func (r *Reader) ReadAllMap() (CfgMap, error) {
+	m := make(CfgMap)
+	for {
+		obj, err := r.Read(true)
+		if err == nil && obj != nil {
+			m[string(obj.UUID[:])] = obj
+		}
+		if err != nil {
+			if err != io.EOF {
+				return m, err
+			} else {
+				break
+			}
+		}
+	}
+	return m, nil
+}
+
 // Print prints out a CfgObj in Nagios format
 func (co *CfgObj) Print(w io.Writer) {
 	prefix := strings.Repeat(" ", co.Indent)
@@ -285,6 +303,22 @@ func (cos CfgObjs) Print(w io.Writer) {
 		cos[i].Print(w)
 		fmt.Fprint(w, "\n")
 	}
+}
+
+func (cm CfgMap) Dump() string {
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	for k, v := range cm {
+		fmt.Fprintf(w, "Key     : %s\n", k)
+		fmt.Fprintf(w, "UUID    : %s\n", v.UUID.String())
+		fmt.Fprintf(w, "Type    : %s\n", v.Type.String())
+		fmt.Fprintf(w, "Indent  : %d\n", v.Indent)
+		fmt.Fprintf(w, "Align   : %d\n", v.Align)
+		fmt.Fprintf(w, "File ID : %s\n", v.FileID)
+		v.Print(w)
+	}
+	w.Flush()
+	return buf.String()
 }
 
 func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
