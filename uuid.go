@@ -84,6 +84,11 @@ func (u UUID) Equals(u2 UUID) bool {
 	return bytes.Equal(u[:], u2[:])
 }
 
+// Key returns a string suitable for using as a key in a map, but not for human reading
+func (u UUID) Key() string {
+	return string(u[:])
+}
+
 // Returns canonical string representation of UUID:
 // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
 func (u UUID) String() string {

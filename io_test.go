@@ -31,7 +31,7 @@ define service{
 func TestRead(t *testing.T) {
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
-	co, err := rdr.Read(false)
+	co, err := rdr.Read(false, "/dev/null")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestReadAll(t *testing.T) {
 	//t.Skip("Not implemented yet")
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
-	cos, err := rdr.ReadAll(false)
+	cos, err := rdr.ReadAll(false, "/dev/null")
 	if err != nil {
 		t.Error(err)
 	} else {
@@ -58,7 +58,7 @@ func TestReadAll(t *testing.T) {
 func TestReadAllMap(t *testing.T) {
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
-	m, err := rdr.ReadAllMap()
+	m, err := rdr.ReadAllMap("/dev/null")
 	if err != nil {
 		t.Error(err)
 	} else {

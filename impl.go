@@ -179,6 +179,21 @@ func (co *CfgObj) GetUniqueCheckName() (id string, ok bool) {
 	return
 }
 
+func (co *CfgObj) GetUUID() *UUID {
+	if len(co.UUID) > 0 {
+		return &co.UUID
+	}
+	return nil
+}
+
+func (co *CfgObj) GetUUIDString() string {
+	u := co.GetUUID()
+	if u != nil {
+		return u.String()
+	}
+	return ""
+}
+
 // MatchKeys searches the values of the given keys for a match against the given regex. Returns true if all matches, false if not.
 func (co *CfgObj) MatchKeys(rx *regexp.Regexp, keys ...string) bool {
 	klen := len(keys)
@@ -331,6 +346,16 @@ func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
 }
 
 // GetUUIDMap returns a CfgMap with each CfgObj's UUID as the key
+func (cos CfgObjs) GetUUIDMap() CfgMap {
+	m := make(CfgMap)
+	for i := range cos {
+		u := cos[i].GetUUID()
+		if u != nil {
+			m[u.Key()] = cos[i]
+		}
+	}
+	return m
+}
 
 /*
 // GetFilteredMap returns a map of objects matching the given filters

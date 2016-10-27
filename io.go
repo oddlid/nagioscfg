@@ -181,7 +181,7 @@ func (r *Reader) parseLine() (fields []string, state IoState, err error) {
 
 // Read reads from a Nagios config stream and returns the next config object.
 // Should be called repeatedly. Returns err = io.EOF when done (really? Does it?)
-func (r *Reader) Read(setUUID bool) (*CfgObj, error) {
+func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 	var fields []string
 	var state IoState
 	var err error
@@ -201,6 +201,7 @@ func (r *Reader) Read(setUUID bool) (*CfgObj, error) {
 				} else {
 					co = NewCfgObj(ct)
 				}
+				co.FileID = fileID
 			case IO_OBJ_IN:
 				fl := len(fields)
 				//_debug(fields)
@@ -226,13 +227,13 @@ func (r *Reader) Read(setUUID bool) (*CfgObj, error) {
 }
 
 // ReadAll calls Read repeatedly and returns all config objects it collects
-func (r *Reader) ReadAll(setUUID bool) (CfgObjs, error) {
+func (r *Reader) ReadAll(setUUID bool, fileID string) (CfgObjs, error) {
 	// Should make a version of this that approximates the number of entries based on the bytes size of the file and allocates near that number
 	objs := make(CfgObjs, 0, 64) // should find a way to calculate the approx number of entries from file/stream size, to avoid more re-alloc than needed and just hit the sweet spot at first try here
 	var obj *CfgObj
 	var err error
 	for {
-		obj, err = r.Read(setUUID)
+		obj, err = r.Read(setUUID, fileID)
 		if err == nil && obj != nil {
 			objs = append(objs, obj)
 		}
@@ -248,10 +249,10 @@ func (r *Reader) ReadAll(setUUID bool) (CfgObjs, error) {
 }
 
 // ReadAllList does the same as ReadAll, but returns a list instead of a slice
-func (r *Reader) ReadAllList(setUUID bool) (*list.List, error) {
+func (r *Reader) ReadAllList(setUUID bool, fileID string) (*list.List, error) {
 	l := list.New()
 	for {
-		obj, err := r.Read(setUUID)
+		obj, err := r.Read(setUUID, fileID)
 		if err == nil && obj != nil {
 			l.PushBack(obj)
 		}
@@ -266,12 +267,12 @@ func (r *Reader) ReadAllList(setUUID bool) (*list.List, error) {
 	return l, nil
 }
 
-func (r *Reader) ReadAllMap() (CfgMap, error) {
+func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	m := make(CfgMap)
 	for {
-		obj, err := r.Read(true)
+		obj, err := r.Read(true, fileID)
 		if err == nil && obj != nil {
-			m[string(obj.UUID[:])] = obj
+			m[obj.UUID.Key()] = obj // might be better to use obj.UUID.String()
 		}
 		if err != nil {
 			if err != io.EOF {
@@ -328,9 +329,12 @@ func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
 	}
 	defer file.Close()
 	r := NewReader(file)
-	objs, err := r.ReadAll(setUUID)
+	objs, err := r.ReadAll(setUUID, fileName)
 	if err != nil {
 		return nil, err
+	}
+	for i := range objs {
+		objs[i].FileID = fileName
 	}
 	return objs, nil
 }
