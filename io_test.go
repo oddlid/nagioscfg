@@ -75,6 +75,20 @@ func TestReadFile(t *testing.T) {
 	t.Log("Number of objets read: ", len(objs))
 }
 
+func BenchmarkReadFile(b *testing.B) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	for i := 0; i <= b.N; i++ {
+		ReadFile(path, false)
+	}
+}
+
+func BenchmarkReadFileSetUUID(b *testing.B) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	for i := 0; i <= b.N; i++ {
+		ReadFile(path, true)
+	}
+}
+
 func TestObjReadFile(t *testing.T) {
 	path := "../op5_automation/cfg/etc/services.cfg"
 	cf := NewCfgFile(path)

@@ -298,12 +298,20 @@ func (co *CfgObj) Print(w io.Writer) {
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
+// PrintSorted prints out a CfgObj in Nagios format, sorted like Nagios/op5 would do
+func (co *CfgObj) PrintSorted(w io.Writer) {
+}
+
 // Print writes a collection of CfgObj to a given stream
 func (cos CfgObjs) Print(w io.Writer) {
 	for i := range cos {
 		cos[i].Print(w)
 		fmt.Fprint(w, "\n")
 	}
+}
+
+// PrintSorted writes a collection of CfgObj to a given stream, sorted by host_name/service_description
+func (cos CfgObjs) PrintSorted(w io.Writer) {
 }
 
 func (cm CfgMap) Dump() string {
@@ -332,9 +340,6 @@ func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
 	objs, err := r.ReadAll(setUUID, fileName)
 	if err != nil {
 		return nil, err
-	}
-	for i := range objs {
-		objs[i].FileID = fileName
 	}
 	return objs, nil
 }
