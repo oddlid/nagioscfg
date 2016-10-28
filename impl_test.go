@@ -341,6 +341,14 @@ func BenchmarkNewCfgObjWithUUID(b *testing.B) {
 	}
 }
 
+func BenchmarkCOSLongestKey(b *testing.B) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	objs, _ := ReadFile(path, false)
+	for i := 0; i <= b.N; i++ {
+		objs.LongestKey()
+	}
+}
+
 func TestGetMap(t *testing.T) {
 	// This test does not fail, just shows stuff (yet)
 	cos := make(CfgObjs, 0, 3)
