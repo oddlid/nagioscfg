@@ -262,7 +262,6 @@ func TestAdd2(t *testing.T) {
 	o[0].Add(k1, "host1")
 	o[0].Add(k2, "service1")
 
-
 	o.Add(NewCfgObj(T_SERVICE))
 	if len(o) != 2 {
 		t.Error("Length should be 2")
