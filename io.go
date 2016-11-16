@@ -319,6 +319,33 @@ func (cos CfgObjs) PrintSorted(w io.Writer) {
 	}
 }
 
+func readFileToCfgMap(fileName string) (CfgMap, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	r := NewReader(file)
+	cmap, err := ReadAllMap(fileName)
+	if err != nil {
+		return nil, err
+	}
+	return cmap, nil
+}
+
+//func writeFileFromCfgMap(fileName string, cmap CfgMap) error {
+//	file, err := os.Create(fileName)
+//	if err != nil {
+//		return err
+//	}
+//	defer file.Close()
+//	w := bufio.NewWriter(file)
+//	//
+//
+//	w.Flush()
+//	return nil
+//}
+
 func readFileToCfgObjs(fileName string, setUUID bool) (CfgObjs, error) {
 	file, err := os.Open(fileName)
 	if err != nil {
