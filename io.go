@@ -319,21 +319,32 @@ func (cos CfgObjs) PrintSorted(w io.Writer) {
 	}
 }
 
-func (cm CfgMap) Dump() string {
-	var buf bytes.Buffer
-	w := bufio.NewWriter(&buf)
-	for k, v := range cm {
-		fmt.Fprintf(w, "Key     : %s\n", k)
-		fmt.Fprintf(w, "UUID    : %s\n", v.UUID.String())
-		fmt.Fprintf(w, "Type    : %s\n", v.Type.String())
-		fmt.Fprintf(w, "Indent  : %d\n", v.Indent)
-		fmt.Fprintf(w, "Align   : %d\n", v.Align)
-		fmt.Fprintf(w, "File ID : %s\n", v.FileID)
-		v.Print(w)
+func readFileToCfgObjs(fileName string, setUUID bool) (CfgObjs, error) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		return nil, err
 	}
-	w.Flush()
-	return buf.String()
+	defer file.Close()
+	r := NewReader(file)
+	objs, err := r.ReadAll(setUUID, fileName)
+	if err != nil {
+		return nil, err
+	}
+	return objs, nil
 }
+
+func writeFileFromCfgObjs(fileName string, objs CfgObjs) error {
+	file, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	w := bufio.NewWriter(file)
+	objs.Print(w)
+	w.Flush()
+	return nil
+}
+
 
 func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
 	file, err := os.Open(fileName)

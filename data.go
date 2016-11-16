@@ -7,6 +7,7 @@ Odd, 2016-08-10 17:51
 
 import (
 	"io"
+	"regexp"
 )
 
 type CfgType int
@@ -143,6 +144,16 @@ type PropertyCollection interface {
 	LongestKey() int
 }
 */
+
+type CfgObjCollection interface {
+	Add(key string, val *CfgObj) bool
+	Set(key string, val *CfgObj) bool
+	Get(key string) (*CfgObj, bool)
+	Del(key string) *CfgObj
+	LongestKey() int
+	MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjCollection
+	MatchAny(rx *regexp.Regexp)  CfgObjCollection
+}
 
 type Printer interface {
 	Print(w io.Writer)

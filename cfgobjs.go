@@ -148,8 +148,9 @@ func (cos CfgObjs) GetServiceGroupMap() CfgMap {
 // LongestKey returns the length of the longest key in a collection of CfgObj
 func (cos CfgObjs) LongestKey() int {
 	max := 0
+	curmax := 0
 	for i := range cos {
-		curmax := cos[i].LongestKey()
+		curmax = cos[i].LongestKey()
 		if curmax > max {
 			max = curmax
 		}
