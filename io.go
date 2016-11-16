@@ -248,6 +248,27 @@ func (r *Reader) ReadAll(setUUID bool, fileID string) (CfgObjs, error) {
 	return objs, nil
 }
 
+func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
+	objchan := make(chan *CfgObj)
+	go func() {
+		for {
+			obj, err := r.Read(setUUID, fileID)
+			if err == nil && obj != nil {
+				objchan <- obj
+			}
+			if err != nil {
+				if err != io.EOF {
+					close(objchan)
+				} else {
+					break
+				}
+			}
+		}
+		close(objchan)
+	}()
+	return objchan
+}
+
 // ReadAllList does the same as ReadAll, but returns a list instead of a slice
 func (r *Reader) ReadAllList(setUUID bool, fileID string) (*list.List, error) {
 	l := list.New()
