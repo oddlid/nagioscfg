@@ -75,10 +75,52 @@ func TestReadFile(t *testing.T) {
 	t.Log("Number of objets read: ", len(objs))
 }
 
+func TestReadFileChan(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+		file, err := os.Open(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer file.Close()
+		r := NewReader(file)
+		ochan := r.ReadChan(false, path)
+		for o, ok := <- ochan; ok; o, ok = <- ochan {
+			if ok {
+				t.Log("Read one config object from channel:", o.GetUUIDString())
+			} else {
+				t.Error("Channel closed")
+			}
+		}
+}
+
 func BenchmarkReadFile(b *testing.B) {
 	path := "../op5_automation/cfg/etc/services.cfg"
 	for i := 0; i <= b.N; i++ {
 		ReadFile(path, false)
+	}
+}
+
+func BenchmarkReadFileChan(b *testing.B) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	for i := 0; i <= b.N; i++ {
+		file, err := os.Open(path)
+		if err != nil {
+			b.Fatal(err)
+		}
+		r := NewReader(file)
+		ochan := r.ReadChan(false, path)
+		for {
+			select {
+			case _, ok := <-ochan:
+				if !ok {
+					b.Error("Unable to read from channel")
+					break
+				}
+			default:
+				break
+			}
+		}
+		file.Close()
 	}
 }
 

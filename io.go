@@ -249,7 +249,7 @@ func (r *Reader) ReadAll(setUUID bool, fileID string) (CfgObjs, error) {
 }
 
 func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
-	objchan := make(chan *CfgObj)
+	objchan := make(chan *CfgObj, 1)
 	go func() {
 		for {
 			obj, err := r.Read(setUUID, fileID)
@@ -257,11 +257,7 @@ func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 				objchan <- obj
 			}
 			if err != nil {
-				if err != io.EOF {
-					close(objchan)
-				} else {
-					break
-				}
+				break
 			}
 		}
 		close(objchan)
@@ -347,7 +343,7 @@ func readFileToCfgMap(fileName string) (CfgMap, error) {
 	}
 	defer file.Close()
 	r := NewReader(file)
-	cmap, err := ReadAllMap(fileName)
+	cmap, err := r.ReadAllMap(fileName)
 	if err != nil {
 		return nil, err
 	}
