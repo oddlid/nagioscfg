@@ -13,7 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
+	//"os"
 	"strings"
 	"unicode"
 )
@@ -227,26 +227,26 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 }
 
 // ReadAll calls Read repeatedly and returns all config objects it collects
-func (r *Reader) ReadAll(setUUID bool, fileID string) (CfgObjs, error) {
-	// Should make a version of this that approximates the number of entries based on the bytes size of the file and allocates near that number
-	objs := make(CfgObjs, 0, 64) // should find a way to calculate the approx number of entries from file/stream size, to avoid more re-alloc than needed and just hit the sweet spot at first try here
-	var obj *CfgObj
-	var err error
-	for {
-		obj, err = r.Read(setUUID, fileID)
-		if err == nil && obj != nil {
-			objs = append(objs, obj)
-		}
-		if err != nil {
-			if err != io.EOF {
-				return objs, err
-			} else {
-				break
-			}
-		}
-	}
-	return objs, nil
-}
+//func (r *Reader) ReadAll(setUUID bool, fileID string) (CfgObjs, error) {
+//	// Should make a version of this that approximates the number of entries based on the bytes size of the file and allocates near that number
+//	objs := make(CfgObjs, 0, 64) // should find a way to calculate the approx number of entries from file/stream size, to avoid more re-alloc than needed and just hit the sweet spot at first try here
+//	var obj *CfgObj
+//	var err error
+//	for {
+//		obj, err = r.Read(setUUID, fileID)
+//		if err == nil && obj != nil {
+//			objs = append(objs, obj)
+//		}
+//		if err != nil {
+//			if err != io.EOF {
+//				return objs, err
+//			} else {
+//				break
+//			}
+//		}
+//	}
+//	return objs, nil
+//}
 
 func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 	objchan := make(chan *CfgObj, 1) // making the channel buffered seems to make the function slightly faster
@@ -336,19 +336,19 @@ func (cos CfgObjs) PrintSorted(w io.Writer) {
 	}
 }
 
-func readFileToCfgMap(fileName string) (CfgMap, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	r := NewReader(file)
-	cmap, err := r.ReadAllMap(fileName)
-	if err != nil {
-		return nil, err
-	}
-	return cmap, nil
-}
+//func readFileToCfgMap(fileName string) (CfgMap, error) {
+//	file, err := os.Open(fileName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer file.Close()
+//	r := NewReader(file)
+//	cmap, err := r.ReadAllMap(fileName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return cmap, nil
+//}
 
 //func writeFileFromCfgMap(fileName string, cmap CfgMap) error {
 //	file, err := os.Create(fileName)
@@ -363,78 +363,78 @@ func readFileToCfgMap(fileName string) (CfgMap, error) {
 //	return nil
 //}
 
-func readFileToCfgObjs(fileName string, setUUID bool) (CfgObjs, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	r := NewReader(file)
-	objs, err := r.ReadAll(setUUID, fileName)
-	if err != nil {
-		return nil, err
-	}
-	return objs, nil
-}
+//func readFileToCfgObjs(fileName string, setUUID bool) (CfgObjs, error) {
+//	file, err := os.Open(fileName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer file.Close()
+//	r := NewReader(file)
+//	objs, err := r.ReadAll(setUUID, fileName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return objs, nil
+//}
 
-func writeFileFromCfgObjs(fileName string, objs CfgObjs) error {
-	file, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	w := bufio.NewWriter(file)
-	objs.Print(w)
-	w.Flush()
-	return nil
-}
+//func writeFileFromCfgObjs(fileName string, objs CfgObjs) error {
+//	file, err := os.Create(fileName)
+//	if err != nil {
+//		return err
+//	}
+//	defer file.Close()
+//	w := bufio.NewWriter(file)
+//	objs.Print(w)
+//	w.Flush()
+//	return nil
+//}
 
 
-func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	r := NewReader(file)
-	objs, err := r.ReadAll(setUUID, fileName)
-	if err != nil {
-		return nil, err
-	}
-	return objs, nil
-}
+//func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
+//	file, err := os.Open(fileName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	defer file.Close()
+//	r := NewReader(file)
+//	objs, err := r.ReadAll(setUUID, fileName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return objs, nil
+//}
 
-func WriteFile(fileName string, objs CfgObjs) error {
-	file, err := os.Create(fileName)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	w := bufio.NewWriter(file)
-	objs.Print(w)
-	w.Flush()
-	return nil
-}
+//func WriteFile(fileName string, objs CfgObjs) error {
+//	file, err := os.Create(fileName)
+//	if err != nil {
+//		return err
+//	}
+//	defer file.Close()
+//	w := bufio.NewWriter(file)
+//	objs.Print(w)
+//	w.Flush()
+//	return nil
+//}
 
-func NewCfgFile(path string) *CfgFile {
-	objs := make(CfgObjs, 0)
-	return &CfgFile{
-		Path: path,
-		Objs: objs,
-	}
-}
+//func NewCfgFile(path string) *CfgFile {
+//	objs := make(CfgObjs, 0)
+//	return &CfgFile{
+//		Path: path,
+//		Objs: objs,
+//	}
+//}
 
-func (cf *CfgFile) Read(setUUID bool) error {
-	objs, err := ReadFile(cf.Path, setUUID)
-	if err != nil {
-		return err
-	}
-	if objs != nil {
-		cf.Objs = objs
-	}
-	return nil
-}
+//func (cf *CfgFile) Read(setUUID bool) error {
+//	objs, err := ReadFile(cf.Path, setUUID)
+//	if err != nil {
+//		return err
+//	}
+//	if objs != nil {
+//		cf.Objs = objs
+//	}
+//	return nil
+//}
 
-func (cf *CfgFile) Write() error {
-	return WriteFile(cf.Path, cf.Objs)
-}
+//func (cf *CfgFile) Write() error {
+//	return WriteFile(cf.Path, cf.Objs)
+//}
