@@ -11,6 +11,7 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"net"
 	"sync"
 	"time"
@@ -106,4 +107,92 @@ func (u UUID) String() string {
 	hex.Encode(buf[24:], u[10:])
 
 	return string(buf)
+}
+
+// Bytes returns bytes slice representation of UUID.
+func (u UUID) Bytes() []byte {
+	return u[:]
+}
+
+// MarshalText implements the encoding.TextMarshaler interface.
+// The encoding is the same as returned by String.
+func (u UUID) MarshalText() (text []byte, err error) {
+	text = []byte(u.String())
+	return
+}
+
+// UnmarshalText implements the encoding.TextUnmarshaler interface.
+// Following formats are supported:
+// "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+// "{6ba7b810-9dad-11d1-80b4-00c04fd430c8}",
+// "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+func (u *UUID) UnmarshalText(text []byte) (err error) {
+	urnPrefix := []byte("urn:uuid:")
+	byteGroups := []int{8, 4, 4, 4, 12}
+
+	if len(text) < 32 {
+		err = fmt.Errorf("uuid: UUID string too short: %s", text)
+		return
+	}
+
+	t := text[:]
+	braced := false
+
+	if bytes.Equal(t[:9], urnPrefix) {
+		t = t[9:]
+	} else if t[0] == '{' {
+		braced = true
+		t = t[1:]
+	}
+
+	b := u[:]
+
+	for i, byteGroup := range byteGroups {
+		if i > 0 {
+			if t[0] != '-' {
+				err = fmt.Errorf("uuid: invalid string format")
+				return
+			}
+			t = t[1:]
+		}
+
+		if len(t) < byteGroup {
+			err = fmt.Errorf("uuid: UUID string too short: %s", text)
+			return
+		}
+
+		if i == 4 && len(t) > byteGroup &&
+			((braced && t[byteGroup] != '}') || len(t[byteGroup:]) > 1 || !braced) {
+			err = fmt.Errorf("uuid: UUID string too long: %s", text)
+			return
+		}
+
+		_, err = hex.Decode(b[:byteGroup/2], t[:byteGroup])
+		if err != nil {
+			return
+		}
+
+		t = t[byteGroup:]
+		b = b[byteGroup/2:]
+	}
+
+	return
+}
+
+// MarshalBinary implements the encoding.BinaryMarshaler interface.
+func (u UUID) MarshalBinary() (data []byte, err error) {
+	data = u.Bytes()
+	return
+}
+
+// UnmarshalBinary implements the encoding.BinaryUnmarshaler interface.
+// It will return error if the slice isn't 16 bytes long.
+func (u *UUID) UnmarshalBinary(data []byte) (err error) {
+	if len(data) != 16 {
+		err = fmt.Errorf("uuid: UUID must be exactly 16 bytes long, got %d bytes", len(data))
+		return
+	}
+	copy(u[:], data)
+
+	return
 }

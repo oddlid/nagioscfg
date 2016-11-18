@@ -83,15 +83,19 @@ func TestReadFileChan(t *testing.T) {
 	}
 	defer file.Close()
 	r := NewReader(file)
-	ochan := r.ReadChan(true, path)
-	for o, ok := <-ochan; ok; o, ok = <-ochan {
-		if ok {
-			name, _ := o.GetUniqueCheckName()
-			t.Log("Read one config object from channel:", name)
-		} else {
-			t.Error("Channel closed")
-		}
+	ochan := r.ReadChan(false, path)
+	for o := range ochan {
+		name, _ := o.GetUniqueCheckName()
+		t.Logf("Read config object from channel: %q", name)
 	}
+	//for o, ok := <-ochan; ok; o, ok = <-ochan {
+	//	if ok {
+	//		name, _ := o.GetUniqueCheckName()
+	//		t.Log("Read one config object from channel:", name)
+	//	} else {
+	//		t.Error("Channel closed")
+	//	}
+	//}
 }
 
 //func BenchmarkReadFile(b *testing.B) {

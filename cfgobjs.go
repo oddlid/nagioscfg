@@ -1,17 +1,17 @@
 package nagioscfg
 
 import (
-	"container/list"
+	//"container/list"
 	"regexp"
 )
 
-func (cos CfgObjs) ToList() *list.List {
-	l := list.New()
-	for i := range cos {
-		l.PushBack(cos[i])
-	}
-	return l
-}
+//func (cos CfgObjs) ToList() *list.List {
+//	l := list.New()
+//	for i := range cos {
+//		l.PushBack(cos[i])
+//	}
+//	return l
+//}
 
 // MatchKeys runs MatchKeys for each obj and returns a collection of CfgObjs that match
 func (cos CfgObjs) MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjs {
@@ -50,52 +50,52 @@ func (cos CfgObjs) MatchAny(rx *regexp.Regexp) CfgObjs {
 }
 
 // GetMap returns a CfgMap filtered on the given type
-func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
-	if len(cos) == 0 {
-		return nil
-	}
-	objmap := make(CfgMap)
-	for i := range cos {
-		if cos[i].Type == typ {
-			var key string
-			switch typ {
-			case T_SERVICE:
-				if global {
-					ret, ok := cos[i].GetUniqueCheckName()
-					if ok {
-						key = ret
-					}
-				} else {
-					ret, ok := cos[i].GetDescription()
-					if ok {
-						key = ret
-					}
-				}
-			default:
-				ret, ok := cos[i].GetName()
-				if ok {
-					key = ret
-				}
-			}
-			if key != "" {
-				objmap[key] = cos[i]
-			}
-		}
-	}
-	return objmap
-}
+//func (cos CfgObjs) GetMap(typ CfgType, global bool) CfgMap {
+//	if len(cos) == 0 {
+//		return nil
+//	}
+//	objmap := make(CfgMap)
+//	for i := range cos {
+//		if cos[i].Type == typ {
+//			var key string
+//			switch typ {
+//			case T_SERVICE:
+//				if global {
+//					ret, ok := cos[i].GetUniqueCheckName()
+//					if ok {
+//						key = ret
+//					}
+//				} else {
+//					ret, ok := cos[i].GetDescription()
+//					if ok {
+//						key = ret
+//					}
+//				}
+//			default:
+//				ret, ok := cos[i].GetName()
+//				if ok {
+//					key = ret
+//				}
+//			}
+//			if key != "" {
+//				objmap[key] = cos[i]
+//			}
+//		}
+//	}
+//	return objmap
+//}
 
 // GetUUIDMap returns a CfgMap with each CfgObj's UUID as the key
-func (cos CfgObjs) GetUUIDMap() CfgMap {
-	m := make(CfgMap)
-	for i := range cos {
-		u := cos[i].GetUUID()
-		if u != nil {
-			m[u.Key()] = cos[i]
-		}
-	}
-	return m
-}
+//func (cos CfgObjs) GetUUIDMap() CfgMap {
+//	m := make(CfgMap)
+//	for i := range cos {
+//		u := cos[i].GetUUID()
+//		if u != nil {
+//			m[u.Key()] = cos[i]
+//		}
+//	}
+//	return m
+//}
 
 /*
 // GetFilteredMap returns a map of objects matching the given filters
@@ -111,39 +111,39 @@ func (cos CfgObjs) GetFilteredMap() CfgMap {
 */
 
 // GetServiceMap is a wrapper for GetMap(T_SERVICE, ...)
-func (cos CfgObjs) GetServiceMap(global bool) CfgMap {
-	return cos.GetMap(T_SERVICE, global)
-}
+//func (cos CfgObjs) GetServiceMap(global bool) CfgMap {
+//	return cos.GetMap(T_SERVICE, global)
+//}
 
 // GetHostMap is a wrapper for GetMap(T_HOST, ...)
-func (cos CfgObjs) GetHostMap() CfgMap {
-	return cos.GetMap(T_HOST, false)
-}
+//func (cos CfgObjs) GetHostMap() CfgMap {
+//	return cos.GetMap(T_HOST, false)
+//}
 
 // GetCommandMap is a wrapper for GetMap(T_COMMAND, ...)
-func (cos CfgObjs) GetCommandMap() CfgMap {
-	return cos.GetMap(T_COMMAND, false)
-}
+//func (cos CfgObjs) GetCommandMap() CfgMap {
+//	return cos.GetMap(T_COMMAND, false)
+//}
 
 // GetContactGroupMap is a wrapper for GetMap(T_CONTACTGROUP, ...)
-func (cos CfgObjs) GetContactGroupMap() CfgMap {
-	return cos.GetMap(T_CONTACTGROUP, false)
-}
+//func (cos CfgObjs) GetContactGroupMap() CfgMap {
+//	return cos.GetMap(T_CONTACTGROUP, false)
+//}
 
 // GetContactMap is a wrapper for GetMap(T_CONTACT, ...)
-func (cos CfgObjs) GetContactMap() CfgMap {
-	return cos.GetMap(T_CONTACT, false)
-}
+//func (cos CfgObjs) GetContactMap() CfgMap {
+//	return cos.GetMap(T_CONTACT, false)
+//}
 
 // GetHostGroupMap is a wrapper for GetMap(T_HOSTGROUP, ...)
-func (cos CfgObjs) GetHostGroupMap() CfgMap {
-	return cos.GetMap(T_HOSTGROUP, false)
-}
+//func (cos CfgObjs) GetHostGroupMap() CfgMap {
+//	return cos.GetMap(T_HOSTGROUP, false)
+//}
 
 // GetServiceGroupMap is a wrapper for GetMap(T_SERVICEGROUP, ...)
-func (cos CfgObjs) GetServiceGroupMap() CfgMap {
-	return cos.GetMap(T_SERVICEGROUP, false)
-}
+//func (cos CfgObjs) GetServiceGroupMap() CfgMap {
+//	return cos.GetMap(T_SERVICEGROUP, false)
+//}
 
 // LongestKey returns the length of the longest key in a collection of CfgObj
 func (cos CfgObjs) LongestKey() int {

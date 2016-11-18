@@ -249,7 +249,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 //}
 
 func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
-	objchan := make(chan *CfgObj, 1) // making the channel buffered seems to make the function slightly faster
+	objchan := make(chan *CfgObj, 2) // making the channel buffered seems to make the function slightly faster
 	go func() {
 		for {
 			obj, err := r.Read(setUUID, fileID)
