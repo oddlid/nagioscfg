@@ -15,6 +15,7 @@ type CfgName string
 type IoState int
 type CfgObjs []*CfgObj
 type CfgMap map[string]*CfgObj
+//type WriteMap map[string]CfgMap // used to sort/write out according to FileID
 
 //type CfgKey int
 
@@ -167,6 +168,11 @@ type CfgObj struct {
 	FileID  string
 	Comment string
 	Props   map[string]string
+}
+
+// Top level struct for managing collections of CfgObj
+type NagiosCfg struct {
+	Objs map[string]CfgMap // key by FileID
 }
 
 type CfgFile struct {
