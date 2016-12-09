@@ -316,9 +316,9 @@ func (co *CfgObj) Print(w io.Writer) {
 }
 
 // PrintSorted prints out a CfgObj in Nagios format, sorted like Nagios/op5 would do
-func (co *CfgObj) PrintSorted(w io.Writer) {
-	fmt.Fprintf(w, "# Implement it yourself, Göran!\n")
-}
+//func (co *CfgObj) PrintSorted(w io.Writer) {
+//	fmt.Fprintf(w, "# Implement it yourself, Göran!\n")
+//}
 
 // Print writes a collection of CfgObj to a given stream
 func (cos CfgObjs) Print(w io.Writer) {
@@ -329,9 +329,16 @@ func (cos CfgObjs) Print(w io.Writer) {
 }
 
 // PrintSorted writes a collection of CfgObj to a given stream, sorted by host_name/service_description
-func (cos CfgObjs) PrintSorted(w io.Writer) {
-	for i := range cos {
-		cos[i].PrintSorted(w)
+//func (cos CfgObjs) PrintSorted(w io.Writer) {
+//	for i := range cos {
+//		cos[i].PrintSorted(w)
+//		fmt.Fprintf(w, "\n")
+//	}
+//}
+
+func (cm CfgMap) Print(w io.Writer) {
+	for k := range cm {
+		cm[k].Print(w)
 		fmt.Fprintf(w, "\n")
 	}
 }

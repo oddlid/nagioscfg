@@ -4,8 +4,10 @@ Function/method implementations for types from data.go
 
 package nagioscfg
 
-//import (
-//)
+import (
+	log "github.com/Sirupsen/logrus"
+	"regexp"
+)
 
 // String returns the string representation of the CfgType
 func (ct CfgType) String() string {
@@ -33,3 +35,32 @@ func (co *CfgObj) size() int {
 	return size
 }
 */
+
+func NewCfgQuery() *CfgQuery {
+	return &CfgQuery{
+		Keys: make([]string, 0, 2),
+		RXs:  make([]*regexp.Regexp, 0, 2),
+	}
+}
+
+// Balanced() verifies that there is a matching number of keys and regexes in the instance
+func (cq CfgQuery) Balanced() bool {
+	return len(cq.Keys) == len(cq.RXs)
+}
+
+func (cq *CfgQuery) AddFilter(key, re string) bool {
+	if key == "" {
+		log.Debug("CfgQuery.AddFilter(): Error: Empty key")
+		return false
+	}
+	rx, err := regexp.Compile(re)
+	if err != nil {
+		log.Debugf("CfgQuery.AddFilter(): Error compiling regexp %q", re)
+		return false
+	}
+
+	cq.Keys = append(cq.Keys, key)
+	cq.RXs = append(cq.RXs, rx)
+
+	return true
+}

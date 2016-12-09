@@ -171,6 +171,11 @@ type CfgObj struct {
 	Props   map[string]string
 }
 
+type CfgQuery struct {
+	Keys []string
+	RXs  []*regexp.Regexp
+}
+
 // Top level struct for managing collections of CfgObj
 type NagiosCfg struct {
 	Objs map[string]CfgMap // key by FileID

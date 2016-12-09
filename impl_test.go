@@ -454,3 +454,59 @@ func TestMatchKeys(t *testing.T) {
 		}
 	}
 }
+
+// Trying to reach a similarity to nagios-grep here
+func TestCfMapMatchKeys(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	file, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	rdr := NewReader(file)
+	m, err := rdr.ReadAllMap(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// now we have the whole file, let's search a bit
+	rx := regexp.MustCompile(`db_dummy_gso`)
+	u := m.MatchKeys(rx, CfgKeys[24]) // host_name
+	if u == nil {
+		t.Fatal("Unable to find any match")
+	}
+
+	for i := range u {
+		fmt.Printf("=== Matching UUID: %s ===\n", u[i])
+		m[u[i]].Print(os.Stdout)
+	}
+}
+
+func TestCfgMapSearch(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services.cfg"
+	file, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	rdr := NewReader(file)
+	m, err := rdr.ReadAllMap(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// now we have the whole file, let's search a bit
+	q := NewCfgQuery()
+	q.AddFilter(`host_name`, `db_dummy.*`)
+	q.AddFilter(`check_command`, `vgt_oracle_mutex.*`)
+
+	u := m.Search(q)
+	if u == nil {
+		t.Fatal("No matches")
+	}
+
+	for i := range u {
+		fmt.Printf("### Matching UUID %q ###\n", u[i])
+		m[u[i]].Print(os.Stdout)
+	}
+}

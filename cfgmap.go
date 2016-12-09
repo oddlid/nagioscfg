@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"regexp"
 )
 
 func (cm CfgMap) SetByUUID(key UUID, val *CfgObj) bool {
@@ -89,4 +91,50 @@ func (cm CfgMap) Dump() string {
 	}
 	w.Flush()
 	return buf.String()
+}
+
+// MatchKeys matches on the keys of each CfgObj, NOT on the CfgMap keys. Returns slice of UUIDS
+func (cm CfgMap) MatchKeys(rx *regexp.Regexp, keys ...string) []UUID {
+	matches := make([]UUID, 0, len(cm))
+	for k := range cm {
+		if cm[k].MatchKeys(rx, keys...) {
+			matches = append(matches, k)
+		}
+	}
+	if len(matches) > 0 {
+		return matches
+	}
+	return nil
+}
+
+func (cm CfgMap) MatchAny(rx *regexp.Regexp) []UUID {
+	matches := make([]UUID, 0, len(cm))
+	for k := range cm {
+		if cm[k].MatchAny(rx) {
+			matches = append(matches, k)
+		}
+	}
+	if len(matches) > 0 {
+		return matches
+	}
+	return nil
+}
+
+// Search allows more complex searches for matching CfgObjs in the CfgMap
+func (cm CfgMap) Search(q *CfgQuery) []UUID {
+	// Make sure there is a regexp for each given key
+	if !q.Balanced() {
+		log.Debug("CfgMap.Search(): number of keys and regexes in given CfgQuery does not match")
+		return nil
+	}
+	matches := make([]UUID, 0, len(cm))
+	for k := range cm {
+		if cm[k].MatchAll(q) {
+			matches = append(matches, k)
+		}
+	}
+	if len(matches) > 0 {
+		return matches
+	}
+	return nil
 }

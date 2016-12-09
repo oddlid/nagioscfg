@@ -2,6 +2,7 @@ package nagioscfg
 
 import (
 	"fmt"
+	//log "github.com/Sirupsen/logrus"
 	"regexp"
 	"strings"
 )
@@ -199,6 +200,31 @@ func (co *CfgObj) MatchAny(rx *regexp.Regexp) bool {
 		if rx.MatchString(co.Props[k]) {
 			return true
 		}
+	}
+	return false
+}
+
+// MatchAll returns true if all keys match their respective regexes. Almost like MatchKeys, but with a separate RX for each key
+func (co *CfgObj) MatchAll(q *CfgQuery) bool {
+	// This is done in CfgMap.Search(), so disabling it for now
+	//if !q.Balanced() {
+	//	return false
+	//}
+
+	klen := len(q.Keys)
+	nmatch := 0
+	for i := range q.Keys {
+		v, ok := co.Get(q.Keys[i])
+		if !ok {
+			return false
+		}
+		if !q.RXs[i].MatchString(v) {
+			return false
+		}
+		nmatch++
+	}
+	if nmatch == klen {
+		return true
 	}
 	return false
 }
