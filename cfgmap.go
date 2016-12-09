@@ -138,3 +138,26 @@ func (cm CfgMap) Search(q *CfgQuery) []UUID {
 	}
 	return nil
 }
+
+// SearchSubSet searches only the CgObjs with the given UUIDs for matches
+func (cm CfgMap) SearchSubSet(q *CfgQuery, ids ...UUID) []UUID {
+	// Make sure there is a regexp for each given key
+	if !q.Balanced() {
+		log.Debug("CfgMap.SearchSubSet(): number of keys and regexes in given CfgQuery does not match")
+		return nil
+	}
+	matches := make([]UUID, 0, len(ids))
+	for i := range ids {
+		if cm[ids[i]].MatchAll(q) {
+			matches = append(matches, ids[i])
+		}
+	}
+	if len(matches) > 0 {
+		return matches
+	}
+	return nil
+}
+
+func (cm CfgMap) FilterType(t CfgType) []UUID {
+	return nil
+}
