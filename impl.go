@@ -50,12 +50,12 @@ func (cq CfgQuery) Balanced() bool {
 
 func (cq *CfgQuery) AddFilter(key, re string) bool {
 	if key == "" {
-		log.Debug("CfgQuery.AddFilter(): Error: Empty key")
+		log.Error("CfgQuery.AddFilter(): Error: Empty key")
 		return false
 	}
 	rx, err := regexp.Compile(re)
 	if err != nil {
-		log.Debugf("CfgQuery.AddFilter(): Error compiling regexp %q", re)
+		log.Error(err)
 		return false
 	}
 
