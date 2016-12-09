@@ -196,3 +196,15 @@ func (u *UUID) UnmarshalBinary(data []byte) (err error) {
 
 	return
 }
+
+// FromString returns UUID parsed from string input.
+// Input is expected in a form accepted by UnmarshalText.
+func UUIDFromString(input string) (u UUID, err error) {
+	err = u.UnmarshalText([]byte(input))
+	return
+}
+
+func (u UUID) FromString(input string) error {
+	u, err := UUIDFromString(input)
+	return err
+}

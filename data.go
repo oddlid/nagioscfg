@@ -10,11 +10,6 @@ import (
 	"regexp"
 )
 
-type CfgType int
-type CfgName string
-type IoState int
-type CfgObjs []*CfgObj
-type CfgMap map[string]*CfgObj
 //type WriteMap map[string]CfgMap // used to sort/write out according to FileID
 
 //type CfgKey int
@@ -22,6 +17,12 @@ type CfgMap map[string]*CfgObj
 // UUID representation compliant with specification
 // described in RFC 4122.
 type UUID [16]byte
+
+type CfgType int
+type CfgName string
+type IoState int
+type CfgObjs []*CfgObj
+type CfgMap map[UUID]*CfgObj
 
 const (
 	T_COMMAND CfgType = iota

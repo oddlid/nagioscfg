@@ -66,6 +66,34 @@ func TestReadAllMap(t *testing.T) {
 	}
 }
 
+// Test how we can use UUID as a map key and use the string representation back and forth to retrieve the entry
+func TestUUIDMapKeys(t *testing.T) {
+	str_r := strings.NewReader(cfgobjstr)
+	rdr := NewReader(str_r)
+	m, err := rdr.ReadAllMap("/dev/null")
+	if err != nil {
+		t.Error(err)
+	}
+	strkeys := make([]string, 0, 4)
+	for k := range m {
+		strkeys = append(strkeys, m[k].UUID.String())
+	}
+	t.Log(strkeys)
+
+	for i := range strkeys {
+		u, err := UUIDFromString(strkeys[i])
+		if err != nil {
+			t.Error(err)
+		}
+		co, found := m.Get(u.String())
+		if !found {
+			t.Errorf("Could not find map entry for key %q", u)
+			continue
+		}
+		co.Print(os.Stdout)
+	}
+}
+
 //func TestReadFile(t *testing.T) {
 //	path := "../op5_automation/cfg/etc/services.cfg"
 //	objs, err := ReadFile(path, false)

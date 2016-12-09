@@ -289,7 +289,7 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	for {
 		obj, err := r.Read(true, fileID)
 		if err == nil && obj != nil {
-			m[obj.UUID.Key()] = obj // might be better to use obj.UUID.String()
+			m[obj.UUID] = obj // might be better to use obj.UUID.String()
 		}
 		if err != nil {
 			if err != io.EOF {
