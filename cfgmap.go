@@ -159,5 +159,14 @@ func (cm CfgMap) SearchSubSet(q *CfgQuery, ids ...UUID) []UUID {
 }
 
 func (cm CfgMap) FilterType(t CfgType) []UUID {
+	matches := make([]UUID, 0, len(cm))
+	for k := range cm {
+		if cm[k].Type == t {
+			matches = append(matches, k)
+		}
+	}
+	if len(matches) > 0 {
+		return matches
+	}
 	return nil
 }
