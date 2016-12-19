@@ -170,3 +170,23 @@ func (cm CfgMap) FilterType(t CfgType) []UUID {
 	}
 	return nil
 }
+
+func (cm CfgMap) SplitByFileID() map[string][]UUID {
+	fmap := make(map[string][]UUID)
+	for k := range cm {
+		fid := cm[k].FileID
+		// skip etries without fileid
+		if fid == "" {
+			continue
+			// or we could do something like this:
+			//fid = "nagios-config-objects-without-fileid.cfg"
+		}
+		// initialize if first match of this ID
+		_, ok := fmap[fid]
+		if !ok {
+			fmap[fid] = make([]UUID, 0, 1)
+		}
+		fmap[fid] = append(fmap[fid], cm[k].UUID)
+	}
+	return fmap
+}
