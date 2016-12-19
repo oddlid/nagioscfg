@@ -12,9 +12,11 @@ import (
 	"container/list"
 	"errors"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"io"
-	//"os"
+	"os"
 	"strings"
+	"sync"
 	"unicode"
 )
 
@@ -44,14 +46,24 @@ type Reader struct {
 	r       *bufio.Reader
 }
 
+type Writer struct {
+	w *bufio.Writer
+}
+
 func _debug(args ...interface{}) {
 	fmt.Println(args)
 }
 
-func NewReader(r io.Reader) *Reader {
+func NewReader(rr io.Reader) *Reader {
 	return &Reader{
 		Comment: '#',
-		r:       bufio.NewReader(r),
+		r:       bufio.NewReader(rr),
+	}
+}
+
+func NewWriter(wr io.Writer) *Writer {
+	return &Writer{
+		w: bufio.NewWriter(wr),
 	}
 }
 
@@ -302,6 +314,10 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	return m, nil
 }
 
+func (w *Writer) Flush() error {
+	return w.w.Flush()
+}
+
 // Print prints out a CfgObj in Nagios format
 func (co *CfgObj) Print(w io.Writer) {
 	prefix := strings.Repeat(" ", co.Indent)
@@ -341,6 +357,50 @@ func (cm CfgMap) Print(w io.Writer) {
 		cm[k].Print(w)
 		fmt.Fprintf(w, "\n")
 	}
+}
+
+func (cm CfgMap) WriteByFileID() error {
+	var wg sync.WaitGroup
+	fmap := cm.SplitByFileID()
+	schan := make(chan error)
+
+	for fname := range fmap {
+		wg.Add(1)
+		go func(filename string) {
+			defer wg.Done()
+			fhnd, err := os.Create(filename)
+			if err != nil {
+				schan <- err
+				return
+			}
+			defer fhnd.Close()
+			w := bufio.NewWriter(fhnd)
+			for i := range fmap[filename] {
+				cm[fmap[filename][i]].Print(w)
+			}
+			w.Flush()
+			schan <- nil
+		}(fname)
+	}
+
+	go func() {
+		wg.Wait()
+		close(schan)
+	}()
+
+	var errcnt int
+	for e := range schan {
+		if e != nil {
+			log.Error(e)
+			errcnt++
+		}
+	}
+
+	if errcnt > 0 {
+		return fmt.Errorf("CfgMap.WriteByFileID(): Error writing to %d files", errcnt)
+	}
+
+	return nil
 }
 
 //func readFileToCfgMap(fileName string) (CfgMap, error) {

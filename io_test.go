@@ -1,6 +1,7 @@
 package nagioscfg
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -148,6 +149,29 @@ func BenchmarkReadFileChan(b *testing.B) {
 			}
 		}
 		file.Close()
+	}
+}
+
+func TestWriteByFileID(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services-mini.cfg"
+	file, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer file.Close()
+	r := NewReader(file)
+	ochan := r.ReadChan(true, path)
+	cmap := make(CfgMap)
+	i := 0
+	for o := range ochan {
+		o.FileID = fmt.Sprintf("/tmp/ncfg-testwritebyfileid_%d.cfg", i)
+		i++
+		cmap[o.UUID] = o
+	}
+	//t.Log("\n", cmap.Dump())
+	err = cmap.WriteByFileID()
+	if err != nil {
+		t.Error(err)
 	}
 }
 
