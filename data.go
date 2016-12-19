@@ -137,6 +137,50 @@ var CfgKeys = [...]string{
 	"wednesday",                     // 69
 }
 
+// Key order as defined here:
+// https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#service
+var CfgKeyOrderService [...]int{
+	24, // host_name
+	30, //hostgroup_name
+	55, // service_description
+	15, // display_name
+	61, // servicegroups
+	33, // is_volatile
+	04, // check_command
+	// initial_state should come here
+	35, // max_check_attempts
+	06, // check_interval
+	53, // retry_interval
+	00, // active_checks_enabled
+	48, // passive_checks_enabled
+	07, // check_period
+	// obsess_over_service should come here
+	05, // check_freshness
+	// 	freshness_threshold should come here
+	// event_handler should come here
+	19, // event_handler_enabled
+	// 	low_flap_threshold should come here
+	// high_flap_threshold should come here
+	21. // flap_detection_enabled
+	22, // flap_detection_options
+	49, // process_perf_data
+	52, // retain_status_information
+	51, // retain_nonstatus_information
+	40, // notification_interval
+	// 	first_notification_delay should come here
+	42, // notification_period
+	41, // notification_options
+	43, // notifications_enabled
+	14, // contacts
+	10, // contact_groups
+	62, // stalking_options
+	38, // notes
+	39, // notes_url
+	// 	action_url should come here
+	32, // icon_image
+	// 	icon_image_alt should come here
+}
+
 /*
 type PropertyCollection interface {
 	Add(key, val string) bool      // should only add if key does not yet exist. Return false if key exists
