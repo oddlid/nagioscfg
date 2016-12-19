@@ -6,7 +6,7 @@ Odd, 2016-08-10 17:51
 */
 
 import (
-	"io"
+	//"io"
 	"regexp"
 )
 
@@ -147,19 +147,19 @@ type PropertyCollection interface {
 }
 */
 
-type CfgObjCollection interface {
-	Add(key string, val *CfgObj) bool
-	Set(key string, val *CfgObj) bool
-	Get(key string) (*CfgObj, bool)
-	Del(key string) *CfgObj
-	LongestKey() int
-	MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjCollection
-	MatchAny(rx *regexp.Regexp)  CfgObjCollection
-}
+//type CfgObjCollection interface {
+//	Add(key string, val *CfgObj) bool
+//	Set(key string, val *CfgObj) bool
+//	Get(key string) (*CfgObj, bool)
+//	Del(key string) *CfgObj
+//	LongestKey() int
+//	MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjCollection
+//	MatchAny(rx *regexp.Regexp)  CfgObjCollection
+//}
 
-type Printer interface {
-	Print(w io.Writer)
-}
+//type Printer interface {
+//	Print(w io.Writer)
+//}
 
 type CfgObj struct {
 	Type    CfgType
@@ -177,11 +177,11 @@ type CfgQuery struct {
 }
 
 // Top level struct for managing collections of CfgObj
-type NagiosCfg struct {
-	Objs map[string]CfgMap // key by FileID
-}
+//type NagiosCfg struct {
+//	Objs map[string]CfgMap // key by FileID
+//}
 
-type CfgFile struct {
-	Path string
-	Objs CfgObjs
-}
+//type CfgFile struct {
+//	Path string
+//	Objs CfgObjs
+//}
