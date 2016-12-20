@@ -95,7 +95,7 @@ func (co *CfgObj) GetHostname() (name string, ok bool) {
 	if co.Type != T_SERVICE && co.Type != T_HOST {
 		return
 	}
-	return co.Get(CfgKeys[24]) // "host_name"
+	return co.Get("host_name") // CfgKeys[24]
 }
 
 // GetCheckCommand returns the list value for check_command in a service object
@@ -103,7 +103,7 @@ func (co *CfgObj) GetCheckCommand() []string {
 	if co.Type != T_SERVICE {
 		return nil
 	}
-	lst := co.GetList(CfgKeys[4], SEP_CMD) // make sure to update index here if CfgKeys is updated
+	lst := co.GetList("check_command", SEP_CMD) // (CfgKeys[4]) make sure to update index here if CfgKeys is updated
 	if lst == nil {
 		return nil
 	}
@@ -133,7 +133,7 @@ func (co *CfgObj) GetName() (string, bool) {
 	key := co.Type.String() + "_name"
 	name, found := co.Get(key)
 	if !found {
-		return co.Get(CfgKeys[37]) // "name"
+		return co.Get("name") // CfgKeys[37]
 	}
 	return name, found
 }

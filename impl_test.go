@@ -186,7 +186,7 @@ func TestGetName(t *testing.T) {
 
 func TestGetHostname(t *testing.T) {
 	o := NewCfgObj(T_HOST)
-	k := CfgKeys[24] //"host_name"
+	k := "host_name"
 	v := "printserver"
 	o.Set(k, v)
 	ret, exists := o.GetHostname()
@@ -251,8 +251,8 @@ func TestPrint(t *testing.T) {
 }
 
 func TestAdd2(t *testing.T) {
-	k1 := CfgKeys[24] // host_name
-	k2 := CfgKeys[55] // service_description
+	k1 := "host_name"
+	k2 := "service_description"
 	o := make(CfgObjs, 0, 3)
 
 	o.Add(NewCfgObj(T_SERVICE))
@@ -280,8 +280,8 @@ func TestAdd2(t *testing.T) {
 }
 
 func TestDel2(t *testing.T) {
-	k1 := CfgKeys[24] // host_name
-	k2 := CfgKeys[55] // service_description
+	k1 := "host_name"
+	k2 := "service_description"
 	o := make(CfgObjs, 0, 3)
 	for i := 0; i <= 2; i++ {
 		o.Add(NewCfgObj(T_SERVICE))
@@ -389,8 +389,8 @@ func BenchmarkNewCfgObjWithUUID(b *testing.B) {
 //}
 
 func TestMatchAny(t *testing.T) {
-	k1 := CfgKeys[24]
-	k2 := CfgKeys[55]
+	k1 := "host_name"
+	k2 := "service_description"
 	rx := regexp.MustCompile(`host[0-9]`)
 	o := NewCfgObj(T_SERVICE)
 	o.Add(k2, "MatchingService")
@@ -414,9 +414,9 @@ func TestMatchAny(t *testing.T) {
 }
 
 func TestMatchKeys(t *testing.T) {
-	k1 := CfgKeys[24] // host_name
-	k2 := CfgKeys[55] // service_description
-	k3 := CfgKeys[0]  // active_checks_enabled
+	k1 := "host_name"
+	k2 := "service_description"
+	k3 := "active_checks_enabled"
 
 	objs := make(CfgObjs, 0, 3)
 	objs.Add(NewCfgObj(T_SERVICE))
@@ -471,7 +471,7 @@ func TestCfMapMatchKeys(t *testing.T) {
 
 	// now we have the whole file, let's search a bit
 	rx := regexp.MustCompile(`db_dummy_gso`)
-	u := m.MatchKeys(rx, CfgKeys[24]) // host_name
+	u := m.MatchKeys(rx, "host_name")
 	if u == nil {
 		t.Fatal("Unable to find any match")
 	}
