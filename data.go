@@ -24,19 +24,6 @@ type CfgObjs []*CfgObj
 type CfgMap map[UUID]*CfgObj
 
 const (
-	T_COMMAND CfgType = iota
-	T_CONTACTGROUP
-	T_CONTACT
-	T_HOSTESCALATION
-	T_HOSTGROUP
-	T_HOST
-	T_SERVICEESCALATION
-	T_SERVICEGROUP
-	T_SERVICE
-	T_TIMEPERIOD
-)
-
-const (
 	DEF_INDENT int    = 4
 	DEF_ALIGN  int    = 32
 	SEP_CMD    string = "!"
@@ -50,28 +37,37 @@ const (
 	IO_OBJ_END
 )
 
-//type CfgKey struct {
-//	Name      string
-//	SortOrder int
-//}
-//
-//var CfgKeysHost = [...]*CfgKey{
-//	&CfgKey{
-//		Name:      "host_name",
-//		SortOrder: 0,
-//	},
-//}
+const (
+	T_COMMAND CfgType = iota
+	T_CONTACT
+	T_CONTACTGROUP
+	T_HOST
+	T_HOSTDEPENDENCY
+	T_HOSTESCALATION
+	T_HOSTEXTINFO
+	T_HOSTGROUP
+	T_SERVICE
+	T_SERVICEDEPENDENCY
+	T_SERVICEESCALATION
+	T_SERVICEEXTINFO
+	T_SERVICEGROUP
+	T_TIMEPERIOD
+)
 
 var CfgTypes = [...]CfgName{
 	"command",
-	"contactgroup",
 	"contact",
-	"hostescalation",
-	"hostgroup",
+	"contactgroup",
 	"host",
-	"serviceescalation",
-	"servicegroup",
+	"hostdependency",
+	"hostescalation",
+	"hostextinfo",
+	"hostgroup",
 	"service",
+	"servicedependency",
+	"serviceescalation",
+	"serviceextinfo";
+	"servicegroup",
 	"timeperiod",
 }
 
@@ -171,72 +167,19 @@ var CfgKeys = map[int]string{
 	90: "wednesday",
 }
 
-
-var CfgKeyOrderService = [...]int{
-	24, // host_name
-	30, //hostgroup_name
-	55, // service_description
-	15, // display_name
-	61, // servicegroups
-	33, // is_volatile
-	04, // check_command
-	// initial_state should come here
-	35, // max_check_attempts
-	06, // check_interval
-	53, // retry_interval
-	00, // active_checks_enabled
-	48, // passive_checks_enabled
-	07, // check_period
-	// obsess_over_service should come here
-	05, // check_freshness
-	// 	freshness_threshold should come here
-	// event_handler should come here
-	19, // event_handler_enabled
-	// 	low_flap_threshold should come here
-	// high_flap_threshold should come here
-	21, // flap_detection_enabled
-	22, // flap_detection_options
-	49, // process_perf_data
-	52, // retain_status_information
-	51, // retain_nonstatus_information
-	40, // notification_interval
-	// 	first_notification_delay should come here
-	42, // notification_period
-	41, // notification_options
-	43, // notifications_enabled
-	14, // contacts
-	10, // contact_groups
-	62, // stalking_options
-	38, // notes
-	39, // notes_url
-	// 	action_url should come here
-	32, // icon_image
-	// 	icon_image_alt should come here
+var CfgKeySortOrder = map[string]map[CfgType]int{
+	CfgKeys[40]: map[CfgType]int{ // host_name
+		T_HOST:              0,
+		T_HOSTDEPENDENCY:    2,
+		T_HOSTESCALATION:    0,
+		T_HOSTEXTINFO:       0,
+		T_SERVICE:           0,
+		T_SERVICEDEPENDENCY: 5,
+		T_SERVICEESCALATION: 0,
+		T_SERVICEEXTINFO:    0,
+	},
 }
 
-/*
-type PropertyCollection interface {
-	Add(key, val string) bool      // should only add if key does not yet exist. Return false if key exists
-	Set(key, val string) bool      // adds or overwrites. Return true if key was overwritten
-	Get(key string) (string, bool) // return val, success
-	Del(key string) bool           // return true if key was present
-	LongestKey() int
-}
-*/
-
-//type CfgObjCollection interface {
-//	Add(key string, val *CfgObj) bool
-//	Set(key string, val *CfgObj) bool
-//	Get(key string) (*CfgObj, bool)
-//	Del(key string) *CfgObj
-//	LongestKey() int
-//	MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjCollection
-//	MatchAny(rx *regexp.Regexp)  CfgObjCollection
-//}
-
-//type Printer interface {
-//	Print(w io.Writer)
-//}
 
 type CfgObj struct {
 	Type    CfgType
@@ -262,3 +205,27 @@ type CfgQuery struct {
 //	Path string
 //	Objs CfgObjs
 //}
+/*
+type PropertyCollection interface {
+	Add(key, val string) bool      // should only add if key does not yet exist. Return false if key exists
+	Set(key, val string) bool      // adds or overwrites. Return true if key was overwritten
+	Get(key string) (string, bool) // return val, success
+	Del(key string) bool           // return true if key was present
+	LongestKey() int
+}
+*/
+
+//type CfgObjCollection interface {
+//	Add(key string, val *CfgObj) bool
+//	Set(key string, val *CfgObj) bool
+//	Get(key string) (*CfgObj, bool)
+//	Del(key string) *CfgObj
+//	LongestKey() int
+//	MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjCollection
+//	MatchAny(rx *regexp.Regexp)  CfgObjCollection
+//}
+
+//type Printer interface {
+//	Print(w io.Writer)
+//}
+
