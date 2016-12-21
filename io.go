@@ -314,7 +314,7 @@ func (co *CfgObj) PrintProps(w io.Writer, format string) {
 func (co *CfgObj) PrintPropsSorted(w io.Writer, format string) {
 	keypri := make(map[int]string)
 	for k := range co.Props {
-		keypri[CfgKeySortOrder[k][co.Type]] = k
+		keypri[CfgKeySortOrder[k][co.Type]] = k // should have error checking for non-existing keys/types
 	}
 	keys := make([]int, len(keypri))
 	i := 0

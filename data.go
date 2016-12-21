@@ -168,6 +168,31 @@ var CfgKeys = map[int]string{
 }
 
 var CfgKeySortOrder = map[string]map[CfgType]int{
+	CfgKeys[0]: map[CfgType]int{ // 2d_coords
+		T_HOST:              41,
+		T_HOSTEXTINFO:       8,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment :P
+	},
+	CfgKeys[1]: map[CfgType]int{ // 3d_coords
+		T_HOST:              42,
+		T_HOSTEXTINFO:       9,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment :P
+	},
+	CfgKeys[2]: map[CfgType]int{ // action_url
+		T_HOST:              36,
+		T_HOSTEXTINFO:       3,
+		T_HOSTGROUP:         6,
+		T_SERVICE:           36,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment :P
+		T_SERVICEEXTINFO:    4,
+		T_SERVICEGROUP:      6,
+	},
+	CfgKeys[19]: map[CfgType]int{ // contacts
+		T_HOST:              26,
+		T_HOSTESCALATION:    2,
+		T_SERVICE:           31,
+		T_SERVICEESCALATION: 3,
+	},
 	CfgKeys[40]: map[CfgType]int{ // host_name
 		T_HOST:              0,
 		T_HOSTDEPENDENCY:    2,

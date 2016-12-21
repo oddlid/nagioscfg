@@ -252,6 +252,7 @@ func TestPrintPropsSorted(t *testing.T) {
 define service{
 	service_description PigInABlanket
 	host_name pighost04
+	contacts odd
 	}`
 	str_r := strings.NewReader(objstr)
 	rdr := NewReader(str_r)
