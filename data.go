@@ -66,7 +66,7 @@ var CfgTypes = [...]CfgName{
 	"service",
 	"servicedependency",
 	"serviceescalation",
-	"serviceextinfo";
+	"serviceextinfo",
 	"servicegroup",
 	"timeperiod",
 }
@@ -177,6 +177,12 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 		T_SERVICEDEPENDENCY: 5,
 		T_SERVICEESCALATION: 0,
 		T_SERVICEEXTINFO:    0,
+	},
+	CfgKeys[75]: map[CfgType]int{ // service_description
+		T_SERVICE:           2,
+		T_SERVICEDEPENDENCY: 7,
+		T_SERVICEESCALATION: 2,
+		T_SERVICEEXTINFO:    1,
 	},
 }
 

@@ -3,10 +3,12 @@ package nagioscfg
 import (
 	"container/list"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"regexp"
 	"testing"
+	"strings"
 )
 
 var co = NewCfgObj(T_SERVICE)
@@ -243,6 +245,66 @@ func TestGenerateComment(t *testing.T) {
 		t.Errorf("Expected comment %q, but got %q", exp_comment, co.Comment)
 	}
 
+}
+
+func TestPrintPropsSorted(t *testing.T) {
+	objstr := `#comment 
+define service{
+	service_description PigInABlanket
+	host_name pighost04
+	}`
+	str_r := strings.NewReader(objstr)
+	rdr := NewReader(str_r)
+	co, err := rdr.Read(false, "/dev/null")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if co == nil {
+		t.Fatal("CfgObj is nil")
+	}
+	co.PrintPropsSorted(os.Stdout, "%s = %s\n")
+}
+
+func BenchmarkPrintProps(b *testing.B) {
+	objstr := `#comment 
+define service{
+	service_description PigInABlanket
+	host_name pighost04
+	}`
+	str_r := strings.NewReader(objstr)
+	rdr := NewReader(str_r)
+	co, err := rdr.Read(false, "/dev/null")
+	if err != nil {
+		b.Fatal(err)
+	}
+	if co == nil {
+		b.Fatal("CfgObj is nil")
+	}
+	fstr := "%-32s %s\n"
+	for i := 0; i <= b.N; i++ {
+		co.PrintProps(ioutil.Discard, fstr)
+	}
+}
+
+func BenchmarkPrintPropsSorted(b *testing.B) {
+	objstr := `#comment 
+define service{
+	service_description PigInABlanket
+	host_name pighost04
+	}`
+	str_r := strings.NewReader(objstr)
+	rdr := NewReader(str_r)
+	co, err := rdr.Read(false, "/dev/null")
+	if err != nil {
+		b.Fatal(err)
+	}
+	if co == nil {
+		b.Fatal("CfgObj is nil")
+	}
+	fstr := "%-32s %s\n"
+	for i := 0; i <= b.N; i++ {
+		co.PrintPropsSorted(ioutil.Discard, fstr)
+	}
 }
 
 func TestPrint(t *testing.T) {

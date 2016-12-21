@@ -15,6 +15,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"unicode"
@@ -46,10 +47,6 @@ type Reader struct {
 	r       *bufio.Reader
 }
 
-type Writer struct {
-	w *bufio.Writer
-}
-
 func _debug(args ...interface{}) {
 	fmt.Println(args)
 }
@@ -58,12 +55,6 @@ func NewReader(rr io.Reader) *Reader {
 	return &Reader{
 		Comment: '#',
 		r:       bufio.NewReader(rr),
-	}
-}
-
-func NewWriter(wr io.Writer) *Writer {
-	return &Writer{
-		w: bufio.NewWriter(wr),
 	}
 }
 
@@ -314,8 +305,27 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	return m, nil
 }
 
-func (w *Writer) Flush() error {
-	return w.w.Flush()
+func (co *CfgObj) PrintProps(w io.Writer, format string) {
+	for k, v := range co.Props {
+		fmt.Fprintf(w, format, k, v)
+	}
+}
+
+func (co *CfgObj) PrintPropsSorted(w io.Writer, format string) {
+	keypri := make(map[int]string)
+	for k := range co.Props {
+		keypri[CfgKeySortOrder[k][co.Type]] = k
+	}
+	keys := make([]int, len(keypri))
+	i := 0
+	for k := range keypri {
+		keys[i] = k
+		i++
+	}
+	sort.Ints(keys)
+	for _, k := range keys {
+		fmt.Fprintf(w, format, keypri[k], co.Props[keypri[k]])
+	}
 }
 
 // Print prints out a CfgObj in Nagios format
@@ -325,9 +335,11 @@ func (co *CfgObj) Print(w io.Writer) {
 	co.generateComment() // this might fail, but don't care yet
 	fmt.Fprintf(w, "%s\n", co.Comment)
 	fmt.Fprintf(w, "define %s{\n", co.Type.String())
-	for k, v := range co.Props {
-		fmt.Fprintf(w, fstr, k, v)
-	}
+	//for k, v := range co.Props {
+	//	fmt.Fprintf(w, fstr, k, v)
+	//}
+	co.PrintProps(w, fstr)
+	//co.PrintPropsSorted(w, fstr)
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
