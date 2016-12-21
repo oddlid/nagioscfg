@@ -71,8 +71,6 @@ var CfgTypes = [...]CfgName{
 	"timeperiod",
 }
 
-// Key order for each type defined here:
-// https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html#service
 var CfgKeys = map[int]string{
 	0:  "2d_coords",
 	1:  "3d_coords",
@@ -167,25 +165,68 @@ var CfgKeys = map[int]string{
 	90: "wednesday",
 }
 
+// Key order for each type defined here:
+// https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html
 var CfgKeySortOrder = map[string]map[CfgType]int{
 	CfgKeys[0]: map[CfgType]int{ // 2d_coords
 		T_HOST:              41,
 		T_HOSTEXTINFO:       8,
-		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment :P
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[1]: map[CfgType]int{ // 3d_coords
 		T_HOST:              42,
 		T_HOSTEXTINFO:       9,
-		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment :P
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[2]: map[CfgType]int{ // action_url
 		T_HOST:              36,
 		T_HOSTEXTINFO:       3,
 		T_HOSTGROUP:         6,
 		T_SERVICE:           36,
-		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment :P
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 		T_SERVICEEXTINFO:    4,
 		T_SERVICEGROUP:      6,
+	},
+	CfgKeys[3]: map[CfgType]int{ // active_checks_enabled
+		T_HOST:              11,
+		T_SERVICE:           11,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[4]: map[CfgType]int{ // address
+		T_HOST:              3,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[5]: map[CfgType]int{ // addressx
+		T_CONTACT:           13,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[6]: map[CfgType]int{ // alias
+		T_HOST:              1,
+		T_HOSTGROUP:         1,
+		T_SERVICEGROUP:      1,
+		T_CONTACT:           1,
+		T_CONTACTGROUP:      1,
+		T_TIMEPERIOD:        1,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[7]: map[CfgType]int{ // can_submit_commands
+		T_CONTACT:           14,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[8]: map[CfgType]int{ // check_command
+		T_HOST:              6,
+		T_SERVICE:           6,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[9]: map[CfgType]int{ // check_freshness
+		T_HOST:              15,
+		T_SERVICE:           15,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[10]: map[CfgType]int{ // check_interval
+		T_HOST:              9,
+		T_SERVICE:           9,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[19]: map[CfgType]int{ // contacts
 		T_HOST:              26,
