@@ -228,11 +228,132 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 		T_SERVICE:           9,
 		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
+	CfgKeys[11]: map[CfgType]int{ // check_period
+		T_HOST:              13,
+		T_SERVICE:           13,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[12]: map[CfgType]int{ // command_line
+		T_COMMAND:           1,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[13]: map[CfgType]int{ // command_name
+		T_COMMAND:           0,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[14]: map[CfgType]int{ // contact_groups
+		T_HOST:              27,
+		T_HOSTESCALATION:    3,
+		T_SERVICE:           32,
+		T_SERVICEESCALATION: 4,
+	},
+	CfgKeys[15]: map[CfgType]int{ // contact_name
+		T_CONTACT:           0,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[16]: map[CfgType]int{ // contactgroup_members
+		T_CONTACTGROUP:      3,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[17]: map[CfgType]int{ // contactgroup_name
+		T_CONTACTGROUP:      0,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[18]: map[CfgType]int{ // contactgroups
+		T_CONTACT:           2,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
 	CfgKeys[19]: map[CfgType]int{ // contacts
 		T_HOST:              26,
 		T_HOSTESCALATION:    2,
 		T_SERVICE:           31,
 		T_SERVICEESCALATION: 3,
+	},
+	CfgKeys[20]: map[CfgType]int{ // dependency_period
+		T_HOSTDEPENDENCY:    7,
+		T_SERVICEDEPENDENCY: 11,
+	},
+	CfgKeys[21]: map[CfgType]int{ // dependent_host_name
+		T_HOSTDEPENDENCY:    0,
+		T_SERVICEDEPENDENCY: 0,
+	},
+	CfgKeys[22]: map[CfgType]int{ // dependent_hostgroup_name
+		T_HOSTDEPENDENCY:    1,
+		T_SERVICEDEPENDENCY: 1,
+	},
+	CfgKeys[23]: map[CfgType]int{ // dependent_service_description
+		T_SERVICEDEPENDENCY: 4,
+	},
+	CfgKeys[24]: map[CfgType]int{ // dependent_servicegroup_name
+		T_SERVICEDEPENDENCY: 3,
+	},
+	CfgKeys[25]: map[CfgType]int{ // display_name
+		T_HOST:              2,
+		T_SERVICE:           3,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[26]: map[CfgType]int{ // email
+		T_CONTACT:           11,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[27]: map[CfgType]int{ // escalation_options
+		T_HOSTESCALATION:    8,
+		T_SERVICEESCALATION: 9,
+	},
+	CfgKeys[28]: map[CfgType]int{ // escalation_period
+		T_HOSTESCALATION:    7,
+		T_SERVICEESCALATION: 8,
+	},
+	CfgKeys[29]: map[CfgType]int{ // event_handler
+		T_HOST:              17,
+		T_SERVICE:           17,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[30]: map[CfgType]int{ // event_handler_enabled
+		T_HOST:              18,
+		T_SERVICE:           18,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[31]: map[CfgType]int{ // exclude
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+		T_TIMEPERIOD:        4,
+	},
+	CfgKeys[32]: map[CfgType]int{ // execution_failure_criteria
+		T_HOSTDEPENDENCY:    5,
+		T_SERVICEDEPENDENCY: 9,
+	},
+	CfgKeys[33]: map[CfgType]int{ // first_notification
+		T_HOSTESCALATION:    4,
+		T_SERVICEESCALATION: 5,
+	},
+	CfgKeys[34]: map[CfgType]int{ // first_notification_delay
+		T_HOST:              29,
+		T_SERVICE:           27,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[35]: map[CfgType]int{ // flap_detection_enabled
+		T_HOST:              21,
+		T_SERVICE:           21,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[36]: map[CfgType]int{ // flap_detection_options
+		T_HOST:              22,
+		T_SERVICE:           22,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[37]: map[CfgType]int{ // freshness_threshold
+		T_HOST:              16,
+		T_SERVICE:           16,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[38]: map[CfgType]int{ // friday
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+		T_TIMEPERIOD:        2,
+	},
+	CfgKeys[39]: map[CfgType]int{ // high_flap_threshold
+		T_HOST:              20,
+		T_SERVICE:           20,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[40]: map[CfgType]int{ // host_name
 		T_HOST:              0,
@@ -244,11 +365,109 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 		T_SERVICEESCALATION: 0,
 		T_SERVICEEXTINFO:    0,
 	},
+	CfgKeys[41]: map[CfgType]int{ // host_notification_commands
+	},
+	CfgKeys[42]: map[CfgType]int{ // host_notification_options
+	},
+	CfgKeys[43]: map[CfgType]int{ // host_notification_period
+	},
+	CfgKeys[44]: map[CfgType]int{ // host_notifications_enabled
+	},
+	CfgKeys[45]: map[CfgType]int{ // hostgroup_members
+	},
+	CfgKeys[46]: map[CfgType]int{ // hostgroup_name
+	},
+	CfgKeys[47]: map[CfgType]int{ // hostgroups
+	},
+	CfgKeys[48]: map[CfgType]int{ // icon_image
+	},
+	CfgKeys[49]: map[CfgType]int{ // icon_image_alt
+	},
+	CfgKeys[50]: map[CfgType]int{ // inherits_parent
+	},
+	CfgKeys[51]: map[CfgType]int{ // initial_state
+	},
+	CfgKeys[52]: map[CfgType]int{ // is_volatile
+	},
+	CfgKeys[53]: map[CfgType]int{ // last_notification
+	},
+	CfgKeys[54]: map[CfgType]int{ // low_flap_threshold
+	},
+	CfgKeys[55]: map[CfgType]int{ // max_check_attempts
+	},
+	CfgKeys[56]: map[CfgType]int{ // members
+	},
+	CfgKeys[57]: map[CfgType]int{ // monday
+	},
+	CfgKeys[58]: map[CfgType]int{ // notes
+	},
+	CfgKeys[59]: map[CfgType]int{ // notes_url
+	},
+	CfgKeys[60]: map[CfgType]int{ // notification_failure_criteria
+	},
+	CfgKeys[61]: map[CfgType]int{ // notification_interval
+	},
+	CfgKeys[62]: map[CfgType]int{ // notification_options
+	},
+	CfgKeys[63]: map[CfgType]int{ // notification_period
+	},
+	CfgKeys[64]: map[CfgType]int{ // notifications_enabled
+	},
+	CfgKeys[65]: map[CfgType]int{ // obsess_over_host
+	},
+	CfgKeys[66]: map[CfgType]int{ // obsess_over_service
+	},
+	CfgKeys[67]: map[CfgType]int{ // pager
+	},
+	CfgKeys[68]: map[CfgType]int{ // parents
+	},
+	CfgKeys[69]: map[CfgType]int{ // passive_checks_enabled
+	},
+	CfgKeys[70]: map[CfgType]int{ // process_perf_data
+	},
+	CfgKeys[71]: map[CfgType]int{ // retain_nonstatus_information
+	},
+	CfgKeys[72]: map[CfgType]int{ // retain_status_information
+	},
+	CfgKeys[73]: map[CfgType]int{ // retry_interval
+	},
+	CfgKeys[74]: map[CfgType]int{ // saturday
+	},
 	CfgKeys[75]: map[CfgType]int{ // service_description
 		T_SERVICE:           2,
 		T_SERVICEDEPENDENCY: 7,
 		T_SERVICEESCALATION: 2,
 		T_SERVICEEXTINFO:    1,
+	},
+	CfgKeys[76]: map[CfgType]int{ // service_notification_commands
+	},
+	CfgKeys[77]: map[CfgType]int{ // service_notification_options
+	},
+	CfgKeys[78]: map[CfgType]int{ // service_notification_period
+	},
+	CfgKeys[79]: map[CfgType]int{ // service_notifications_enabled
+	},
+	CfgKeys[80]: map[CfgType]int{ // servicegroup_members
+	},
+	CfgKeys[81]: map[CfgType]int{ // servicegroup_name
+	},
+	CfgKeys[82]: map[CfgType]int{ // servicegroups
+	},
+	CfgKeys[83]: map[CfgType]int{ // stalking_options
+	},
+	CfgKeys[84]: map[CfgType]int{ // statusmap_image
+	},
+	CfgKeys[85]: map[CfgType]int{ // sunday
+	},
+	CfgKeys[86]: map[CfgType]int{ // thursday
+	},
+	CfgKeys[87]: map[CfgType]int{ // timeperiod_name
+	},
+	CfgKeys[88]: map[CfgType]int{ // tuesday
+	},
+	CfgKeys[89]: map[CfgType]int{ // vrml_image
+	},
+	CfgKeys[90]: map[CfgType]int{ // wednesday
 	},
 }
 
