@@ -93,7 +93,7 @@ func (fr *FileReader) Close() error {
 }
 
 func (fr *FileReader) String() string {
-	return fmt.Sprintf("FileReader: %s", fr.f.Name())
+	return fmt.Sprintf("FileReader: %q", fr.f.Name())
 }
 
 func (r *Reader) error(err error) error {

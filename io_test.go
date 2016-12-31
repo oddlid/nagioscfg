@@ -179,7 +179,7 @@ func TestNewFileReader(t *testing.T) {
 	path := "../op5_automation/cfg/etc/services-mini.cfg"
 	fr := NewFileReader(path)
 	if fr == nil {
-		t.Errorf("Failed to create new FileReader from path %q", path)
+		t.Fatalf("Failed to create new FileReader from path %q", path)
 	}
 	t.Logf("%+v", fr)
 	err := fr.Close()
