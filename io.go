@@ -15,6 +15,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"io"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -51,7 +52,6 @@ type FileReader struct {
 	*Reader
 	f *os.File
 }
-
 
 type MultiFileReader []*FileReader
 
@@ -102,7 +102,11 @@ func (fr *FileReader) Close() error {
 }
 
 func (fr *FileReader) String() string {
-	return fmt.Sprintf("%s.FileReader: %q", PKGNAME, fr.f.Name())
+	fpath, err := filepath.Abs(fr.f.Name())
+	if err != nil {
+		fpath = fr.f.Name()
+	}
+	return fmt.Sprintf("%s.FileReader: %q", PKGNAME, fpath)
 }
 
 func (mfr MultiFileReader) Close() error {

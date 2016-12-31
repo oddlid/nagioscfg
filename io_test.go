@@ -176,7 +176,8 @@ func TestWriteByFileID(t *testing.T) {
 }
 
 func TestNewFileReader(t *testing.T) {
-	path := "../op5_automation/cfg/etc/services-mini.cfg"
+	//path := "../op5_automation/cfg/etc/services-mini.cfg"
+	path := "/tmp/a.txt"
 	fr := NewFileReader(path)
 	if fr == nil {
 		t.Fatalf("Failed to create new FileReader from path %q", path)
@@ -194,6 +195,10 @@ func TestNewMultiFileReader(t *testing.T) {
 	t.Logf("MFR length: %d", len(mfr))
 	for i := range mfr {
 		t.Logf("MFR entry #%d: %s", i, mfr[i])
+	}
+	err := mfr.Close()
+	if err != nil {
+		t.Error(err)
 	}
 }
 
