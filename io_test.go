@@ -175,6 +175,19 @@ func TestWriteByFileID(t *testing.T) {
 	}
 }
 
+func TestNewFileReader(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services-mini.cfg"
+	fr := NewFileReader(path)
+	if fr == nil {
+		t.Errorf("Failed to create new FileReader from path %q", path)
+	}
+	t.Logf("%+v", fr)
+	err := fr.Close()
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 //func BenchmarkReadFileSetUUID(b *testing.B) {
 //	path := "../op5_automation/cfg/etc/services-mini.cfg"
 //	for i := 0; i <= b.N; i++ {

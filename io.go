@@ -47,6 +47,16 @@ type Reader struct {
 	r       *bufio.Reader
 }
 
+type FileReader struct {
+	*Reader
+	f *os.File
+}
+
+type MultiReader []Reader
+
+type MultiFileReader struct {
+}
+
 func _debug(args ...interface{}) {
 	fmt.Println(args)
 }
@@ -56,6 +66,34 @@ func NewReader(rr io.Reader) *Reader {
 		Comment: '#',
 		r:       bufio.NewReader(rr),
 	}
+}
+
+//func NewMultiReader(rs ...io.Reader) *MultiReader {
+//	mr := make(MultiReader, len(rs))
+//	for i := range rs {
+//		mr[i] = NewReader(rs[i])
+//	}
+//	return mr
+//}
+
+func NewFileReader(path string) *FileReader {
+	file, err := os.Open(path)
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+	fr := &FileReader{}
+	fr.Reader = NewReader(file)
+	fr.f = file
+	return fr
+}
+
+func (fr *FileReader) Close() error {
+	return fr.f.Close()
+}
+
+func (fr *FileReader) String() string {
+	return fmt.Sprintf("FileReader: %s", fr.f.Name())
 }
 
 func (r *Reader) error(err error) error {
@@ -303,6 +341,24 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 		}
 	}
 	return m, nil
+}
+
+//func (mr *MultiReader) Close() error {
+//	errcnt := 0
+//	for i := range mr {
+//		err := mr[i].Close()
+//		if err != nil {
+//			errcnt++
+//			log.Error(err)
+//		}
+//	}
+//	if errcnt > 0 {
+//		return fmt.Errorf("MultiReader.Close(): Encountered %d errors closing readers", errcnt)
+//	}
+//	return nil
+//}
+
+func (mr *MultiReader) ReadChan(setUUID bool) {
 }
 
 func (co *CfgObj) PrintProps(w io.Writer, format string) {
