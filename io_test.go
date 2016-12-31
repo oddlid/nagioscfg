@@ -188,6 +188,15 @@ func TestNewFileReader(t *testing.T) {
 	}
 }
 
+func TestNewMultiFileReader(t *testing.T) {
+	files := []string{"/tmp/a.txt", "/tmp/b.txt", "/tmp/c.txt"}
+	mfr := NewMultiFileReader(files...)
+	t.Logf("MFR length: %d", len(mfr))
+	for i := range mfr {
+		t.Logf("MFR entry #%d: %s", i, mfr[i])
+	}
+}
+
 //func BenchmarkReadFileSetUUID(b *testing.B) {
 //	path := "../op5_automation/cfg/etc/services-mini.cfg"
 //	for i := 0; i <= b.N; i++ {

@@ -77,7 +77,7 @@ func NewReader(rr io.Reader) *Reader {
 func NewFileReader(path string) *FileReader {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("%s.NewFileReader(): %q", PKGNAME, err)
 		return nil
 	}
 	fr := &FileReader{}
@@ -87,11 +87,11 @@ func NewFileReader(path string) *FileReader {
 }
 
 func NewMultiFileReader(paths ...string) MultiFileReader {
-	mfr := make(MultiFileReader, len(paths))
+	mfr := make(MultiFileReader, 0, len(paths))
 	for i := range paths {
 		fr := NewFileReader(paths[i])
 		if fr != nil {
-			mfr[i] = fr
+			mfr = append(mfr, fr)
 		}
 	}
 	return mfr
