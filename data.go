@@ -23,6 +23,8 @@ type IoState int
 type CfgObjs []*CfgObj
 type CfgMap map[UUID]*CfgObj
 
+const PKGNAME string = "nagioscfg"
+
 const (
 	DEF_INDENT int    = 4
 	DEF_ALIGN  int    = 32

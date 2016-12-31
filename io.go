@@ -52,10 +52,8 @@ type FileReader struct {
 	f *os.File
 }
 
-type MultiReader []Reader
 
-type MultiFileReader struct {
-}
+type MultiFileReader []*FileReader
 
 func _debug(args ...interface{}) {
 	fmt.Println(args)
@@ -88,12 +86,38 @@ func NewFileReader(path string) *FileReader {
 	return fr
 }
 
+func NewMultiFileReader(paths ...string) MultiFileReader {
+	mfr := make(MultiFileReader, len(paths))
+	for i := range paths {
+		fr := NewFileReader(paths[i])
+		if fr != nil {
+			mfr[i] = fr
+		}
+	}
+	return mfr
+}
+
 func (fr *FileReader) Close() error {
 	return fr.f.Close()
 }
 
 func (fr *FileReader) String() string {
-	return fmt.Sprintf("FileReader: %q", fr.f.Name())
+	return fmt.Sprintf("%s.FileReader: %q", PKGNAME, fr.f.Name())
+}
+
+func (mfr MultiFileReader) Close() error {
+	errcnt := 0
+	for i := range mfr {
+		err := mfr[i].Close()
+		if err != nil {
+			log.Error(err)
+			errcnt++
+		}
+	}
+	if errcnt > 0 {
+		return fmt.Errorf("%s.MultiFileReader.Close(): Error closing %d files", PKGNAME, errcnt)
+	}
+	return nil
 }
 
 func (r *Reader) error(err error) error {
@@ -343,24 +367,6 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	return m, nil
 }
 
-//func (mr *MultiReader) Close() error {
-//	errcnt := 0
-//	for i := range mr {
-//		err := mr[i].Close()
-//		if err != nil {
-//			errcnt++
-//			log.Error(err)
-//		}
-//	}
-//	if errcnt > 0 {
-//		return fmt.Errorf("MultiReader.Close(): Encountered %d errors closing readers", errcnt)
-//	}
-//	return nil
-//}
-
-func (mr *MultiReader) ReadChan(setUUID bool) {
-}
-
 func (co *CfgObj) PrintProps(w io.Writer, format string) {
 	for k, v := range co.Props {
 		fmt.Fprintf(w, format, k, v)
@@ -399,11 +405,6 @@ func (co *CfgObj) Print(w io.Writer) {
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
-// PrintSorted prints out a CfgObj in Nagios format, sorted like Nagios/op5 would do
-//func (co *CfgObj) PrintSorted(w io.Writer) {
-//	fmt.Fprintf(w, "# Implement it yourself, Göran!\n")
-//}
-
 // Print writes a collection of CfgObj to a given stream
 func (cos CfgObjs) Print(w io.Writer) {
 	for i := range cos {
@@ -411,14 +412,6 @@ func (cos CfgObjs) Print(w io.Writer) {
 		fmt.Fprint(w, "\n")
 	}
 }
-
-// PrintSorted writes a collection of CfgObj to a given stream, sorted by host_name/service_description
-//func (cos CfgObjs) PrintSorted(w io.Writer) {
-//	for i := range cos {
-//		cos[i].PrintSorted(w)
-//		fmt.Fprintf(w, "\n")
-//	}
-//}
 
 func (cm CfgMap) Print(w io.Writer) {
 	for k := range cm {
