@@ -134,6 +134,27 @@ func TestReadFileChan(t *testing.T) {
 //	}
 //}
 
+func TestReadMultiFileChan(t *testing.T) {
+	files := []string{
+		"/tmp/ncfg-testwritebyfileid_0.cfg",
+		"/tmp/ncfg-testwritebyfileid_1.cfg",
+		"/tmp/ncfg-testwritebyfileid_2.cfg",
+	}
+	mfr := NewMultiFileReader(files...)
+	ochan := mfr.ReadChan(true)
+	expobjnum := 3
+	objcnt := 0
+	for o := range ochan {
+		name, _ := o.GetUniqueCheckName()
+		t.Logf("%s %q", name, o.FileID)
+		objcnt++
+	}
+	mfr.Close()
+	if objcnt != expobjnum {
+		t.Errorf("Expected to read %d objects from channel, but got %d", expobjnum, objcnt)
+	}
+}
+
 func BenchmarkReadFileChan(b *testing.B) {
 	path := "../op5_automation/cfg/etc/services-mini.cfg"
 	for i := 0; i <= b.N; i++ {

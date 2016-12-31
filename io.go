@@ -101,8 +101,12 @@ func (fr *FileReader) Close() error {
 	return fr.f.Close()
 }
 
+func (fr *FileReader) AbsPath() (string, error) {
+	return filepath.Abs(fr.f.Name())
+}
+
 func (fr *FileReader) String() string {
-	fpath, err := filepath.Abs(fr.f.Name())
+	fpath, err := fr.AbsPath()
 	if err != nil {
 		fpath = fr.f.Name()
 	}
@@ -326,12 +330,59 @@ func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 				objchan <- obj
 			}
 			if err != nil {
+				if err != io.EOF {
+					log.Errorf("%s.Reader.ReadChan(): %q", PKGNAME, err)
+				}
 				break
 			}
 		}
 		close(objchan)
 	}()
 	return objchan
+}
+
+func (mfr MultiFileReader) ReadChan(setUUID bool) <-chan *CfgObj {
+	// Need to do some fan-out, fan-in stuff here
+	var wg sync.WaitGroup
+	out := make(chan *CfgObj)
+	mfrlen := len(mfr)
+
+	output := func(c <-chan *CfgObj) {
+		defer wg.Done()
+		for v := range c {
+			out <- v
+			// The variant below tends to fail now and then
+			//select {
+			//case out <- v:
+			//default:
+			//	log.Errorf("%s.MultiFileReader.ReadChan().output(): Unable to copy to new channel", PKGNAME)
+			//	return
+			//}
+		}
+	}
+
+	fcs := make([]<-chan *CfgObj, mfrlen)
+	for i := range mfr {
+		fileID, err := mfr[i].AbsPath()
+		if err != nil {
+			log.Errorf("%s.MultiFileReader.ReadChan(): %q", err)
+			fileID = mfr[i].f.Name()
+		}
+		fcs[i] = mfr[i].ReadChan(setUUID, fileID)
+	}
+
+	wg.Add(mfrlen)
+
+	for _, c := range fcs {
+		go output(c)
+	}
+
+	go func() {
+		wg.Wait()
+		close(out)
+	}()
+
+	return out
 }
 
 // ReadAllList does the same as ReadAll, but returns a list instead of a slice
