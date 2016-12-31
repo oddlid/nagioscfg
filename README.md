@@ -1,1 +1,1 @@
-# nagios-config - A library for handling Nagios configuration data
+# nagioscfg - A library for handling Nagios configuration data
