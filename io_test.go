@@ -134,6 +134,22 @@ func TestReadFileChan(t *testing.T) {
 //	}
 //}
 
+func TestReadAllMapMulti(t *testing.T) {
+	files := []string{
+		"/tmp/ncfg-testwritebyfileid_0.cfg",
+		"/tmp/ncfg-testwritebyfileid_1.cfg",
+		"/tmp/ncfg-testwritebyfileid_2.cfg",
+	}
+	mfr := NewMultiFileReader(files...)
+	defer mfr.Close()
+	cm, err := mfr.ReadAllMap()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(cm.Dump())
+}
+
+
 func TestReadMultiFileChan(t *testing.T) {
 	files := []string{
 		"/tmp/ncfg-testwritebyfileid_0.cfg",

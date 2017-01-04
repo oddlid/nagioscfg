@@ -422,12 +422,41 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	return m, nil
 }
 
+func (mfr MultiFileReader) ReadAllMap() (CfgMap, error) {
+	cm := make(CfgMap)
+	errcnt := 0
+	for i := range mfr {
+		fileID, err := mfr[i].AbsPath()
+		if err != nil {
+			log.Errorf("%s.MultiFileReader.ReadAllMap(): %q", PKGNAME, err)
+			fileID = mfr[i].f.Name()
+		}
+		m, err := mfr[i].ReadAllMap(fileID)
+		if err != nil {
+			log.Errorf("%s.MultiFileReader.ReadAllMap(): %q", PKGNAME, err)
+			errcnt++
+		}
+		err = cm.Append(m)
+		if err != nil {
+			log.Errorf("%s.MultiFileReader.ReadAllMap(): %q", PKGNAME, err)
+		}
+	}
+
+	if errcnt > 0 {
+		return nil, fmt.Errorf("%s.MultiFileReader.ReadAllMap(): Encountered %d errors, bailing out", PKGNAME, errcnt)
+	}
+	return cm, nil
+}
+
+// PrintProps prints a CfgObj's properties in random order
 func (co *CfgObj) PrintProps(w io.Writer, format string) {
 	for k, v := range co.Props {
 		fmt.Fprintf(w, format, k, v)
 	}
 }
 
+// PrintPropsSorted prints a CfgObj's properties acording to sort order found here:
+// https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html
 func (co *CfgObj) PrintPropsSorted(w io.Writer, format string) {
 	keypri := make(map[int]string)
 	for k := range co.Props {
@@ -455,8 +484,8 @@ func (co *CfgObj) Print(w io.Writer) {
 	//for k, v := range co.Props {
 	//	fmt.Fprintf(w, fstr, k, v)
 	//}
-	co.PrintProps(w, fstr)
-	//co.PrintPropsSorted(w, fstr)
+	//co.PrintProps(w, fstr)
+	co.PrintPropsSorted(w, fstr)
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
@@ -571,7 +600,6 @@ func (cm CfgMap) WriteByFileID() error {
 //	w.Flush()
 //	return nil
 //}
-
 
 //func ReadFile(fileName string, setUUID bool) (CfgObjs, error) {
 //	file, err := os.Open(fileName)

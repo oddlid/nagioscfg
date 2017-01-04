@@ -25,6 +25,7 @@ func (cm CfgMap) Set(key string, val *CfgObj) bool {
 func (cm CfgMap) AddByUUID(key UUID, val *CfgObj) bool {
 	_, exists := cm[key]
 	if exists {
+		log.Debugf("%s.CfgMap.AddByUUID(): Attempt to add existing key %q ignored", PKGNAME, key)
 		return false
 	}
 	return !cm.SetByUUID(key, val)
@@ -65,6 +66,20 @@ func (cm CfgMap) Del(key string) *CfgObj {
 	return cm.DelByUUID(u)
 }
 
+func (cm CfgMap) Append(c2 CfgMap) error {
+	errcnt := 0
+	for k := range c2 {
+		ok := cm.AddByUUID(k, c2[k])
+		if !ok {
+			errcnt++
+		}
+	}
+	if errcnt > 0 {
+		return fmt.Errorf("%s.CfgMap.Append(): Failed to append %d of the %d given values", PKGNAME, errcnt, len(c2))
+	}
+	return nil
+}
+
 func (cm CfgMap) LongestKey() int {
 	max := 0
 	curmax := 0
@@ -81,12 +96,13 @@ func (cm CfgMap) Dump() string {
 	var buf bytes.Buffer
 	w := bufio.NewWriter(&buf)
 	for k, v := range cm {
-		fmt.Fprintf(w, "Key     : %q\n", k)
-		fmt.Fprintf(w, "UUID    : %s\n", v.UUID.String())
+		fmt.Fprintf(w, "\n")
+		fmt.Fprintf(w, "File ID : %s\n", v.FileID)
+		fmt.Fprintf(w, "Key     : %s\n", k)
+		//fmt.Fprintf(w, "UUID    : %s\n", v.UUID.String())
 		fmt.Fprintf(w, "Type    : %s\n", v.Type.String())
 		fmt.Fprintf(w, "Indent  : %d\n", v.Indent)
 		fmt.Fprintf(w, "Align   : %d\n", v.Align)
-		fmt.Fprintf(w, "File ID : %s\n", v.FileID)
 		v.Print(w)
 	}
 	w.Flush()
