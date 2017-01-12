@@ -639,10 +639,6 @@ type CfgQuery struct {
 //	Objs map[string]CfgMap // key by FileID
 //}
 
-//type CfgFile struct {
-//	Path string
-//	Objs CfgObjs
-//}
 /*
 type PropertyCollection interface {
 	Add(key, val string) bool      // should only add if key does not yet exist. Return false if key exists
@@ -666,4 +662,5 @@ type PropertyCollection interface {
 //type Printer interface {
 //	Print(w io.Writer)
 //}
+
 

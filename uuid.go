@@ -69,18 +69,6 @@ func NewUUIDv1() UUID {
 	return u
 }
 
-//func NewUUIDv4() UUID {
-//	// I should probably find another way to generate IDs, as this seems unnecessary slow...
-//	u := UUID{}
-//	_, err := rand.Read(u[:]) // this step seems to be quite slow, like about 138 times slower than when the values are statically set...
-//	if err != nil {
-//		panic(err)
-//	}
-//	u[6] = (u[6] & 0x0f) | (4 << 4) // set version 4
-//	u[8] = (u[8] & 0xbf) | 0x80     // set variant
-//	return u
-//}
-
 func (u UUID) Equals(u2 UUID) bool {
 	return bytes.Equal(u[:], u2[:])
 }
