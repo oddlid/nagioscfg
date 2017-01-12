@@ -24,6 +24,7 @@ type CfgObjs []*CfgObj
 type CfgMap map[UUID]*CfgObj
 
 const PKGNAME string = "nagioscfg"
+const VERSION string = "2017-01-12"
 
 const (
 	DEF_INDENT int    = 4
@@ -54,6 +55,7 @@ const (
 	T_SERVICEEXTINFO
 	T_SERVICEGROUP
 	T_TIMEPERIOD
+	T_INVALID
 )
 
 var CfgTypes = [...]CfgName{

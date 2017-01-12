@@ -21,7 +21,7 @@ func (cn CfgName) Type() CfgType {
 			return CfgType(i)
 		}
 	}
-	return -1
+	return T_INVALID
 }
 
 // size returns the runtime bytes size for the given objects map ( to calculate objs from input file size). Only for debugging.

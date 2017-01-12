@@ -259,7 +259,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 			switch state {
 			case IO_OBJ_BEGIN:
 				ct := CfgName(fields[1]).Type()
-				if ct == -1 {
+				if ct == T_INVALID {
 					return nil, r.error(ErrUnknown)
 				}
 				if setUUID {
