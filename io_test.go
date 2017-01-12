@@ -41,7 +41,7 @@ func TestRead(t *testing.T) {
 		t.Fatal("CfgObj is nil")
 	}
 	co.AutoAlign()
-	co.Print(os.Stdout)
+	co.Print(os.Stdout, true)
 }
 
 //func TestReadAll(t *testing.T) {
@@ -92,7 +92,7 @@ func TestUUIDMapKeys(t *testing.T) {
 			t.Errorf("Could not find map entry for key %q", u)
 			continue
 		}
-		co.Print(os.Stdout)
+		co.Print(os.Stdout, true)
 	}
 }
 

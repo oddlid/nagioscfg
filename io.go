@@ -30,6 +30,7 @@ type ParseError struct {
 	Err    error // The actual error
 }
 
+// Error returns the error as a nicely formatted string
 func (e *ParseError) Error() string {
 	return fmt.Sprintf("line %d, column %d: %s", e.Line, e.Column, e.Err)
 }
@@ -65,14 +66,6 @@ func NewReader(rr io.Reader) *Reader {
 		r:       bufio.NewReader(rr),
 	}
 }
-
-//func NewMultiReader(rs ...io.Reader) *MultiReader {
-//	mr := make(MultiReader, len(rs))
-//	for i := range rs {
-//		mr[i] = NewReader(rs[i])
-//	}
-//	return mr
-//}
 
 func NewFileReader(path string) *FileReader {
 	file, err := os.Open(path)
@@ -299,28 +292,6 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 	return nil, r.error(ErrUnknown)
 }
 
-// ReadAll calls Read repeatedly and returns all config objects it collects
-//func (r *Reader) ReadAll(setUUID bool, fileID string) (CfgObjs, error) {
-//	// Should make a version of this that approximates the number of entries based on the bytes size of the file and allocates near that number
-//	objs := make(CfgObjs, 0, 64) // should find a way to calculate the approx number of entries from file/stream size, to avoid more re-alloc than needed and just hit the sweet spot at first try here
-//	var obj *CfgObj
-//	var err error
-//	for {
-//		obj, err = r.Read(setUUID, fileID)
-//		if err == nil && obj != nil {
-//			objs = append(objs, obj)
-//		}
-//		if err != nil {
-//			if err != io.EOF {
-//				return objs, err
-//			} else {
-//				break
-//			}
-//		}
-//	}
-//	return objs, nil
-//}
-
 func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 	objchan := make(chan *CfgObj, 2) // making the channel buffered seems to make the function slightly faster
 	go func() {
@@ -475,31 +446,31 @@ func (co *CfgObj) PrintPropsSorted(w io.Writer, format string) {
 }
 
 // Print prints out a CfgObj in Nagios format
-func (co *CfgObj) Print(w io.Writer) {
+func (co *CfgObj) Print(w io.Writer, sorted bool) {
 	prefix := strings.Repeat(" ", co.Indent)
 	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
 	co.generateComment() // this might fail, but don't care yet
 	fmt.Fprintf(w, "%s\n", co.Comment)
 	fmt.Fprintf(w, "define %s{\n", co.Type.String())
-	//for k, v := range co.Props {
-	//	fmt.Fprintf(w, fstr, k, v)
-	//}
-	//co.PrintProps(w, fstr)
-	co.PrintPropsSorted(w, fstr)
+	if sorted {
+		co.PrintPropsSorted(w, fstr)
+	} else {
+		co.PrintProps(w, fstr)
+	}
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
 // Print writes a collection of CfgObj to a given stream
-func (cos CfgObjs) Print(w io.Writer) {
+func (cos CfgObjs) Print(w io.Writer, sorted bool) {
 	for i := range cos {
-		cos[i].Print(w)
+		cos[i].Print(w, sorted)
 		fmt.Fprint(w, "\n")
 	}
 }
 
-func (cm CfgMap) Print(w io.Writer) {
+func (cm CfgMap) Print(w io.Writer, sorted bool) {
 	for k := range cm {
-		cm[k].Print(w)
+		cm[k].Print(w, sorted)
 		fmt.Fprintf(w, "\n")
 	}
 }
@@ -521,7 +492,7 @@ func (cm CfgMap) WriteByFileID() error {
 			defer fhnd.Close()
 			w := bufio.NewWriter(fhnd)
 			for i := range fmap[filename] {
-				cm[fmap[filename][i]].Print(w)
+				cm[fmap[filename][i]].Print(w, true) // should pass "sorted" here as a param, not hard coded
 			}
 			w.Flush()
 			schan <- nil

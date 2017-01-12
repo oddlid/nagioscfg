@@ -103,7 +103,7 @@ func (cm CfgMap) Dump() string {
 		fmt.Fprintf(w, "Type    : %s\n", v.Type.String())
 		fmt.Fprintf(w, "Indent  : %d\n", v.Indent)
 		fmt.Fprintf(w, "Align   : %d\n", v.Align)
-		v.Print(w)
+		v.Print(w, false)
 	}
 	w.Flush()
 	return buf.String()

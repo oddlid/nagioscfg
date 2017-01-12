@@ -310,7 +310,7 @@ define service{
 
 func TestPrint(t *testing.T) {
 	co.Align = co.LongestKey() + 2
-	co.Print(os.Stdout)
+	co.Print(os.Stdout, true)
 }
 
 func TestAdd2(t *testing.T) {
@@ -339,7 +339,7 @@ func TestAdd2(t *testing.T) {
 	o[2].Add(k1, "host3")
 	o[2].Add(k2, "service3")
 
-	o.Print(os.Stdout)
+	o.Print(os.Stdout, true)
 }
 
 func TestDel2(t *testing.T) {
@@ -354,14 +354,14 @@ func TestDel2(t *testing.T) {
 	if len(o) != 3 {
 		t.Error("Length should be 3")
 	}
-	o.Print(os.Stdout)
+	o.Print(os.Stdout, true)
 
 	t.Log("Deleting element #1")
 	o.Del(1)
 	if len(o) != 2 {
 		t.Error("Length should be 2")
 	}
-	o.Print(os.Stdout)
+	o.Print(os.Stdout, true)
 }
 
 func BenchmarkDel2(b *testing.B) {
@@ -473,7 +473,7 @@ func TestMatchAny(t *testing.T) {
 		t.Error("Should find match, but did not")
 	}
 
-	o.Print(os.Stdout)
+	o.Print(os.Stdout, true)
 }
 
 func TestMatchKeys(t *testing.T) {
@@ -498,7 +498,7 @@ func TestMatchKeys(t *testing.T) {
 
 	rx := regexp.MustCompile(`Dummy.*`)
 
-	objs.Print(os.Stdout)
+	objs.Print(os.Stdout, true)
 
 	if !objs[0].MatchKeys(rx, k1, k2) {
 		t.Error("Should match, but did not")
@@ -541,7 +541,7 @@ func TestCfMapMatchKeys(t *testing.T) {
 
 	for i := range u {
 		fmt.Printf("=== Matching UUID: %s ===\n", u[i])
-		m[u[i]].Print(os.Stdout)
+		m[u[i]].Print(os.Stdout, true)
 	}
 }
 
@@ -570,6 +570,6 @@ func TestCfgMapSearch(t *testing.T) {
 
 	for i := range u {
 		fmt.Printf("### Matching UUID %q ###\n", u[i])
-		m[u[i]].Print(os.Stdout)
+		m[u[i]].Print(os.Stdout, true)
 	}
 }
