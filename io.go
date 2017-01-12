@@ -484,8 +484,8 @@ func (co *CfgObj) Print(w io.Writer) {
 	//for k, v := range co.Props {
 	//	fmt.Fprintf(w, fstr, k, v)
 	//}
-	//co.PrintProps(w, fstr)
-	co.PrintPropsSorted(w, fstr)
+	co.PrintProps(w, fstr)
+	//co.PrintPropsSorted(w, fstr)
 	fmt.Fprintf(w, "%s}\n", prefix)
 }
 
