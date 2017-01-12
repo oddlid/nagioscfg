@@ -44,19 +44,6 @@ func TestRead(t *testing.T) {
 	co.Print(os.Stdout, true)
 }
 
-//func TestReadAll(t *testing.T) {
-//	//t.Skip("Not implemented yet")
-//	str_r := strings.NewReader(cfgobjstr)
-//	rdr := NewReader(str_r)
-//	cos, err := rdr.ReadAll(false, "/dev/null")
-//	if err != nil {
-//		t.Error(err)
-//	} else {
-//		cos.AutoAlign()
-//		cos.Print(os.Stdout)
-//	}
-//}
-
 func TestReadAllMap(t *testing.T) {
 	str_r := strings.NewReader(cfgobjstr)
 	rdr := NewReader(str_r)
@@ -96,15 +83,6 @@ func TestUUIDMapKeys(t *testing.T) {
 	}
 }
 
-//func TestReadFile(t *testing.T) {
-//	path := "../op5_automation/cfg/etc/services.cfg"
-//	objs, err := ReadFile(path, false)
-//	if err != nil {
-//		t.Error(err)
-//	}
-//	t.Log("Number of objets read: ", len(objs))
-//}
-
 func TestReadFileChan(t *testing.T) {
 	path := "../op5_automation/cfg/etc/services-mini.cfg"
 	file, err := os.Open(path)
@@ -118,22 +96,7 @@ func TestReadFileChan(t *testing.T) {
 		name, _ := o.GetUniqueCheckName()
 		t.Logf("Read config object from channel: %q", name)
 	}
-	//for o, ok := <-ochan; ok; o, ok = <-ochan {
-	//	if ok {
-	//		name, _ := o.GetUniqueCheckName()
-	//		t.Log("Read one config object from channel:", name)
-	//	} else {
-	//		t.Error("Channel closed")
-	//	}
-	//}
 }
-
-//func BenchmarkReadFile(b *testing.B) {
-//	path := "../op5_automation/cfg/etc/services-mini.cfg"
-//	for i := 0; i <= b.N; i++ {
-//		ReadFile(path, false)
-//	}
-//}
 
 func TestReadAllMapMulti(t *testing.T) {
 	files := []string{
@@ -274,49 +237,3 @@ func TestNewMultiFileReader(t *testing.T) {
 	}
 }
 
-//func BenchmarkReadFileSetUUID(b *testing.B) {
-//	path := "../op5_automation/cfg/etc/services-mini.cfg"
-//	for i := 0; i <= b.N; i++ {
-//		ReadFile(path, true)
-//	}
-//}
-
-//func TestObjReadFile(t *testing.T) {
-//	path := "../op5_automation/cfg/etc/services.cfg"
-//	cf := NewCfgFile(path)
-//	err := cf.Read(false)
-//	if err != nil {
-//		t.Error(err)
-//	}
-//	t.Log("Number of objets read: ", len(cf.Objs))
-//}
-
-//func TestWriteFile(t *testing.T) {
-//	src := "../op5_automation/cfg/etc/services.cfg"
-//	dst := "/tmp/services.cfg"
-//	objs, err := ReadFile(src, false)
-//	if err != nil {
-//		t.Error(err)
-//	}
-//	t.Log("Number of objets read: ", len(objs))
-//	err = WriteFile(dst, objs)
-//	if err != nil {
-//		t.Error(err)
-//	}
-//}
-
-//func TestObjWriteFile(t *testing.T) {
-//	src := "../op5_automation/cfg/etc/services.cfg"
-//	dst := "/tmp/services.cfg"
-//	cf := NewCfgFile(src)
-//	err := cf.Read(false)
-//	if err != nil {
-//		t.Error(err)
-//	}
-//	t.Log("Number of objets read: ", len(cf.Objs))
-//	cf.Path = dst
-//	err = cf.Write()
-//	if err != nil {
-//		t.Error(err)
-//	}
-//}
