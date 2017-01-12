@@ -2,6 +2,7 @@ package nagioscfg
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -168,6 +169,40 @@ func TestReadMultiFileChan(t *testing.T) {
 	mfr.Close()
 	if objcnt != expobjnum {
 		t.Errorf("Expected to read %d objects from channel, but got %d", expobjnum, objcnt)
+	}
+}
+
+func BenchmarkPrintObjProps(b *testing.B) {
+	path := "../op5_automation/cfg/etc/services-mini.cfg"
+	fr := NewFileReader(path)
+	cm, err := fr.ReadAllMap(path)
+	if err != nil {
+		b.Fatal(err)
+	}
+	fr.Close()
+
+	fstr := "%s %s"
+	for i := 0; i <= b.N; i++ {
+		for k := range cm {
+			cm[k].PrintProps(ioutil.Discard, fstr)
+		}
+	}
+}
+
+func BenchmarkPrintObjPropsSorted(b *testing.B) {
+	path := "../op5_automation/cfg/etc/services-mini.cfg"
+	fr := NewFileReader(path)
+	cm, err := fr.ReadAllMap(path)
+	if err != nil {
+		b.Fatal(err)
+	}
+	fr.Close()
+
+	fstr := "%s %s"
+	for i := 0; i <= b.N; i++ {
+		for k := range cm {
+			cm[k].PrintPropsSorted(ioutil.Discard, fstr)
+		}
 	}
 }
 
