@@ -638,9 +638,16 @@ type CfgQuery struct {
 }
 
 // Top level struct for managing collections of CfgObj
-//type NagiosCfg struct {
-//	Objs map[string]CfgMap // key by FileID
-//}
+type NagiosCfg struct {
+	SessionID UUID
+	Config    CfgMap
+}
+
+type GenericReader interface {
+	Close() error
+	GetChannel() <-chan *CfgObj
+	GetMap() (CfgMap, error)
+}
 
 /*
 type PropertyCollection interface {
