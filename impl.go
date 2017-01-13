@@ -9,20 +9,62 @@ import (
 	"regexp"
 )
 
+// Valid checks if the given CfgType is within valid range
+func (ct CfgType) Valid() bool {
+	return ct >= T_COMMAND && ct < T_INVALID
+}
+
 // String returns the string representation of the CfgType
 func (ct CfgType) String() string {
+	if !ct.Valid() {
+		return "INVALID_TYPE"
+	}
 	return string(CfgTypes[ct])
+}
+
+func (ct CfgType) In(types []CfgType) bool {
+	for i := range types {
+		if types[i] == ct {
+			return true
+		}
+	}
+	return false
 }
 
 // Type returns the int (CfgType) value for the given CfgName, or -1 if not valid
 func (cn CfgName) Type() CfgType {
 	for i := range CfgTypes {
+		//log.Debugf("%s.CfgName.Type(): trying index #%d", PKGNAME, i)
 		if CfgTypes[i] == cn {
+			//log.Debugf("%s.CfgName.Type(): match at index #%d", PKGNAME, i)
 			return CfgType(i)
 		}
 	}
 	return T_INVALID
 }
+
+func (cn CfgName) Valid() bool {
+	return cn.Type() != T_INVALID
+}
+
+func IsValidProperty(key string) bool {
+	_, ok := CfgKeySortOrder[key]
+	return ok
+}
+
+func ValidCfgNames() []string {
+	l := len(CfgTypes)
+	s := make([]string, l)
+	for i := range CfgTypes {
+		s[i] = string(CfgTypes[i])
+	}
+	return s
+}
+
+//func (cp CfgProp) Valid() bool {
+//	_, ok := CfgKeySortOrder[string(cp)]
+//	return ok
+//}
 
 // size returns the runtime bytes size for the given objects map ( to calculate objs from input file size). Only for debugging.
 /*

@@ -19,6 +19,7 @@ type UUID [16]byte
 
 type CfgType int
 type CfgName string
+type CfgProp string
 type IoState int
 type CfgObjs []*CfgObj
 type CfgMap map[UUID]*CfgObj
