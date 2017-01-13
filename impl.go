@@ -10,10 +10,10 @@ import (
 )
 
 
-func NewNagiosCfg(cm CfgMap) *NagiosCfg {
+func NewNagiosCfg() *NagiosCfg {
 	return &NagiosCfg{
 		SessionID: NewUUIDv1(),
-		Config:    cm,
+		Config:    make(CfgMap),
 	}
 }
 
