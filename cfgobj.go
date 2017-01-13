@@ -176,7 +176,7 @@ func (co *CfgObj) GetUUIDString() string {
 }
 
 // MatchKeys searches the values of the given keys for a match against the given regex. Returns true if all matches, false if not.
-func (co *CfgObj) MatchKeys(rx *regexp.Regexp, keys ...string) bool {
+func (co *CfgObj) MatchAllKeys(rx *regexp.Regexp, keys ...string) bool {
 	klen := len(keys)
 	var num_matches int
 	for i := range keys {
@@ -194,6 +194,16 @@ func (co *CfgObj) MatchKeys(rx *regexp.Regexp, keys ...string) bool {
 	return false
 }
 
+// MatchAnyKeys searches any values for the given keys for a match. Returns true if any matches, false if not.
+func (co *CfgObj) MatchAnyKeys(rx *regexp.Regexp, keys ...string) bool {
+	for i := range keys {
+		if rx.MatchString(co.Props[keys[i]]) {
+			return true
+		}
+	}
+	return false
+}
+
 // MatchAny searches all values for an object for a string match. Returns true at first match, or false if no match.
 func (co *CfgObj) MatchAny(rx *regexp.Regexp) bool {
 	for k := range co.Props {
@@ -205,11 +215,10 @@ func (co *CfgObj) MatchAny(rx *regexp.Regexp) bool {
 }
 
 // MatchAll returns true if all keys match their respective regexes. Almost like MatchKeys, but with a separate RX for each key
-func (co *CfgObj) MatchAll(q *CfgQuery) bool {
-	// This is done in CfgMap.Search(), so disabling it for now
-	//if !q.Balanced() {
-	//	return false
-	//}
+func (co *CfgObj) MatchSet(q *CfgQuery) bool {
+	if !q.Balanced() {
+		return false
+	}
 
 	klen := len(q.Keys)
 	nmatch := 0

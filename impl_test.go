@@ -452,19 +452,19 @@ func TestMatchKeys(t *testing.T) {
 
 	objs.Print(os.Stdout, true)
 
-	if !objs[0].MatchKeys(rx, k1, k2) {
+	if !objs[0].MatchAllKeys(rx, k1, k2) {
 		t.Error("Should match, but did not")
 	}
-	if objs[1].MatchKeys(rx, k1, k2) {
+	if objs[1].MatchAllKeys(rx, k1, k2) {
 		t.Error("Should not match, but did")
 	}
-	if objs[2].MatchKeys(rx, k1, k2) {
+	if objs[2].MatchAllKeys(rx, k1, k2) {
 		t.Error("Should not match, but did")
 	}
 
 	rx = regexp.MustCompile(`[01]`)
 	for i := range objs {
-		if !objs[i].MatchKeys(rx, k3) {
+		if !objs[i].MatchAllKeys(rx, k3) {
 			t.Error("Should match, but did not")
 		}
 	}
@@ -486,7 +486,7 @@ func TestCfMapMatchKeys(t *testing.T) {
 
 	// now we have the whole file, let's search a bit
 	rx := regexp.MustCompile(`db_dummy_gso`)
-	u := m.MatchKeys(rx, "host_name")
+	u := m.MatchAllKeys(rx, "host_name")
 	if u == nil {
 		t.Fatal("Unable to find any match")
 	}
@@ -512,8 +512,8 @@ func TestCfgMapSearch(t *testing.T) {
 
 	// now we have the whole file, let's search a bit
 	q := NewCfgQuery()
-	q.AddFilter(`host_name`, `db_dummy.*`)
-	q.AddFilter(`check_command`, `vgt_oracle_mutex.*`)
+	q.AddKeyRX(`host_name`, `db_dummy.*`)
+	q.AddKeyRX(`check_command`, `vgt_oracle_mutex.*`)
 
 	u := m.Search(q)
 	if u == nil {

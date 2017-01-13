@@ -12,7 +12,7 @@ func (cos CfgObjs) MatchKeys(rx *regexp.Regexp, keys ...string) CfgObjs {
 	}
 	m := make(CfgObjs, 0, objlen)
 	for i := range cos {
-		if cos[i].MatchKeys(rx, keys...) {
+		if cos[i].MatchAllKeys(rx, keys...) {
 			m = append(m, cos[i])
 		}
 	}

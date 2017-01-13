@@ -6,6 +6,7 @@ package nagioscfg
 
 import (
 	log "github.com/Sirupsen/logrus"
+	"os"
 	"regexp"
 )
 
@@ -27,6 +28,39 @@ func (nc *NagiosCfg) LoadFiles(files ...string) error {
 	}
 	nc.Config = cm
 	return nil // can change later if we use another way to read to map
+}
+
+func (nc *NagiosCfg) LoadStdin() (err error) {
+	rdr := NewReader(os.Stdin)
+	nc.Config, err = rdr.ReadAllMap("")
+	nc.pipe = true // indicator that all content came from stdin and that we don't have any FileIDs
+	return err
+}
+
+func (nc *NagiosCfg) DumpStdout() {
+	nc.Print(os.Stdout, true) // sort by default
+}
+
+func (nc *NagiosCfg) InPipe() bool {
+	return nc.pipe
+}
+
+func (nc *NagiosCfg) FilterType(ts ...CfgType) []UUID {
+	nc.matches = nc.Config.FilterType(ts...)
+	return nc.matches
+}
+
+func (nc *NagiosCfg) Search(q *CfgQuery) []UUID {
+	if nc.matches != nil && len(nc.matches) > 0 {
+		nc.matches = nc.Config.SearchSubSet(q, nc.matches...)
+	} else {
+		nc.matches = nc.Config.Search(q)
+	}
+	return nc.matches
+}
+
+func (nc *NagiosCfg) ClearMatches() {
+	nc.matches = nil
 }
 
 // Valid checks if the given CfgType is within valid range
@@ -110,19 +144,36 @@ func (cq CfgQuery) Balanced() bool {
 	return len(cq.Keys) == len(cq.RXs)
 }
 
-func (cq *CfgQuery) AddFilter(key, re string) bool {
-	if key == "" {
-		log.Error("CfgQuery.AddFilter(): Error: Empty key")
-		return false
-	}
+func (cq *CfgQuery) AddRX(re string) bool {
 	rx, err := regexp.Compile(re)
 	if err != nil {
 		log.Error(err)
 		return false
 	}
-
-	cq.Keys = append(cq.Keys, key)
 	cq.RXs = append(cq.RXs, rx)
-
 	return true
+}
+
+func (cq *CfgQuery) AddKey(key string) bool {
+	if key != "" { // won't accept empty keys
+		if IsValidProperty(key) { // only accept defined keys/properties
+			cq.Keys = append(cq.Keys, key)
+			return true
+		}
+	}
+	return false
+}
+
+func (cq *CfgQuery) AddKeyRX(key, re string) bool {
+	if key == "" {
+		log.Error("CfgQuery.AddFilter(): Error: Empty key")
+		return false
+	}
+
+	if !IsValidProperty(key) {
+		log.Errorf("%s.CfgQuery.AddKeyRX(): Invalid key: %q", key)
+		return false
+	}
+
+	return cq.AddRX(re) && cq.AddKey(key)
 }

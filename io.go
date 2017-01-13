@@ -477,6 +477,28 @@ func (cm CfgMap) Print(w io.Writer, sorted bool) {
 	}
 }
 
+func (nc *NagiosCfg) Print(w io.Writer, sorted bool) {
+	nc.Config.Print(w, sorted)
+}
+
+func (nc *NagiosCfg) PrintMatches(w io.Writer, sorted bool) {
+	if nc.matches == nil || len(nc.matches) == 0 {
+		return
+	}
+	for i := range nc.matches {
+		nc.Config[nc.matches[i]].Print(w, sorted)
+		fmt.Fprintf(w, "\n")
+	}
+}
+
+func (nc *NagiosCfg) DumpString() string {
+	var buf bytes.Buffer
+	w := bufio.NewWriter(&buf)
+	nc.Print(w, true)
+	w.Flush()
+	return buf.String()
+}
+
 func (cm CfgMap) WriteByFileID() error {
 	var wg sync.WaitGroup
 	fmap := cm.SplitByFileID()

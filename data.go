@@ -640,7 +640,9 @@ type CfgQuery struct {
 // Top level struct for managing collections of CfgObj
 type NagiosCfg struct {
 	SessionID UUID
-	Config    CfgMap
+	Config    CfgMap // the full config
+	pipe      bool   // indicator of whether the content came from stdin and should be written to stdout or not
+	matches   []UUID // subset of config
 }
 
 type GenericReader interface {
