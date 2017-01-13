@@ -246,7 +246,7 @@ func (r *Reader) parseLine() (fields []string, state IoState, err error) {
 }
 
 // Read reads from a Nagios config stream and returns the next config object.
-// Should be called repeatedly. Returns err = io.EOF when done (really? Does it?)
+// Should be called repeatedly. Returns err = io.EOF when done
 func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 	var fields []string
 	var state IoState
@@ -267,7 +267,9 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				} else {
 					co = NewCfgObj(ct)
 				}
-				co.FileID = fileID
+				if fileID != "" {
+					co.FileID = fileID
+				}
 			case IO_OBJ_IN:
 				fl := len(fields)
 				//_debug(fields)
@@ -380,7 +382,7 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	for {
 		obj, err := r.Read(true, fileID)
 		if err == nil && obj != nil {
-			m[obj.UUID] = obj // might be better to use obj.UUID.String()
+			m[obj.UUID] = obj
 		}
 		if err != nil {
 			if err != io.EOF {
