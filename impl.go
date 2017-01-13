@@ -9,6 +9,26 @@ import (
 	"regexp"
 )
 
+
+func NewNagiosCfg(cm CfgMap) *NagiosCfg {
+	return &NagiosCfg{
+		SessionID: NewUUIDv1(),
+		Config:    cm,
+	}
+}
+
+func (nc *NagiosCfg) LoadFiles(files ...string) error {
+	mfr := NewMultiFileReader(files...)
+	defer mfr.Close()
+	in := mfr.ReadChan(true)
+	cm := make(CfgMap)
+	for o := range in {
+		cm[o.UUID] = o
+	}
+	nc.Config = cm
+	return nil // can change later if we use another way to read to map
+}
+
 // Valid checks if the given CfgType is within valid range
 func (ct CfgType) Valid() bool {
 	return ct >= T_COMMAND && ct < T_INVALID
