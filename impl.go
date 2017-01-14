@@ -46,12 +46,16 @@ func (nc *NagiosCfg) InPipe() bool {
 }
 
 func (nc *NagiosCfg) FilterType(ts ...CfgType) UUIDs {
-	nc.matches = nc.Config.FilterType(ts...)
+	m := nc.Config.FilterType(ts...)
+	if m == nil {
+		m = make(UUIDs, 0)
+	}
+	nc.matches = m
 	return nc.matches
 }
 
 func (nc *NagiosCfg) Search(q *CfgQuery) UUIDs {
-	if nc.matches != nil && len(nc.matches) > 0 {
+	if nc.matches != nil && len(nc.matches) >= 0 {
 		nc.matches = nc.Config.SearchSubSet(q, nc.matches)
 	} else {
 		nc.matches = nc.Config.Search(q)

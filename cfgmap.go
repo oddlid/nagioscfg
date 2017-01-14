@@ -239,9 +239,18 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 		return nil
 	}
 
+	ss := func() bool {
+		return subset != nil
+	}
+
 	// no keys, but one or more RXs
 	if klen == 0 {
-		m := cm.MatchAny(q.RXs[0])
+		var m UUIDs
+		if ss() {
+			m = cm.MatchAnySubSet(q.RXs[0], subset)
+		} else {
+			m = cm.MatchAny(q.RXs[0])
+		}
 		for i := 1; i < rlen; i++ {
 			m = cm.MatchAnySubSet(q.RXs[i], m)
 		}
@@ -250,7 +259,12 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 	// one or more keys, and one or more RXs, but maybe not the same amount of each
 	// ... more keys than RXs
 	if klen > rlen {
-		m := cm.MatchAnyKeys(q.RXs[0], q.Keys...)
+		var m UUIDs
+		if ss() {
+			m = cm.MatchAnyKeysSubSet(subset, q.RXs[0], q.Keys...)
+		} else {
+			m = cm.MatchAnyKeys(q.RXs[0], q.Keys...)
+		}
 		for i := 1; i < rlen; i++ {
 			m = cm.MatchAnyKeysSubSet(m, q.RXs[i], q.Keys...)
 		}
@@ -258,7 +272,12 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 	}
 	// ... more RXs than keys
 	if rlen > klen {
-		m := cm.MatchAllKeys(q.RXs[0], q.Keys...)
+		var m UUIDs
+		if ss() {
+			m = cm.MatchAllKeysSubSet(subset, q.RXs[0], q.Keys...)
+		} else {
+			m = cm.MatchAllKeys(q.RXs[0], q.Keys...)
+		}
 		for i := 1; i < rlen; i++ {
 			m = cm.MatchAllKeysSubSet(m, q.RXs[i], q.Keys...)
 		}
@@ -266,7 +285,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 	}
 	// one or more, and the same amount of keys and RXs
 	var matches UUIDs
-	if subset == nil || len(subset) == 0 {
+	if !ss() {
 		matches = make(UUIDs, 0, len(cm))
 		for k := range cm {
 			if cm[k].MatchSet(q) {
@@ -317,10 +336,16 @@ func (cm CfgMap) FilterType(ts ...CfgType) UUIDs {
 	return nil
 }
 
-func (cm CfgMap) SplitByFileID() map[string]UUIDs {
+func (cm CfgMap) SplitByFileID(sort bool) map[string]UUIDs {
 	fmap := make(map[string]UUIDs)
-	for k := range cm {
-		fid := cm[k].FileID
+	var keys UUIDs
+	if sort {
+		keys = cm.Keys().Sorted()
+	} else {
+		keys = cm.Keys()
+	}
+	for k := range keys {
+		fid := cm[keys[k]].FileID
 		// skip etries without fileID
 		if fid == "" {
 			continue
@@ -332,7 +357,7 @@ func (cm CfgMap) SplitByFileID() map[string]UUIDs {
 		if !ok {
 			fmap[fid] = make(UUIDs, 0, 1)
 		}
-		fmap[fid] = append(fmap[fid], cm[k].UUID)
+		fmap[fid] = append(fmap[fid], cm[keys[k]].UUID)
 	}
 	return fmap
 }

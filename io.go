@@ -507,13 +507,13 @@ func (nc *NagiosCfg) DumpString() string {
 	return buf.String()
 }
 
-func (nc *NagiosCfg) SaveToOrigin() error {
-	return nc.Config.WriteByFileID()
+func (nc *NagiosCfg) SaveToOrigin(sorted bool) error {
+	return nc.Config.WriteByFileID(sorted)
 }
 
-func (cm CfgMap) WriteByFileID() error {
+func (cm CfgMap) WriteByFileID(sort bool) error {
 	var wg sync.WaitGroup
-	fmap := cm.SplitByFileID()
+	fmap := cm.SplitByFileID(sort) // sorted and ready
 	schan := make(chan error)
 
 	for fname := range fmap {
@@ -528,7 +528,7 @@ func (cm CfgMap) WriteByFileID() error {
 			defer fhnd.Close()
 			w := bufio.NewWriter(fhnd)
 			for i := range fmap[filename] {
-				cm[fmap[filename][i]].Print(w, true) // should pass "sorted" here as a param, not hard coded
+				cm[fmap[filename][i]].Print(w, sort) // should pass "sorted" here as a param, not hard coded
 			}
 			w.Flush()
 			schan <- nil
@@ -549,7 +549,7 @@ func (cm CfgMap) WriteByFileID() error {
 	}
 
 	if errcnt > 0 {
-		return fmt.Errorf("CfgMap.WriteByFileID(): Error writing to %d files", errcnt)
+		return fmt.Errorf("%s.CfgMap.WriteByFileID(): Error writing to %d files", PKGNAME, errcnt)
 	}
 
 	return nil
