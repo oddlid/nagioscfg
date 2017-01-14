@@ -13,6 +13,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net"
+	"sort"
 	"sync"
 	"time"
 )
@@ -195,4 +196,52 @@ func UUIDFromString(input string) (u UUID, err error) {
 func (u UUID) FromString(input string) error {
 	u, err := UUIDFromString(input)
 	return err
+}
+
+//func (u UUID) Len() int {
+//	return len(u)
+//}
+//
+//func (u UUID) Swap(i, j int) {
+//	u[i], u[j] = u[j], u[i]
+//}
+//
+//func (u UUID) Less(i, j int) bool {
+//	//switch bytes.Compare(u[i], u[j]) {
+//	//case -1:
+//	//	return true
+//	//case 0, 1:
+//	//	return false
+//	//default:
+//	//	log.Errorf("%s.UUID.Less(): should not be able to fail here")
+//	//	return false
+//	//}
+//}
+
+func (u UUIDs) Len() int {
+	return len(u)
+}
+
+func (u UUIDs) Swap(i, j int) {
+	u[i], u[j] = u[j], u[i]
+}
+
+func (u UUIDs) Less(i, j int) bool {
+	//return string(u[i]) < string(u[j])
+	switch bytes.Compare(u[i].Bytes(), u[j].Bytes()) {
+	case -1:
+		return true
+	case 0, 1:
+		return false
+	default:
+		//log.Errorf("%s.UUIDs.Less(): should not be able to fail here")
+		return false
+	}
+}
+
+func (u UUIDs) Sorted() UUIDs {
+	s := make(UUIDs, u.Len())
+	copy(s, u)
+	sort.Sort(s)
+	return s
 }

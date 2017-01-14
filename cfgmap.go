@@ -66,6 +66,32 @@ func (cm CfgMap) Del(key string) *CfgObj {
 	return cm.DelByUUID(u)
 }
 
+func (cm CfgMap) SetKeys(ids UUIDs, keys, values []string) int {
+	modcnt := 0
+	if ids == nil || len(ids) == 0 {
+		for k := range cm {
+			modcnt += cm[k].SetKeys(keys, values)
+		}
+	} else {
+		for i := range ids {
+			modcnt += cm[ids[i]].SetKeys(keys, values)
+		}
+	}
+	return modcnt
+}
+
+func (cm CfgMap) DelKeys(ids UUIDs, keys []string) int {
+	delcnt := 0
+	if ids == nil || len(ids) == 0 {
+		return delcnt
+	} else {
+		for i := range ids {
+			delcnt += cm[ids[i]].DelKeys(keys)
+		}
+	}
+	return delcnt
+}
+
 func (cm CfgMap) Append(c2 CfgMap) error {
 	errcnt := 0
 	for k := range c2 {
@@ -109,17 +135,17 @@ func (cm CfgMap) Dump() string {
 	return buf.String()
 }
 
-func (cm CfgMap) divertMatchAllKeys(ids []UUID, rx *regexp.Regexp, keys []string) []UUID {
-	var matches []UUID
+func (cm CfgMap) divertMatchAllKeys(ids UUIDs, rx *regexp.Regexp, keys []string) UUIDs {
+	var matches UUIDs
 	if ids == nil || len(ids) == 0 {
-		matches = make([]UUID, 0, len(cm))
+		matches = make(UUIDs, 0, len(cm))
 		for k := range cm {
 			if cm[k].MatchAllKeys(rx, keys...) {
 				matches = append(matches, k)
 			}
 		}
 	} else {
-		matches = make([]UUID, 0, len(ids))
+		matches = make(UUIDs, 0, len(ids))
 		for i := range ids {
 			if cm[ids[i]].MatchAllKeys(rx, keys...) {
 				matches = append(matches, ids[i])
@@ -133,25 +159,25 @@ func (cm CfgMap) divertMatchAllKeys(ids []UUID, rx *regexp.Regexp, keys []string
 }
 
 // MatchAllKeys matches on the keys of each CfgObj, NOT on the CfgMap keys. Returns slice of UUIDS
-func (cm CfgMap) MatchAllKeys(rx *regexp.Regexp, keys ...string) []UUID {
+func (cm CfgMap) MatchAllKeys(rx *regexp.Regexp, keys ...string) UUIDs {
 	return cm.divertMatchAllKeys(nil, rx, keys)
 }
 
-func (cm CfgMap) MatchAllKeysSubSet(ids []UUID, rx *regexp.Regexp, keys ...string) []UUID {
+func (cm CfgMap) MatchAllKeysSubSet(ids UUIDs, rx *regexp.Regexp, keys ...string) UUIDs {
 	return cm.divertMatchAllKeys(ids, rx, keys)
 }
 
-func (cm CfgMap) divertMatchAnyKeys(ids []UUID, rx *regexp.Regexp, keys []string) []UUID {
-	var matches []UUID
+func (cm CfgMap) divertMatchAnyKeys(ids UUIDs, rx *regexp.Regexp, keys []string) UUIDs {
+	var matches UUIDs
 	if ids == nil || len(ids) == 0 {
-		matches = make([]UUID, 0, len(cm))
+		matches = make(UUIDs, 0, len(cm))
 		for k := range cm {
 			if cm[k].MatchAnyKeys(rx, keys...) {
 				matches = append(matches, k)
 			}
 		}
 	} else {
-		matches = make([]UUID, 0, len(ids))
+		matches = make(UUIDs, 0, len(ids))
 		for i := range ids {
 			if cm[ids[i]].MatchAnyKeys(rx, keys...) {
 				matches = append(matches, ids[i])
@@ -164,25 +190,25 @@ func (cm CfgMap) divertMatchAnyKeys(ids []UUID, rx *regexp.Regexp, keys []string
 	return nil
 }
 
-func (cm CfgMap) MatchAnyKeys(rx *regexp.Regexp, keys ...string) []UUID {
+func (cm CfgMap) MatchAnyKeys(rx *regexp.Regexp, keys ...string) UUIDs {
 	return cm.divertMatchAnyKeys(nil, rx, keys)
 }
 
-func (cm CfgMap) MatchAnyKeysSubSet(ids []UUID, rx *regexp.Regexp, keys ...string) []UUID {
+func (cm CfgMap) MatchAnyKeysSubSet(ids UUIDs, rx *regexp.Regexp, keys ...string) UUIDs {
 	return cm.divertMatchAnyKeys(ids, rx, keys)
 }
 
-func (cm CfgMap) divertMatchAny(ids []UUID, rx *regexp.Regexp) []UUID {
-	var matches []UUID
+func (cm CfgMap) divertMatchAny(ids UUIDs, rx *regexp.Regexp) UUIDs {
+	var matches UUIDs
 	if ids == nil || len(ids) == 0 {
-		matches = make([]UUID, 0, len(cm))
+		matches = make(UUIDs, 0, len(cm))
 		for k := range cm {
 			if cm[k].MatchAny(rx) {
 				matches = append(matches, k)
 			}
 		}
 	} else {
-		matches = make([]UUID, 0, len(ids))
+		matches = make(UUIDs, 0, len(ids))
 		for i := range ids {
 			if cm[ids[i]].MatchAny(rx) {
 				matches = append(matches, ids[i])
@@ -195,15 +221,15 @@ func (cm CfgMap) divertMatchAny(ids []UUID, rx *regexp.Regexp) []UUID {
 	return nil
 }
 
-func (cm CfgMap) MatchAny(rx *regexp.Regexp) []UUID {
+func (cm CfgMap) MatchAny(rx *regexp.Regexp) UUIDs {
 	return cm.divertMatchAny(nil, rx)
 }
 
-func (cm CfgMap) MatchAnySubSet(rx *regexp.Regexp, ids ...UUID) []UUID {
+func (cm CfgMap) MatchAnySubSet(rx *regexp.Regexp, ids UUIDs) UUIDs {
 	return cm.divertMatchAny(ids, rx)
 }
 
-func (cm CfgMap) divertSearch(subset []UUID, q *CfgQuery) []UUID {
+func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 	klen := len(q.Keys)
 	rlen := len(q.RXs)
 
@@ -217,7 +243,7 @@ func (cm CfgMap) divertSearch(subset []UUID, q *CfgQuery) []UUID {
 	if klen == 0 {
 		m := cm.MatchAny(q.RXs[0])
 		for i := 1; i < rlen; i++ {
-			m = cm.MatchAnySubSet(q.RXs[i], m...)
+			m = cm.MatchAnySubSet(q.RXs[i], m)
 		}
 		return m // may be nil or zero length here
 	}
@@ -239,16 +265,16 @@ func (cm CfgMap) divertSearch(subset []UUID, q *CfgQuery) []UUID {
 		return m
 	}
 	// one or more, and the same amount of keys and RXs
-	var matches []UUID
+	var matches UUIDs
 	if subset == nil || len(subset) == 0 {
-		matches = make([]UUID, 0, len(cm))
+		matches = make(UUIDs, 0, len(cm))
 		for k := range cm {
 			if cm[k].MatchSet(q) {
 				matches = append(matches, k)
 			}
 		}
 	} else {
-		matches = make([]UUID, 0, len(subset))
+		matches = make(UUIDs, 0, len(subset))
 		for k := range subset {
 			if cm[subset[k]].MatchSet(q) {
 				matches = append(matches, subset[k])
@@ -268,18 +294,18 @@ func (cm CfgMap) divertSearch(subset []UUID, q *CfgQuery) []UUID {
 // Given more keys than RXs, it will return all objects that match all RXs on any of the keys.
 // Given more RXs than keys, it will return all objects that match all RXs on all of the keys.
 // Given an equal amount of keys and RXs, it will return all objects that match RX on the value of the corresponding key, in given order.
-func (cm CfgMap) Search(q *CfgQuery) []UUID {
+func (cm CfgMap) Search(q *CfgQuery) UUIDs {
 	return cm.divertSearch(nil, q)
 }
 
 // SearchSubSet searches only the CgObjs with the given UUIDs for matches
 // Same underlying logic as for Search
-func (cm CfgMap) SearchSubSet(q *CfgQuery, ids ...UUID) []UUID {
+func (cm CfgMap) SearchSubSet(q *CfgQuery, ids UUIDs) UUIDs {
 	return cm.divertSearch(ids, q)
 }
 
-func (cm CfgMap) FilterType(ts ...CfgType) []UUID {
-	matches := make([]UUID, 0, len(cm))
+func (cm CfgMap) FilterType(ts ...CfgType) UUIDs {
+	matches := make(UUIDs, 0, len(cm))
 	for k := range cm {
 		if cm[k].Type.In(ts) {
 			matches = append(matches, k)
@@ -291,11 +317,11 @@ func (cm CfgMap) FilterType(ts ...CfgType) []UUID {
 	return nil
 }
 
-func (cm CfgMap) SplitByFileID() map[string][]UUID {
-	fmap := make(map[string][]UUID)
+func (cm CfgMap) SplitByFileID() map[string]UUIDs {
+	fmap := make(map[string]UUIDs)
 	for k := range cm {
 		fid := cm[k].FileID
-		// skip etries without fileid
+		// skip etries without fileID
 		if fid == "" {
 			continue
 			// or we could do something like this:
@@ -304,9 +330,19 @@ func (cm CfgMap) SplitByFileID() map[string][]UUID {
 		// initialize if first match of this ID
 		_, ok := fmap[fid]
 		if !ok {
-			fmap[fid] = make([]UUID, 0, 1)
+			fmap[fid] = make(UUIDs, 0, 1)
 		}
 		fmap[fid] = append(fmap[fid], cm[k].UUID)
 	}
 	return fmap
+}
+
+func (cm CfgMap) Keys() UUIDs {
+	keys := make(UUIDs, len(cm))
+	i := 0
+	for k := range cm {
+		keys[i] = k
+		i++
+	}
+	return keys
 }

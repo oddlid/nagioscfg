@@ -471,9 +471,17 @@ func (cos CfgObjs) Print(w io.Writer, sorted bool) {
 }
 
 func (cm CfgMap) Print(w io.Writer, sorted bool) {
-	for k := range cm {
-		cm[k].Print(w, sorted)
-		fmt.Fprintf(w, "\n")
+	if sorted {
+		keys := cm.Keys().Sorted()
+		for i := range keys {
+			cm[keys[i]].Print(w, sorted)
+			fmt.Fprintf(w, "\n")
+		}
+	} else {
+		for k := range cm {
+			cm[k].Print(w, sorted)
+			fmt.Fprintf(w, "\n")
+		}
 	}
 }
 
@@ -497,6 +505,10 @@ func (nc *NagiosCfg) DumpString() string {
 	nc.Print(w, true)
 	w.Flush()
 	return buf.String()
+}
+
+func (nc *NagiosCfg) SaveToOrigin() error {
+	return nc.Config.WriteByFileID()
 }
 
 func (cm CfgMap) WriteByFileID() error {

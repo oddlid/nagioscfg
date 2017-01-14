@@ -32,6 +32,25 @@ func (co *CfgObj) Set(key, val string) bool {
 	return exists // true = key was overwritten, false = key was added
 }
 
+func (co *CfgObj) SetKeys(keys, values []string) int {
+	klen := len(keys)
+	vlen := len(values)
+	modcnt := 0
+
+	if vlen >= klen { // at least one value for each key
+		for i := range keys {
+			co.Set(keys[i], values[i])
+		}
+		modcnt = klen
+	} else { // we have more keys than values
+		for i := range values {
+			co.Set(keys[i], values[i])
+		}
+		modcnt = vlen
+	}
+	return modcnt
+}
+
 // Add adds the given key/value to CfgObj.Props only if the key does not already exist. Returns true if added, false otherwise.
 func (co *CfgObj) Add(key, val string) bool {
 	_, exists := co.Props[key]
@@ -52,6 +71,16 @@ func (co *CfgObj) Del(key string) bool {
 	_, exists := co.Props[key]
 	delete(co.Props, key)
 	return exists // just signals if there was anything there to be deleted in the first place
+}
+
+func (co *CfgObj) DelKeys(keys []string) int {
+	delcnt := 0
+	for i := range keys {
+		if co.Del(keys[i]) {
+			delcnt++
+		}
+	}
+	return delcnt
 }
 
 // LongestKey returns the length of the longest key in CfgObj.Props at the time of calling

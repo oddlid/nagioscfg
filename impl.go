@@ -45,14 +45,14 @@ func (nc *NagiosCfg) InPipe() bool {
 	return nc.pipe
 }
 
-func (nc *NagiosCfg) FilterType(ts ...CfgType) []UUID {
+func (nc *NagiosCfg) FilterType(ts ...CfgType) UUIDs {
 	nc.matches = nc.Config.FilterType(ts...)
 	return nc.matches
 }
 
-func (nc *NagiosCfg) Search(q *CfgQuery) []UUID {
+func (nc *NagiosCfg) Search(q *CfgQuery) UUIDs {
 	if nc.matches != nil && len(nc.matches) > 0 {
-		nc.matches = nc.Config.SearchSubSet(q, nc.matches...)
+		nc.matches = nc.Config.SearchSubSet(q, nc.matches)
 	} else {
 		nc.matches = nc.Config.Search(q)
 	}
@@ -61,6 +61,26 @@ func (nc *NagiosCfg) Search(q *CfgQuery) []UUID {
 
 func (nc *NagiosCfg) ClearMatches() {
 	nc.matches = nil
+}
+
+func (nc *NagiosCfg) DeleteMatches() CfgMap {
+	if nc.matches == nil || len(nc.matches) == 0 {
+		return nil
+	}
+	cm := make(CfgMap)
+	for i := range nc.matches {
+		cm[nc.matches[i]] = nc.Config.DelByUUID(nc.matches[i])
+	}
+	nc.ClearMatches()
+	return cm
+}
+
+func (nc *NagiosCfg) DelKeys(keys []string) int {
+	return nc.Config.DelKeys(nc.matches, keys)
+}
+
+func (nc *NagiosCfg) SetKeys(keys, values []string) int {
+	return nc.Config.SetKeys(nc.matches, keys, values)
 }
 
 // Valid checks if the given CfgType is within valid range

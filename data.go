@@ -16,6 +16,7 @@ import (
 // UUID representation compliant with specification
 // described in RFC 4122.
 type UUID [16]byte
+type UUIDs []UUID
 
 type CfgType int
 type CfgName string
@@ -642,14 +643,14 @@ type NagiosCfg struct {
 	SessionID UUID
 	Config    CfgMap // the full config
 	pipe      bool   // indicator of whether the content came from stdin and should be written to stdout or not
-	matches   []UUID // subset of config
+	matches   UUIDs // subset of config
 }
 
-type GenericReader interface {
-	Close() error
-	GetChannel() <-chan *CfgObj
-	GetMap() (CfgMap, error)
-}
+//type GenericReader interface {
+//	Close() error
+//	GetChannel() <-chan *CfgObj
+//	GetMap() (CfgMap, error)
+//}
 
 /*
 type PropertyCollection interface {
