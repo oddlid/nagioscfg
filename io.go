@@ -174,14 +174,21 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 
 	switch r1 {
 	case '\n':
-		fallthrough
+		//fallthrough
+		return false, r1, nil
 	case '\t':
-		fallthrough
+		//fallthrough
+		return false, r1, nil
 	case ' ':
-		fallthrough
-	case '{':
+		//fallthrough
+		return false, r1, nil
+	case '{': // I don't get why this case is never triggered...
+		log.Debugf("%s.Reader.parseFields(): hit %q, line #%d col #%d", PKGNAME, r1, r.line, r.column)
 		return false, r1, nil
 	case '}':
+		if r.column > DEF_ALIGN {
+			log.Debugf("%s.Reader.parseFields(): hit %q, line #%d col #%d", PKGNAME, r1, r.line, r.column)
+		}
 		return true, r1, nil
 	default:
 		for {
@@ -189,10 +196,27 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 				r.field.WriteRune(r1)
 			}
 			r1, err = r.readRune()
-			//if err != nil || r1 == '{' || r1 == '}' || unicode.IsSpace(r1) {
-			if err != nil || r1 == '{' || unicode.IsSpace(r1) {
+			if err != nil {
+				log.Debug(err)
 				break
 			}
+			if r1 == '{' {
+				// this ugly little hack lets us consume {} that are part of some value. Fragile as fuck, will sure bite ass
+				if r.column > DEF_ALIGN {
+					log.Debugf("%s.Reader.parseFields(): Hit %q at line #%d col #%d", PKGNAME, r1, r.line, r.column)
+					continue
+				}
+				break
+			}
+			if unicode.IsSpace(r1) {
+				//log.Debugf("%s.Reader.parseFields(): Hit %q at line #%d col #%d", PKGNAME, r1, r.line, r.column)
+				break
+			}
+			//if err != nil || r1 == '{' || r1 == '}' || unicode.IsSpace(r1) {
+			//if err != nil || r1 == '{' || unicode.IsSpace(r1) {
+			//	//log.Debugf("%s.Reader.parseFields(): Hit %q at line #%d col #%d", PKGNAME, r1, r.line, r.column)
+			//	break
+			//}
 			//if r1 == '\n' {
 			//	_debug("End of line, returning")
 			//	return true, r1, nil
@@ -231,12 +255,14 @@ func (r *Reader) parseLine() (fields []string, state IoState, err error) {
 			}
 			fields = append(fields, r.field.String())
 		}
+		// 2017-01-30 21:07:19
+		// we have some bugs with {} being part of command parameters
 		if delim == '{' {
-			return fields, IO_OBJ_BEGIN, nil
+			return fields, IO_OBJ_BEGIN, err
 		} else if delim == '}' {
-			return fields, IO_OBJ_END, nil
+			return fields, IO_OBJ_END, err
 		} else if delim == '\n' {
-			return fields, IO_OBJ_IN, nil
+			return fields, IO_OBJ_IN, err
 		} else if err == io.EOF {
 			return fields, IO_OBJ_OUT, err
 		} else if err != nil {
@@ -252,14 +278,20 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 	var state IoState
 	var err error
 	var co *CfgObj
+	var prevState IoState = IO_OBJ_OUT
 
 	for {
 		fields, state, err = r.parseLine()
 		if fields != nil {
 			switch state {
 			case IO_OBJ_BEGIN:
+				if prevState != IO_OBJ_OUT {
+					// continue goes too far, need jump to label or something...
+					continue
+				}
 				ct := CfgName(fields[1]).Type()
 				if ct == T_INVALID {
+					log.Debugf("Invalid type (f#1): %q, Err: %q", fields, err)
 					return nil, r.error(ErrUnknown)
 				}
 				if setUUID {
@@ -270,11 +302,14 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				if fileID != "" {
 					co.FileID = fileID
 				}
+				prevState = IO_OBJ_BEGIN
 			case IO_OBJ_IN:
+				//prevState = IO_OBJ_IN
 				fl := len(fields)
 				//_debug(fields)
 				if fl < 2 || co == nil {
 					//return nil, r.error(ErrNoValue)
+					log.Debugf("%s.Reader.Read(): too few fields (#%d): %#v", PKGNAME, fl, fields)
 					continue
 				}
 				co.Add(fields[0], strings.Join(fields[1:fl], " "))
@@ -304,7 +339,8 @@ func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 			}
 			if err != nil {
 				if err != io.EOF {
-					log.Errorf("%s.Reader.ReadChan(): %q", PKGNAME, err)
+					log.Errorf("%s.Reader.ReadChan(%q): %q", PKGNAME, fileID, err)
+					continue
 				}
 				break
 			}

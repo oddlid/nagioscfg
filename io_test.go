@@ -237,3 +237,91 @@ func TestNewMultiFileReader(t *testing.T) {
 	}
 }
 
+
+func getLocalObjs() (CfgMap, error) {
+	prefix := "../op5_automation/cfg/etc/"
+	_f := func(f string) string {
+		return fmt.Sprintf("%s%s", prefix, f)
+	}
+	files := []string{
+		_f("checkcommands.cfg"),
+		_f("contactgroups.cfg"),
+		_f("contacts.cfg"),
+		_f("eventhandlers.cfg"),
+		_f("hostdependencies.cfg"),
+		_f("hostescalations.cfg"),
+		_f("hostgroups.cfg"),
+		_f("hosts.cfg"),
+		_f("misccommands.cfg"),
+		_f("servicedependencies.cfg"),
+		_f("serviceescalations.cfg"),
+		_f("servicegroups.cfg"),
+		_f("services.cfg"),
+		_f("timeperiods.cfg"),
+		_f("vgt_dps/amq_cluster_dummies.cfg"),
+		_f("vgt_dps/aws_availability.cfg"),
+		_f("vgt_dps/aws_mb.cfg"),
+		_f("vgt_dps/aws_shared.cfg"),
+		_f("vgt_dps/deep_pings_ageo_prod.cfg"),
+		_f("vgt_dps/deep_pings_avtfleet.cfg"),
+		_f("vgt_dps/deep_pings_avtfleet_cn.cfg"),
+		_f("vgt_dps/deep_pings_avtgot2.cfg"),
+		_f("vgt_dps/deep_pings_avtgot2_qa.cfg"),
+		_f("vgt_dps/deep_pings_aws_daimler_mbiot.cfg"),
+		_f("vgt_dps/deep_pings_caretrack.cfg"),
+		_f("vgt_dps/deep_pings_dfol_prod.cfg"),
+		_f("vgt_dps/deep_pings_dfol_qa.cfg"),
+		_f("vgt_dps/deep_pings_dfol_swr8.cfg"),
+		_f("vgt_dps/deep_pings_dug_prod.cfg"),
+		_f("vgt_dps/deep_pings_geofence.cfg"),
+		_f("vgt_dps/deep_pings_jlr_cn.cfg"),
+		_f("vgt_dps/deep_pings_jlr_cn_qa1.cfg"),
+		_f("vgt_dps/deep_pings_jlr_cn_zone-a.cfg"),
+		_f("vgt_dps/deep_pings_jlr_cn_zone-b.cfg"),
+		_f("vgt_dps/deep_pings_jlr_preprod.cfg"),
+		_f("vgt_dps/deep_pings_jlr_prod.cfg"),
+		_f("vgt_dps/deep_pings_jlr_prod_LB.cfg"),
+		_f("vgt_dps/deep_pings_nissan_preprod.cfg"),
+		_f("vgt_dps/deep_pings_nissan_prod.cfg"),
+		_f("vgt_dps/deep_pings_openportal_prod.cfg"),
+		_f("vgt_dps/deep_pings_opus_got.cfg"),
+		_f("vgt_dps/deep_pings_opus_gso.cfg"),
+		_f("vgt_dps/deep_pings_opus_tjn.cfg"),
+		_f("vgt_dps/deep_pings_preprod.cfg"),
+		_f("vgt_dps/deep_pings_sirun.cfg"),
+		_f("vgt_dps/deep_pings_uptime.cfg"),
+		_f("vgt_dps/deep_pings_uptime_qa.cfg"),
+		_f("vgt_dps/deep_pings_vlink_prod.cfg"),
+		_f("vgt_dps/deep_pings_vlink_val.cfg"),
+		_f("vgt_dps/deep_pings_voc.cfg"),
+		_f("vgt_dps/deep_pings_voc_cn.cfg"),
+		_f("vgt_dps/deep_pings_voc_cn_qa.cfg"),
+		_f("vgt_dps/deep_pings_voc_eu_qa.cfg"),
+		_f("vgt_dps/deep_pings_voc_na.cfg"),
+		_f("vgt_dps/deep_pings_voc_na_qa.cfg"),
+		_f("vgt_dps/ssl_cert_dummy.cfg"),
+	}
+	mfr := NewMultiFileReader(files...)
+	defer mfr.Close()
+
+	return mfr.ReadAllMap()
+}
+
+func BenchmarkInvertMap(b *testing.B) {
+	objs, err := getLocalObjs()
+	if err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < b.N; i++ {
+	}
+}
+
+func BenchmarkInvertCmpSlice(b *testing.B) {
+	objs, err := getLocalObjs()
+	if err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < b.N; i++ {
+	}
+}
+

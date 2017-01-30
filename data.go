@@ -26,7 +26,7 @@ type CfgObjs []*CfgObj
 type CfgMap map[UUID]*CfgObj
 
 const PKGNAME string = "nagioscfg"
-const VERSION string = "2017-01-12"
+const VERSION string = "2017-01-31"
 
 const (
 	DEF_INDENT int    = 4

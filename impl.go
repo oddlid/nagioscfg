@@ -27,6 +27,7 @@ func (nc *NagiosCfg) LoadFiles(files ...string) error {
 		cm[o.UUID] = o
 	}
 	nc.Config = cm
+	nc.pipe = false
 	return nil // can change later if we use another way to read to map
 }
 
@@ -55,7 +56,7 @@ func (nc *NagiosCfg) FilterType(ts ...CfgType) UUIDs {
 }
 
 func (nc *NagiosCfg) Search(q *CfgQuery) UUIDs {
-	if nc.matches != nil && len(nc.matches) >= 0 {
+	if !nc.matches.Empty() {
 		nc.matches = nc.Config.SearchSubSet(q, nc.matches)
 	} else {
 		nc.matches = nc.Config.Search(q)
@@ -67,8 +68,21 @@ func (nc *NagiosCfg) ClearMatches() {
 	nc.matches = nil
 }
 
+//func (nc *NagiosCfg) InvertMatches() {
+//	if nc.matches == nil || len(nc.matches) == 0 {
+//		return
+//	}
+//	invm := make(UUIDs, nc.Config.Len() - nc.matches.Len())
+//}
+
+//func (nc *NagiosCfg) InvertMatches() {
+//	if nc.matches.Empty() {
+//		return
+//	}
+//}
+
 func (nc *NagiosCfg) DeleteMatches() CfgMap {
-	if nc.matches == nil || len(nc.matches) == 0 {
+	if nc.matches.Empty() {
 		return nil
 	}
 	cm := make(CfgMap)

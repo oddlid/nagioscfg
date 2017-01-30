@@ -239,6 +239,28 @@ func (u UUIDs) Less(i, j int) bool {
 	}
 }
 
+func (u UUIDs) Empty() bool {
+	return u == nil || u.Len() == 0
+}
+
+func (u UUIDs) Has(u2 UUID) bool {
+	for i := range u {
+		if u2.Equals(u[i]) {
+			return true
+		}
+	}
+	return false
+}
+
+func (u UUID) In(u2 UUIDs) bool {
+	for i := range u2 {
+		if u.Equals(u2[i]) {
+			return true
+		}
+	}
+	return false
+}
+
 func (u UUIDs) Sorted() UUIDs {
 	s := make(UUIDs, u.Len())
 	copy(s, u)
