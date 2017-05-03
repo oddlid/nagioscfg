@@ -182,7 +182,7 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 	case ' ':
 		//fallthrough
 		return false, r1, nil
-	case '{': // I don't get why this case is never triggered...
+	case '{': // I don't get why this case is never triggered... - Yes, it's because it's at the beginning of a line...
 		log.Debugf("%s.Reader.parseFields(): hit %q, line #%d col #%d", PKGNAME, r1, r.line, r.column)
 		return false, r1, nil
 	case '}':

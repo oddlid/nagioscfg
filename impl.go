@@ -64,6 +64,14 @@ func (nc *NagiosCfg) Search(q *CfgQuery) UUIDs {
 	return nc.matches
 }
 
+func (nc *NagiosCfg) Len() int {
+	return nc.Config.Len()
+}
+
+func (nc *NagiosCfg) GetMatches() UUIDs {
+	return nc.matches
+}
+
 func (nc *NagiosCfg) ClearMatches() {
 	nc.matches = nil
 }
@@ -185,7 +193,7 @@ func (cq CfgQuery) Balanced() bool {
 func (cq *CfgQuery) AddRX(re string) bool {
 	rx, err := regexp.Compile(re)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("%s.CfgQuery.AddRX(): %q", PKGNAME, err)
 		return false
 	}
 	cq.RXs = append(cq.RXs, rx)
@@ -199,6 +207,7 @@ func (cq *CfgQuery) AddKey(key string) bool {
 			return true
 		}
 	}
+	log.Errorf("%s.CfgQuery.AddKey(): Invalid key: %q", key)
 	return false
 }
 

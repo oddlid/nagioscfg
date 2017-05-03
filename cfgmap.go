@@ -235,7 +235,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 
 	// no RXs given
 	if rlen == 0 {
-		log.Debugf("%s.CfgMap.Search(): No regular expressions given", PKGNAME)
+		log.Debugf("%s.CfgMap.divertSearch(): No regular expressions given", PKGNAME)
 		return nil
 	}
 
@@ -362,8 +362,12 @@ func (cm CfgMap) SplitByFileID(sort bool) map[string]UUIDs {
 	return fmap
 }
 
+func (cm CfgMap) Len() int {
+	return len(cm)
+}
+
 func (cm CfgMap) Keys() UUIDs {
-	keys := make(UUIDs, len(cm))
+	keys := make(UUIDs, cm.Len())
 	i := 0
 	for k := range cm {
 		keys[i] = k
