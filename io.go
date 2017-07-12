@@ -547,6 +547,24 @@ func (nc *NagiosCfg) SaveToOrigin(sorted bool) error {
 	return nc.Config.WriteByFileID(sorted)
 }
 
+func (nc *NagiosCfg) WriteFile(filename string, sort bool) error {
+	return nc.Config.WriteFile(filename, sort)
+}
+
+func (cm CfgMap) WriteFile(filename string, sort bool) error {
+	fhnd, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer fhnd.Close()
+	w := bufio.NewWriter(fhnd)
+	for k := range cm {
+		cm[k].Print(w, sort)
+	}
+	w.Flush()
+	return nil
+}
+
 func (cm CfgMap) WriteByFileID(sort bool) error {
 	var wg sync.WaitGroup
 	fmap := cm.SplitByFileID(sort) // sorted and ready
