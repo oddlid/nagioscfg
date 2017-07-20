@@ -2,7 +2,8 @@ package nagioscfg
 
 import (
 	"fmt"
-	//log "github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
+	"github.com/oddlid/oddebug"
 	"regexp"
 	"strings"
 )
@@ -243,9 +244,10 @@ func (co *CfgObj) MatchAny(rx *regexp.Regexp) bool {
 	return false
 }
 
-// MatchAll returns true if all keys match their respective regexes. Almost like MatchKeys, but with a separate RX for each key
+// MatchSet returns true if all keys match their respective regexes. Almost like MatchKeys, but with a separate RX for each key
 func (co *CfgObj) MatchSet(q *CfgQuery) bool {
 	if !q.Balanced() {
+		log.Debugf("Number of keys and RXs are not equal (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return false
 	}
 
@@ -254,16 +256,21 @@ func (co *CfgObj) MatchSet(q *CfgQuery) bool {
 	for i := range q.Keys {
 		v, ok := co.Get(q.Keys[i])
 		if !ok {
+			//log.Debugf("%s.CfgObj.MatchSet(): No such key: %q", PKGNAME, q.Keys[i])
 			return false
 		}
 		if !q.RXs[i].MatchString(v) {
+			//log.Debugf("%s.CfgObj.MatchSet(): %v did not match %q", PKGNAME, q.RXs[i], v)
 			return false
 		}
+		log.Debugf("%q matched %q (in: %s)", q.RXs[i], v, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		nmatch++
 	}
 	if nmatch == klen {
+		log.Debugf("All keys (%v) matched! (in: %s)", q.Keys, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return true
 	}
+	log.Debugf("No keys matched (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
 	return false
 }
 

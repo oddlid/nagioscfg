@@ -26,7 +26,8 @@ type CfgObjs []*CfgObj
 type CfgMap map[UUID]*CfgObj
 
 const PKGNAME string = "nagioscfg"
-const VERSION string = "2017-07-12"
+const VERSION string = "2017-07-20"
+const PROJECT_PREFIX string = "github.com/vgtmnm/"
 
 const (
 	DEF_INDENT int    = 4

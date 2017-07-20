@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/oddlid/oddebug"
 	"regexp"
 )
 
@@ -25,7 +26,7 @@ func (cm CfgMap) Set(key string, val *CfgObj) bool {
 func (cm CfgMap) AddByUUID(key UUID, val *CfgObj) bool {
 	_, exists := cm[key]
 	if exists {
-		log.Debugf("%s.CfgMap.AddByUUID(): Attempt to add existing key %q ignored", PKGNAME, key)
+		log.Debugf("Attempt to add existing key %q ignored (in: %s)", key, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return false
 	}
 	return !cm.SetByUUID(key, val)
@@ -101,7 +102,7 @@ func (cm CfgMap) Append(c2 CfgMap) error {
 		}
 	}
 	if errcnt > 0 {
-		return fmt.Errorf("%s.CfgMap.Append(): Failed to append %d of the %d given values", PKGNAME, errcnt, len(c2))
+		return fmt.Errorf("Failed to append %d of the %d given values (in: %s)", errcnt, len(c2), oddebug.DebugInfoMedium(PROJECT_PREFIX))
 	}
 	return nil
 }
@@ -235,7 +236,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 
 	// no RXs given
 	if rlen == 0 {
-		log.Debugf("%s.CfgMap.divertSearch(): No regular expressions given", PKGNAME)
+		log.Debugf("No regular expressions given (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return nil
 	}
 
@@ -289,6 +290,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 		matches = make(UUIDs, 0, len(cm))
 		for k := range cm {
 			if cm[k].MatchSet(q) {
+				log.Debugf("%q matched %q (in: %s)", k, q, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 				matches = append(matches, k)
 			}
 		}
