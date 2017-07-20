@@ -254,6 +254,7 @@ func (co *CfgObj) MatchSet(q *CfgQuery) bool {
 	klen := len(q.Keys)
 	nmatch := 0
 	for i := range q.Keys {
+		//log.Debugf("Searching for key; %q (in: %s)", q.Keys[i], oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		v, ok := co.Get(q.Keys[i])
 		if !ok {
 			//log.Debugf("%s.CfgObj.MatchSet(): No such key: %q", PKGNAME, q.Keys[i])
@@ -267,7 +268,7 @@ func (co *CfgObj) MatchSet(q *CfgQuery) bool {
 		nmatch++
 	}
 	if nmatch == klen {
-		log.Debugf("All keys (%v) matched! (in: %s)", q.Keys, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Debugf("All keys/values (%q/%q) matched! (in: %s)", q.Keys, q.RXs, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return true
 	}
 	log.Debugf("No keys matched (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
