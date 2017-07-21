@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
+	"github.com/oddlid/oddebug"
 	"io"
 	"os"
 	"path/filepath"
@@ -296,6 +297,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				}
 				if setUUID {
 					co = NewCfgObjWithUUID(ct)
+					uuidorder = append(uuidorder, co.UUID) // keep track of original order of objects read
 				} else {
 					co = NewCfgObj(ct)
 				}
@@ -582,7 +584,8 @@ func (cm CfgMap) WriteByFileID(sort bool) error {
 			defer fhnd.Close()
 			w := bufio.NewWriter(fhnd)
 			for i := range fmap[filename] {
-				cm[fmap[filename][i]].Print(w, sort) // should pass "sorted" here as a param, not hard coded
+				cm[fmap[filename][i]].Print(w, sort)
+				fmt.Fprintf(w, "\n") // add extra blank line between each object
 			}
 			w.Flush()
 			schan <- nil
@@ -603,7 +606,7 @@ func (cm CfgMap) WriteByFileID(sort bool) error {
 	}
 
 	if errcnt > 0 {
-		return fmt.Errorf("%s.CfgMap.WriteByFileID(): Error writing to %d files", PKGNAME, errcnt)
+		return fmt.Errorf("Error writing to %d files (in: %s)", errcnt, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 	}
 
 	return nil
