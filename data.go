@@ -233,7 +233,7 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 	},
 	CfgKeys[8]: map[CfgType]int{ // check_command
 		T_HOST:              7,
-		T_SERVICE:           5,
+		T_SERVICE:           7,
 		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[9]: map[CfgType]int{ // check_freshness
@@ -588,7 +588,7 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 		T_SERVICEGROUP:      0,
 	},
 	CfgKeys[82]: map[CfgType]int{ // servicegroups
-		T_SERVICE:           7,
+		T_SERVICE:           5,
 		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[83]: map[CfgType]int{ // stalking_options
