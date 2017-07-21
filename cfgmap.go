@@ -290,7 +290,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 		matches = make(UUIDs, 0, len(cm))
 		for k := range cm {
 			if cm[k].MatchSet(q) {
-				log.Debugf("%q matched %q (in: %s)", k, q, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+				//log.Debugf("%q matched %q (in: %s)", k, q, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 				matches = append(matches, k)
 			}
 		}
@@ -298,6 +298,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 		matches = make(UUIDs, 0, len(subset))
 		for k := range subset {
 			if cm[subset[k]].MatchSet(q) {
+				//log.Debugf("%q matched %q in subset (in: %s)", subset[k], q, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 				matches = append(matches, subset[k])
 			}
 		}
@@ -341,11 +342,15 @@ func (cm CfgMap) FilterType(ts ...CfgType) UUIDs {
 func (cm CfgMap) SplitByFileID(sort bool) map[string]UUIDs {
 	fmap := make(map[string]UUIDs)
 	var keys UUIDs
-	if sort {
-		keys = cm.Keys().Sorted()
-	} else {
-		keys = cm.Keys()
-	}
+	//if sort {
+	//	//keys = cm.Keys().Sorted() // sorting this way does not produce the desired results, so we skip it until we have a working solution
+	//	log.Debugf("Ignoring sorting of obj DB (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//	keys = cm.Keys()
+	//} else {
+	//	keys = cm.Keys()
+	//}
+	keys = cm.Keys() // automatically "sorted" if possible
+
 	for k := range keys {
 		fid := cm[keys[k]].FileID
 		// skip etries without fileID
@@ -368,12 +373,17 @@ func (cm CfgMap) Len() int {
 	return len(cm)
 }
 
+// Keys tries to deliver keys in the order they were read, otherwise it's random
 func (cm CfgMap) Keys() UUIDs {
 	keys := make(UUIDs, cm.Len())
 	i := 0
-	for k := range cm {
-		keys[i] = k
-		i++
+	if uuidorder != nil && len(uuidorder) == cm.Len() {
+		copy(keys, uuidorder)
+	} else {
+		for k := range cm {
+			keys[i] = k
+			i++
+		}
 	}
 	return keys
 }
