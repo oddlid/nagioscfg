@@ -31,7 +31,7 @@ const PROJECT_PREFIX string = "github.com/vgtmnm/"
 
 const (
 	DEF_INDENT int    = 4
-	DEF_ALIGN  int    = 32
+	DEF_ALIGN  int    = 31
 	SEP_CMD    string = "!"
 	SEP_LST    string = ","
 )
@@ -171,10 +171,17 @@ var CfgKeys = map[int]string{
 	89: "use",
 	90: "vrml_image",
 	91: "wednesday",
+	// Newly discovered keys, not in Nagios core, only op5, in unsorted order
+	92: "name",
+	93: "obsess",
+	94: "parallelize_check",
+	95: "register",
 }
 
 // Key order for each type defined here:
 // https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html
+// 2017-07-21 14:26:39 - Just discovered that op5 has several extra keys not defined by Nagios. Fuuuuuuck....
+//   parallelize_check, obsess, register, name
 var CfgKeySortOrder = map[string]map[CfgType]int{
 	CfgKeys[0]: map[CfgType]int{ // 2d_coords
 		T_HOST:              42,
@@ -623,6 +630,7 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 	},
 }
 
+var uuidorder UUIDs // append to this every time an object is read
 
 type CfgObj struct {
 	Type    CfgType
@@ -644,7 +652,8 @@ type NagiosCfg struct {
 	SessionID UUID
 	Config    CfgMap // the full config
 	pipe      bool   // indicator of whether the content came from stdin and should be written to stdout or not
-	matches   UUIDs // subset of config
+	matches   UUIDs  // subset of config
+	inorder   UUIDs  // uuids ordered by how they were read in
 }
 
 //type GenericReader interface {
