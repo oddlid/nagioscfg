@@ -264,14 +264,14 @@ func (co *CfgObj) MatchSet(q *CfgQuery) bool {
 			//log.Debugf("%s.CfgObj.MatchSet(): %v did not match %q", PKGNAME, q.RXs[i], v)
 			return false
 		}
-		log.Debugf("%q matched %q (in: %s)", q.RXs[i], v, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		//log.Debugf("%q matched %q (in: %s)", q.RXs[i], v, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		nmatch++
 	}
 	if nmatch == klen {
-		log.Debugf("All keys/values (%q/%q) matched! (in: %s)", q.Keys, q.RXs, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		//log.Debugf("All keys/values (%q/%q) matched! (in: %s)", q.Keys, q.RXs, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return true
 	}
-	log.Debugf("No keys matched (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//log.Debugf("No keys matched (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
 	return false
 }
 
