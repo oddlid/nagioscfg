@@ -184,11 +184,11 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 		//fallthrough
 		return false, r1, nil
 	case '{': // I don't get why this case is never triggered... - Yes, it's because it's at the beginning of a line...
-		log.Debugf("%s.Reader.parseFields(): hit %q, line #%d col #%d", PKGNAME, r1, r.line, r.column)
+		log.Debugf("Hit %q, line #%d col #%d (in: %s)", r1, r.line, r.column, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return false, r1, nil
 	case '}':
 		if r.column > DEF_ALIGN {
-			log.Debugf("%s.Reader.parseFields(): hit %q, line #%d col #%d", PKGNAME, r1, r.line, r.column)
+			log.Debugf("Hit %q, line #%d col #%d (in: %s)", r1, r.line, r.column, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		}
 		return true, r1, nil
 	default:
@@ -204,7 +204,7 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 			if r1 == '{' {
 				// this ugly little hack lets us consume {} that are part of some value. Fragile as fuck, will sure bite ass
 				if r.column > DEF_ALIGN {
-					log.Debugf("%s.Reader.parseFields(): Hit %q at line #%d col #%d", PKGNAME, r1, r.line, r.column)
+					log.Debugf("Hit %q at line #%d col #%d (in: %s)", r1, r.line, r.column, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 					continue
 				}
 				break
@@ -292,7 +292,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				}
 				ct := CfgName(fields[1]).Type()
 				if ct == T_INVALID {
-					log.Debugf("Invalid type (f#1): %q, Err: %q", fields, err)
+					log.Debugf("Invalid type (f#1): %q, Err: %q (in: %s)", fields, err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 					return nil, r.error(ErrUnknown)
 				}
 				if setUUID {
@@ -311,7 +311,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				//_debug(fields)
 				if fl < 2 || co == nil {
 					//return nil, r.error(ErrNoValue)
-					log.Debugf("%s.Reader.Read(): too few fields (#%d): %#v", PKGNAME, fl, fields)
+					log.Debugf("Too few fields (#%d): %#v (in: %s)", fl, fields, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 					continue
 				}
 				co.Add(fields[0], strings.Join(fields[1:fl], " "))
@@ -341,7 +341,7 @@ func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 			}
 			if err != nil {
 				if err != io.EOF {
-					log.Errorf("%s.Reader.ReadChan(%q): %q", PKGNAME, fileID, err)
+					log.Errorf("%s.Reader.ReadChan(%b, %q): %q", PKGNAME, setUUID, fileID, err)
 					continue
 				}
 				break
@@ -376,7 +376,7 @@ func (mfr MultiFileReader) ReadChan(setUUID bool) <-chan *CfgObj {
 	for i := range mfr {
 		fileID, err := mfr[i].AbsPath()
 		if err != nil {
-			log.Errorf("%s.MultiFileReader.ReadChan(): %q", err)
+			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 			fileID = mfr[i].f.Name()
 		}
 		fcs[i] = mfr[i].ReadChan(setUUID, fileID)
@@ -418,7 +418,7 @@ func (r *Reader) ReadAllList(setUUID bool, fileID string) (*list.List, error) {
 func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 	m := make(CfgMap)
 	for {
-		obj, err := r.Read(true, fileID)
+		obj, err := r.Read(true, fileID) // we always want UUID when reading to map
 		if err == nil && obj != nil {
 			m[obj.UUID] = obj
 		}
@@ -439,22 +439,22 @@ func (mfr MultiFileReader) ReadAllMap() (CfgMap, error) {
 	for i := range mfr {
 		fileID, err := mfr[i].AbsPath()
 		if err != nil {
-			log.Errorf("%s.MultiFileReader.ReadAllMap(): %q", PKGNAME, err)
+			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 			fileID = mfr[i].f.Name()
 		}
 		m, err := mfr[i].ReadAllMap(fileID)
 		if err != nil {
-			log.Errorf("%s.MultiFileReader.ReadAllMap(): %q", PKGNAME, err)
+			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 			errcnt++
 		}
 		err = cm.Append(m)
 		if err != nil {
-			log.Errorf("%s.MultiFileReader.ReadAllMap(): %q", PKGNAME, err)
+			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		}
 	}
 
 	if errcnt > 0 {
-		return nil, fmt.Errorf("%s.MultiFileReader.ReadAllMap(): Encountered %d errors, bailing out", PKGNAME, errcnt)
+		return nil, fmt.Errorf("Encountered %d errors, bailing out (in: %s)", errcnt, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 	}
 	return cm, nil
 }
@@ -510,7 +510,7 @@ func (cos CfgObjs) Print(w io.Writer, sorted bool) {
 
 func (cm CfgMap) Print(w io.Writer, sorted bool) {
 	if sorted {
-		keys := cm.Keys().Sorted()
+		keys := cm.Keys()
 		for i := range keys {
 			cm[keys[i]].Print(w, sorted)
 			fmt.Fprintf(w, "\n")
@@ -531,6 +531,7 @@ func (nc *NagiosCfg) PrintMatches(w io.Writer, sorted bool) {
 	if nc.matches == nil || len(nc.matches) == 0 {
 		return
 	}
+	// I'd like original ordering here as well
 	for i := range nc.matches {
 		nc.Config[nc.matches[i]].Print(w, sorted)
 		fmt.Fprintf(w, "\n")

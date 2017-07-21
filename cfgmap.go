@@ -241,10 +241,11 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 	}
 
 	ss := func() bool {
-		return subset != nil
+		return subset != nil && len(subset) > 0
 	}
 
 	// no keys, but one or more RXs
+	// This part seems wrong and needs to be reworked
 	if klen == 0 {
 		var m UUIDs
 		if ss() {
@@ -259,6 +260,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 	}
 	// one or more keys, and one or more RXs, but maybe not the same amount of each
 	// ... more keys than RXs
+	// Rework this part too
 	if klen > rlen {
 		var m UUIDs
 		if ss() {
@@ -272,6 +274,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 		return m
 	}
 	// ... more RXs than keys
+	// Rework this one as well
 	if rlen > klen {
 		var m UUIDs
 		if ss() {
@@ -285,13 +288,15 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 		return m
 	}
 	// one or more, and the same amount of keys and RXs
+	// The remaining parts work quite good
 	var matches UUIDs
 	if !ss() {
 		matches = make(UUIDs, 0, len(cm))
-		for k := range cm {
-			if cm[k].MatchSet(q) {
+		keys := cm.Keys() // do this to get objects in original order, if possible
+		for k := range keys {
+			if cm[keys[k]].MatchSet(q) {
 				//log.Debugf("%q matched %q (in: %s)", k, q, oddebug.DebugInfoMedium(PROJECT_PREFIX))
-				matches = append(matches, k)
+				matches = append(matches, keys[k])
 			}
 		}
 	} else {
@@ -317,6 +322,9 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 // Given more RXs than keys, it will return all objects that match all RXs on all of the keys.
 // Given an equal amount of keys and RXs, it will return all objects that match RX on the value of the corresponding key, in given order.
 func (cm CfgMap) Search(q *CfgQuery) UUIDs {
+	if uuidorder != nil {
+		return cm.divertSearch(uuidorder, q) // this should make the search use the order given when config was read
+	}
 	return cm.divertSearch(nil, q)
 }
 
@@ -327,10 +335,11 @@ func (cm CfgMap) SearchSubSet(q *CfgQuery, ids UUIDs) UUIDs {
 }
 
 func (cm CfgMap) FilterType(ts ...CfgType) UUIDs {
-	matches := make(UUIDs, 0, len(cm))
-	for k := range cm {
-		if cm[k].Type.In(ts) {
-			matches = append(matches, k)
+	keys := cm.Keys() // do this to get objects in original order, if possible
+	matches := make(UUIDs, 0, len(keys))
+	for k := range keys {
+		if cm[keys[k]].Type.In(ts) {
+			matches = append(matches, keys[k])
 		}
 	}
 	if len(matches) > 0 {
@@ -376,15 +385,42 @@ func (cm CfgMap) Len() int {
 
 // Keys tries to deliver keys in the order they were read, otherwise it's random
 func (cm CfgMap) Keys() UUIDs {
-	keys := make(UUIDs, cm.Len())
+	ulen := len(uuidorder)
+	clen := cm.Len()
+	keys := make(UUIDs, clen)
 	i := 0
-	if uuidorder != nil && len(uuidorder) == cm.Len() {
+	if uuidorder != nil && ulen == clen { // we assume nothing has been added or deleted if length is the same (naive...)
 		copy(keys, uuidorder)
+	} else if uuidorder != nil && ulen > clen { // objects have been deleted since input was read
+		// here we just skip keys that are no longer present
+		for k := range uuidorder {
+			_, ok := cm.GetByUUID(uuidorder[k])
+			if ok {
+				keys[i] = uuidorder[k]
+				i++
+			}
+		}
 	} else {
 		for k := range cm {
 			keys[i] = k
 			i++
 		}
 	}
+
+	// Can't figure this out in a reliable manner
+	//} else if uuidorder != nil && clen > ulen { // objects have been added since input was read
+	//	for k := range cm {
+	//		idx := uuidorder.IndexOf(k)
+	//		if idx > -1 {
+	//		} else {
+	//		}
+	//	}
+	//}
+	// should still try to keep some order here, by comparing keys if uuidorder is not empty
+	//for k := range cm {
+	//	keys[i] = k
+	//	i++
+	//}
+
 	return keys
 }
