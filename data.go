@@ -176,12 +176,15 @@ var CfgKeys = map[int]string{
 	93: "obsess",
 	94: "parallelize_check",
 	95: "register",
+	96: "hourly_value",
 }
 
 // Key order for each type defined here:
 // https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/objectdefinitions.html
 // 2017-07-21 14:26:39 - Just discovered that op5 has several extra keys not defined by Nagios. Fuuuuuuck....
-//   parallelize_check, obsess, register, name
+//   parallelize_check, obsess, register, name, hourly_value
+//   It also seems that check_command should have a lower sort order than servicegroups, according to diffs.
+//   This is not according to Nagios specs, but op5's output
 var CfgKeySortOrder = map[string]map[CfgType]int{
 	CfgKeys[0]: map[CfgType]int{ // 2d_coords
 		T_HOST:              42,
@@ -230,7 +233,7 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 	},
 	CfgKeys[8]: map[CfgType]int{ // check_command
 		T_HOST:              7,
-		T_SERVICE:           7,
+		T_SERVICE:           5,
 		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[9]: map[CfgType]int{ // check_freshness
@@ -585,7 +588,7 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 		T_SERVICEGROUP:      0,
 	},
 	CfgKeys[82]: map[CfgType]int{ // servicegroups
-		T_SERVICE:           5,
+		T_SERVICE:           7,
 		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 	CfgKeys[83]: map[CfgType]int{ // stalking_options
@@ -627,6 +630,28 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 	CfgKeys[91]: map[CfgType]int{ // wednesday
 		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 		T_TIMEPERIOD:        2,
+	},
+	// The following crap was not specified in Nagios Core, and is op5 specific.
+	// I haven't cared to figure out sorting order, so it's arbitrary, starting on the first free slot for T_SERVICE
+	CfgKeys[92]: map[CfgType]int{ // name
+		T_SERVICE:           43,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[93]: map[CfgType]int{ // obsess
+		T_SERVICE:           41,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[94]: map[CfgType]int{ // parallelize_check
+		T_SERVICE:           40,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[95]: map[CfgType]int{ // register
+		T_SERVICE:           42,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
+	},
+	CfgKeys[95]: map[CfgType]int{ // hourly_value
+		T_SERVICE:           44,
+		T_SERVICEDEPENDENCY: 99, // value outside defined range, will not be used, only here for alignment
 	},
 }
 
