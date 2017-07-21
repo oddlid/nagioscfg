@@ -364,7 +364,8 @@ func (cm CfgMap) SplitByFileID(sort bool) map[string]UUIDs {
 		if !ok {
 			fmap[fid] = make(UUIDs, 0, 1)
 		}
-		fmap[fid] = append(fmap[fid], cm[keys[k]].UUID)
+		//fmap[fid] = append(fmap[fid], cm[keys[k]].UUID)
+		fmap[fid] = append(fmap[fid], keys[k]) // less lookups than above
 	}
 	return fmap
 }
