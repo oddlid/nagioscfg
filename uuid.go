@@ -261,6 +261,7 @@ func (u UUID) In(u2 UUIDs) bool {
 	return false
 }
 
+// Sorted sorts UUIDs alphabetically, but that is NOT the same as the order in which they were read
 func (u UUIDs) Sorted() UUIDs {
 	s := make(UUIDs, u.Len())
 	copy(s, u)
