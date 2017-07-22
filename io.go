@@ -537,8 +537,8 @@ func (nc *NagiosCfg) Print(w io.Writer, sorted bool) {
 	nc.Config.Print(w, sorted)
 }
 
-func (nc *NagiosCfg) PrintUUIDs(w io.Writer, u UUIDs, sorted bool {
-	return nc.Config.PrintUUIDs(w, u, sorted)
+func (nc *NagiosCfg) PrintUUIDs(w io.Writer, u UUIDs, sorted bool) {
+	nc.Config.PrintUUIDs(w, u, sorted)
 }
 
 func (nc *NagiosCfg) PrintMatches(w io.Writer, sorted bool) {

@@ -74,7 +74,8 @@ func (nc *NagiosCfg) InverseResults() UUIDs {
 			inv = append(inv, v)
 		}
 	}
-	return inv
+	nc.matches = inv
+	return nc.matches
 }
 
 func (nc *NagiosCfg) Len() int {
