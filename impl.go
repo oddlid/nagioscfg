@@ -64,6 +64,19 @@ func (nc *NagiosCfg) Search(q *CfgQuery) UUIDs {
 	return nc.matches
 }
 
+func (nc *NagiosCfg) InverseResults() UUIDs {
+	if nc.matches.Empty() {
+		return uuidorder // if previous search yielded nothing, then everything is the inverse
+	}
+	inv := make(UUIDs, 0, nc.Config.Len() - len(nc.matches))
+	for _, v := range uuidorder {
+		if !v.In(nc.matches) {
+			inv = append(inv, v)
+		}
+	}
+	return inv
+}
+
 func (nc *NagiosCfg) Len() int {
 	return nc.Config.Len()
 }

@@ -400,7 +400,7 @@ func (cm CfgMap) Keys() UUIDs {
 				i++
 			}
 		}
-	} else {
+	} else { // give up and take Golangs random order
 		for k := range cm {
 			keys[i] = k
 			i++
