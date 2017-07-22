@@ -523,8 +523,22 @@ func (cm CfgMap) Print(w io.Writer, sorted bool) {
 	}
 }
 
+func (cm CfgMap) PrintUUIDs(w io.Writer, u UUIDs, sorted bool) {
+	for _, v := range u {
+		obj, ok := cm.GetByUUID(v)
+		if ok && obj != nil {
+			obj.Print(w, sorted)
+			fmt.Fprintf(w, "\n")
+		}
+	}
+}
+
 func (nc *NagiosCfg) Print(w io.Writer, sorted bool) {
 	nc.Config.Print(w, sorted)
+}
+
+func (nc *NagiosCfg) PrintUUIDs(w io.Writer, u UUIDs, sorted bool {
+	return nc.Config.PrintUUIDs(w, u, sorted)
 }
 
 func (nc *NagiosCfg) PrintMatches(w io.Writer, sorted bool) {
