@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/oddlid/oddebug"
 	"regexp"
 )
 
@@ -42,7 +41,7 @@ func (cm CfgMap) Set(key string, val *CfgObj) bool {
 func (cm CfgMap) AddByUUID(key UUID, val *CfgObj) bool {
 	_, exists := cm[key]
 	if exists {
-		log.Debugf("Attempt to add existing key %q ignored (in: %s)", key, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Debugf("Attempt to add existing key %q ignored %s", key, dbgStr(false))
 		return false
 	}
 	return !cm.SetByUUID(key, val)
@@ -118,7 +117,7 @@ func (cm CfgMap) Append(c2 CfgMap) error {
 		}
 	}
 	if errcnt > 0 {
-		return fmt.Errorf("Failed to append %d of the %d given values (in: %s)", errcnt, len(c2), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		return fmt.Errorf("Failed to append %d of the %d given values %s", errcnt, len(c2), dbgStr(true))
 	}
 	return nil
 }
@@ -252,7 +251,7 @@ func (cm CfgMap) divertSearch(subset UUIDs, q *CfgQuery) UUIDs {
 
 	// no RXs given
 	if rlen == 0 {
-		log.Debugf("No regular expressions given (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Debugf("No regular expressions given %s", dbgStr(false))
 		return nil
 	}
 
@@ -498,7 +497,7 @@ func (cm CfgMap) mapDups() map[string]UUIDs {
 		if len(dups[k]) == 1 {
 			dups[k] = nil
 		} else {
-			log.Debugf("Dups for key %q: %d (in: %s)", k, len(dups[k]), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+			log.Debugf("Dups for key %q: %d %s", k, len(dups[k]), dbgStr(false))
 		}
 	}
 	return dups

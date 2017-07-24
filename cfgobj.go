@@ -19,7 +19,6 @@ package nagioscfg
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/oddlid/oddebug"
 	"regexp"
 	"strings"
 )
@@ -263,7 +262,7 @@ func (co *CfgObj) MatchAny(rx *regexp.Regexp) bool {
 // MatchSet returns true if all keys match their respective regexes. Almost like MatchKeys, but with a separate RX for each key
 func (co *CfgObj) MatchSet(q *CfgQuery) bool {
 	if !q.Balanced() {
-		log.Debugf("Number of keys and RXs are not equal (in: %s)", oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Debugf("Number of keys and RXs are not equal %s", dbgStr(false))
 		return false
 	}
 

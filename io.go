@@ -29,7 +29,6 @@ import (
 	"errors"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/oddlid/oddebug"
 	"io"
 	"os"
 	"path/filepath"
@@ -88,7 +87,7 @@ func NewReader(rr io.Reader) *Reader {
 func NewFileReader(path string) *FileReader {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Errorf("%q %s", err, dbgStr(true))
 		return nil
 	}
 	fr := &FileReader{}
@@ -129,12 +128,12 @@ func (mfr MultiFileReader) Close() error {
 	for i := range mfr {
 		err := mfr[i].Close()
 		if err != nil {
-			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+			log.Errorf("%q %s", err, dbgStr(true))
 			errcnt++
 		}
 	}
 	if errcnt > 0 {
-		return fmt.Errorf("Error closing %d files (in: %s)", errcnt, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		return fmt.Errorf("Error closing %d files %s", errcnt, dbgStr(true))
 	}
 	return nil
 }
@@ -203,11 +202,11 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 		//fallthrough
 		return false, r1, nil
 	case '{': // I don't get why this case is never triggered... - Yes, it's because it's at the beginning of a line...
-		log.Debugf("Hit %q, line #%d col #%d (in: %s)", r1, r.line, r.column, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Debugf("Hit %q, line #%d col #%d %s", r1, r.line, r.column, dbgStr(false))
 		return false, r1, nil
 	case '}':
 		if r.column > DEF_ALIGN {
-			log.Debugf("Hit %q, line #%d col #%d (in: %s)", r1, r.line, r.column, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+			log.Debugf("Hit %q, line #%d col #%d %s", r1, r.line, r.column, dbgStr(false))
 		}
 		return true, r1, nil
 	default:
@@ -223,7 +222,7 @@ func (r *Reader) parseFields() (haveField bool, delim rune, err error) {
 			if r1 == '{' {
 				// this ugly little hack lets us consume {} that are part of some value. Fragile as fuck, will sure bite ass
 				if r.column > DEF_ALIGN {
-					log.Debugf("Hit %q at line #%d col #%d (in: %s)", r1, r.line, r.column, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+					log.Debugf("Hit %q at line #%d col #%d %s", r1, r.line, r.column, dbgStr(false))
 					continue
 				}
 				break
@@ -312,7 +311,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				}
 				ct := CfgName(fields[1]).Type()
 				if ct == T_INVALID {
-					log.Debugf("Invalid type (f#1): %q, Err: %q (in: %s)", fields, err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+					log.Debugf("Invalid type (f#1): %q, Err: %q %s", fields, err, dbgStr(false))
 					return nil, r.error(ErrUnknown)
 				}
 				if setUUID {
@@ -331,7 +330,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				//_debug(fields)
 				if fl < 2 || co == nil {
 					//return nil, r.error(ErrNoValue)
-					log.Debugf("Too few fields (#%d): %#v (in: %s)", fl, fields, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+					log.Debugf("Too few fields (#%d): %#v %s", fl, fields, dbgStr(false))
 					continue
 				}
 				//log.Debugf("%q %q", fields[0], strings.Join(fields[1:fl], " "))
@@ -371,7 +370,7 @@ func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 			}
 			if err != nil {
 				if err != io.EOF {
-					log.Errorf("%s.Reader.ReadChan(%b, %q): %q", PKGNAME, setUUID, fileID, err)
+					log.Errorf("%q %s", err, dbgStr(true))
 					continue
 				}
 				break
@@ -406,7 +405,7 @@ func (mfr MultiFileReader) ReadChan(setUUID bool) <-chan *CfgObj {
 	for i := range mfr {
 		fileID, err := mfr[i].AbsPath()
 		if err != nil {
-			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+			log.Errorf("%q %s", err, dbgStr(true))
 			fileID = mfr[i].f.Name()
 		}
 		fcs[i] = mfr[i].ReadChan(setUUID, fileID)
@@ -485,22 +484,22 @@ func (mfr MultiFileReader) ReadAllMap() (CfgMap, error) {
 	for i := range mfr {
 		fileID, err := mfr[i].AbsPath()
 		if err != nil {
-			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+			log.Errorf("%q %s", err, dbgStr(true))
 			fileID = mfr[i].f.Name()
 		}
 		m, err := mfr[i].ReadAllMap(fileID)
 		if err != nil {
-			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+			log.Errorf("%q %s", err, dbgStr(true))
 			errcnt++
 		}
 		err = cm.Append(m)
 		if err != nil {
-			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+			log.Errorf("%q %s", err, dbgStr(true))
 		}
 	}
 
 	if errcnt > 0 {
-		return nil, fmt.Errorf("Encountered %d errors, bailing out (in: %s)", errcnt, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		return nil, fmt.Errorf("Encountered %d errors, bailing out %s", errcnt, dbgStr(true))
 	}
 	return cm, nil
 }
@@ -686,7 +685,7 @@ func (cm CfgMap) WriteByFileID(sort bool) error {
 	}
 
 	if errcnt > 0 {
-		return fmt.Errorf("Error writing to %d files (in: %s)", errcnt, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		return fmt.Errorf("Error writing to %d files %s", errcnt, dbgStr(true))
 	}
 
 	return nil

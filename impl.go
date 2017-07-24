@@ -21,12 +21,25 @@ Function/method implementations for types from data.go
 package nagioscfg
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/oddlid/oddebug"
 	"os"
 	"regexp"
 )
 
+
+func dbgStr(override bool) string {
+	noop := (log.StandardLogger().Level != log.DebugLevel) && !override
+	//noop := true
+	if noop {
+		return ""
+	}
+	callchain_lvl := 2
+	basename := true
+	funcname, filename, line := oddebug.DebugForWraps(noop, callchain_lvl, PROJECT_PREFIX, basename)
+	return fmt.Sprintf("(in: %s[%s:%d])", funcname, filename, line)
+}
 
 func NewNagiosCfg() *NagiosCfg {
 	return &NagiosCfg{
@@ -246,7 +259,7 @@ func (cq CfgQuery) Balanced() bool {
 func (cq *CfgQuery) AddRX(re string) bool {
 	rx, err := regexp.Compile(re)
 	if err != nil {
-		log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Errorf("%q %s", err, dbgStr(true))
 		return false
 	}
 	cq.RXs = append(cq.RXs, rx)
@@ -260,18 +273,18 @@ func (cq *CfgQuery) AddKey(key string) bool {
 			return true
 		}
 	}
-	log.Errorf("Invalid key: %q (in: %s)", key, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	log.Errorf("Invalid key: %q %s", key, dbgStr(true))
 	return false
 }
 
 func (cq *CfgQuery) AddKeyRX(key, re string) bool {
 	if key == "" {
-		log.Error("CfgQuery.AddFilter(): Error: Empty key")
+		log.Error("Error: Empty key", dbgStr(true))
 		return false
 	}
 
 	if !IsValidProperty(key) {
-		log.Errorf("Invalid key: %q (in: %s)", key, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		log.Errorf("Invalid key: %q %s", key, dbgStr(true))
 		return false
 	}
 
