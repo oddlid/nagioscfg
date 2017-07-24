@@ -487,9 +487,12 @@ func (cm CfgMap) mapDups() map[string]UUIDs {
 		}
 		dups[udesc] = append(dups[udesc], u)
 	}
+	// Clean up; delete entries that don't have duplicates
 	for k := range dups {
 		if len(dups[k]) == 1 {
+			// might be overkill to both set to nil and delete, but it can't hurt
 			dups[k] = nil
+			delete(dups, k)
 		} else {
 			log.Debugf("Dups for key %q: %d %s", k, len(dups[k]), dbgStr(false))
 		}
@@ -500,9 +503,37 @@ func (cm CfgMap) mapDups() map[string]UUIDs {
 func (cm CfgMap) hasDups() (bool, map[string]UUIDs) {
 	dupmap := cm.mapDups()
 	for k := range dupmap {
-		if dupmap != nil && len(dupmap[k]) > 1 {
+		if dupmap[k] != nil && len(dupmap[k]) > 1 {
 			return true, dupmap
 		}
 	}
 	return false, dupmap
+}
+
+func (cm CfgMap) RemoveDuplicateServices(dups map[string]UUIDs) int {
+	// We take the dup-map as an argument (may be nil), so that if mapDups has been run from somewhere
+	// else earlier, one can pass the results as an argument in order to not have to run through
+	// everything one more time
+	var sdups map[string]UUIDs
+	if dups == nil {
+		sdups = cm.mapDups()
+	} else {
+		sdups = dups
+	}
+
+	num_deleted := 0
+	for k := range sdups {
+		for i := range sdups[k] {
+			if i == 0 { // leave the first entry
+				continue
+			}
+			obj := cm.DelByUUID(sdups[k][i])
+			if obj != nil {
+				num_deleted++
+			}
+		}
+		delete(sdups, k) // this should affect map passed in, hopefully, just so it's not reused by accident
+	}
+
+	return num_deleted
 }

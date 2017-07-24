@@ -171,8 +171,12 @@ func (nc *NagiosCfg) SetKeys(keys, values []string) int {
 	return nc.Config.SetKeys(nc.matches, keys, values)
 }
 
-func (nc *NagiosCfg) HasServiceDups() (bool, map[string]UUIDs) {
+func (nc *NagiosCfg) HasServiceDuplicates() (bool, map[string]UUIDs) {
 	return nc.Config.hasDups()
+}
+
+func (nc *NagiosCfg) RemoveServiceDuplicates(dups map[string]UUIDs) int {
+	return nc.Config.RemoveDuplicateServices(dups)
 }
 
 // Valid checks if the given CfgType is within valid range
