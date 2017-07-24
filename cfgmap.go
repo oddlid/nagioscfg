@@ -473,12 +473,6 @@ func (cm CfgMap) Keys() UUIDs {
 func (cm CfgMap) mapDups() map[string]UUIDs {
 	dups := make(map[string]UUIDs)
 	for u := range cm {
-		// debug dups
-		//desc, _ := cm[u].GetDescription()
-		//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
-		//	log.Debugf("Got bugger: %q Type: %s (in: %s)", u, cm[u].Type.String(), oddebug.DebugInfoMedium(PROJECT_PREFIX))
-		//}
-		// END dups
 		if cm[u].Type != T_SERVICE {
 			continue
 		}

@@ -337,11 +337,6 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 				co.Add(fields[0], strings.Join(fields[1:fl], " "))
 			case IO_OBJ_END:
 				//fmt.Printf("Obj size: %d\n", co.size()) // approx avg turned out to be ~362 bytes per declaration for our services.cfg file
-				//desc, _ := co.GetDescription()
-				//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
-				//	log.Debugf("Got bugger at line %d %q:%q (in: %s)", r.inputline, co.UUID, desc, oddebug.DebugInfoMedium(PROJECT_PREFIX))
-				//}
-
 				return co, nil
 			default:
 				return nil, r.error(ErrUnknown)
@@ -362,10 +357,6 @@ func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 		for {
 			obj, err := r.Read(setUUID, fileID)
 			if err == nil && obj != nil {
-				//desc, _ := obj.GetDescription()
-				//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
-				//	log.Debugf("Got bugger here as well: %q (in: %s)", obj.UUID, oddebug.DebugInfoMedium(PROJECT_PREFIX))
-				//}
 				objchan <- obj
 			}
 			if err != nil {
@@ -460,21 +451,6 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 		}
 	}
 
-	// debug dups
-	//hasdups, dupmap := m.hasDups()
-	//if hasdups {
-	//	//log.Debugf("%v", dupmap)
-	//	for k := range dupmap {
-	//		if len(dupmap[k]) > 1 {
-	//			log.Debugf("Duplicates after read: %d (in: %s)", len(dupmap[k]), oddebug.DebugInfoMedium(PROJECT_PREFIX))
-	//			//m.PrintUUIDs(os.Stderr, dupmap[k], true)
-	//			//for id := range dupmap[k] {
-	//			//	log.Debugf("Dup UUID: %q", dupmap[k][id])
-	//			//}
-	//		}
-	//	}
-	//}
-
 	return m, nil
 }
 
@@ -535,15 +511,6 @@ func (co *CfgObj) Print(w io.Writer, sorted bool) {
 	prefix := strings.Repeat(" ", co.Indent)
 	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
 	co.generateComment() // this might fail, but don't care yet
-
-	// debug dups
-	//desc, _ := co.GetDescription()
-	//udesc, _ := co.GetUniqueCheckName()
-	//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
-	//	log.Debugf("Dup obj: %q (%q) (in: %s)", co.UUID, udesc, oddebug.DebugInfoMedium(PROJECT_PREFIX))
-	//}
-	// END debug
-
 	fmt.Fprintf(w, "%s\n", co.Comment)
 	fmt.Fprintf(w, "define %s{\n", co.Type.String())
 	if sorted {
