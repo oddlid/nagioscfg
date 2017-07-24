@@ -376,6 +376,12 @@ func (cm CfgMap) SplitByFileID(sort bool) map[string]UUIDs {
 	//}
 	keys = cm.Keys() // automatically "sorted" if possible
 
+	// Debug
+	//dups1 := findDups(keys)
+	//if dups1 != nil {
+	//	log.Debugf("Duplicate keys: %q (in: %s)", dups1, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//}
+
 	for k := range keys {
 		fid := cm[keys[k]].FileID
 		// skip etries without fileID
@@ -392,6 +398,16 @@ func (cm CfgMap) SplitByFileID(sort bool) map[string]UUIDs {
 		//fmap[fid] = append(fmap[fid], cm[keys[k]].UUID)
 		fmap[fid] = append(fmap[fid], keys[k]) // less lookups than above
 	}
+
+	// debug dups
+	//log.Debugf("fmap length: %d (in: %s)", len(fmap), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//for k := range fmap {
+	//	dups := findDups(fmap[k])
+	//	if dups != nil {
+	//		log.Debugf("Dups in fmap[%s]: %q (in: %s)", k, fmap[k], oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//	}
+	//}
+
 	return fmap
 }
 
@@ -438,5 +454,62 @@ func (cm CfgMap) Keys() UUIDs {
 	//	i++
 	//}
 
+	// 2017-07-24 13:02:10: We have a problem with duplicates getting printed out when saving back,
+	//  so trying to see if it's related to conversion between slices and maps
+	// 2017-07-24 13:22:47 - that was not the problem, as dups still occured with below code
+	//tmpmap := make(map[UUID]int)
+	//tmpkeys := make(UUIDs, 0, len(keys))
+	//for _, v := range keys {
+	//	tmpmap[v] += 1
+	//}
+	//for k := range tmpmap {
+	//	tmpkeys = append(tmpkeys, k)
+	//}
+
 	return keys
+}
+
+// debug dups
+// mapDups searches via host_name + ; + service_description, not UUID
+func (cm CfgMap) mapDups() map[string]UUIDs {
+	dups := make(map[string]UUIDs)
+	for u := range cm {
+		// debug dups
+		//desc, _ := cm[u].GetDescription()
+		//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
+		//	log.Debugf("Got bugger: %q Type: %s (in: %s)", u, cm[u].Type.String(), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		//}
+		// END dups
+		if cm[u].Type != T_SERVICE {
+			continue
+		}
+		udesc, uok := cm[u].GetUniqueCheckName()
+		if !uok {
+			//udesc = "INVALID_ENTRY"
+			continue
+		}
+		_, ok := dups[udesc]
+		if !ok {
+			dups[udesc] = make(UUIDs, 0, 2)
+		}
+		dups[udesc] = append(dups[udesc], u)
+	}
+	for k := range dups {
+		if len(dups[k]) == 1 {
+			dups[k] = nil
+		} else {
+			log.Debugf("Dups for key %q: %d (in: %s)", k, len(dups[k]), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+		}
+	}
+	return dups
+}
+
+func (cm CfgMap) hasDups() (bool, map[string]UUIDs) {
+	dupmap := cm.mapDups()
+	for k := range dupmap {
+		if dupmap != nil && len(dupmap[k]) > 1 {
+			return true, dupmap
+		}
+	}
+	return false, dupmap
 }

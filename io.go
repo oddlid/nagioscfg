@@ -59,11 +59,12 @@ var (
 )
 
 type Reader struct {
-	Comment rune
-	line    int
-	column  int
-	field   bytes.Buffer
-	r       *bufio.Reader
+	Comment   rune
+	line      int
+	inputline int // separate counter that should match the line number from input
+	column    int
+	field     bytes.Buffer
+	r         *bufio.Reader
 }
 
 type FileReader struct {
@@ -87,7 +88,7 @@ func NewReader(rr io.Reader) *Reader {
 func NewFileReader(path string) *FileReader {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Errorf("%s.NewFileReader(): %q", PKGNAME, err)
+		log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return nil
 	}
 	fr := &FileReader{}
@@ -128,12 +129,12 @@ func (mfr MultiFileReader) Close() error {
 	for i := range mfr {
 		err := mfr[i].Close()
 		if err != nil {
-			log.Error(err)
+			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 			errcnt++
 		}
 	}
 	if errcnt > 0 {
-		return fmt.Errorf("%s.MultiFileReader.Close(): Error closing %d files", PKGNAME, errcnt)
+		return fmt.Errorf("Error closing %d files (in: %s)", errcnt, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 	}
 	return nil
 }
@@ -157,6 +158,8 @@ func (r *Reader) readRune() (rune, error) {
 				r1 = '\r'
 			}
 		}
+	} else if r1 == '\n' {
+		r.inputline++ // had to add this to find the non-breaking space bug from Nagios, 2017-07-24 18:49:16
 	}
 	r.column++
 	return r1, err
@@ -303,6 +306,7 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 			switch state {
 			case IO_OBJ_BEGIN:
 				if prevState != IO_OBJ_OUT {
+					//log.Debugf("prevState: %d, skipping a round", prevState)
 					// continue goes too far, need jump to label or something...
 					continue
 				}
@@ -330,9 +334,15 @@ func (r *Reader) Read(setUUID bool, fileID string) (*CfgObj, error) {
 					log.Debugf("Too few fields (#%d): %#v (in: %s)", fl, fields, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 					continue
 				}
+				//log.Debugf("%q %q", fields[0], strings.Join(fields[1:fl], " "))
 				co.Add(fields[0], strings.Join(fields[1:fl], " "))
 			case IO_OBJ_END:
 				//fmt.Printf("Obj size: %d\n", co.size()) // approx avg turned out to be ~362 bytes per declaration for our services.cfg file
+				//desc, _ := co.GetDescription()
+				//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
+				//	log.Debugf("Got bugger at line %d %q:%q (in: %s)", r.inputline, co.UUID, desc, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+				//}
+
 				return co, nil
 			default:
 				return nil, r.error(ErrUnknown)
@@ -353,6 +363,10 @@ func (r *Reader) ReadChan(setUUID bool, fileID string) <-chan *CfgObj {
 		for {
 			obj, err := r.Read(setUUID, fileID)
 			if err == nil && obj != nil {
+				//desc, _ := obj.GetDescription()
+				//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
+				//	log.Debugf("Got bugger here as well: %q (in: %s)", obj.UUID, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+				//}
 				objchan <- obj
 			}
 			if err != nil {
@@ -446,6 +460,22 @@ func (r *Reader) ReadAllMap(fileID string) (CfgMap, error) {
 			}
 		}
 	}
+
+	// debug dups
+	//hasdups, dupmap := m.hasDups()
+	//if hasdups {
+	//	//log.Debugf("%v", dupmap)
+	//	for k := range dupmap {
+	//		if len(dupmap[k]) > 1 {
+	//			log.Debugf("Duplicates after read: %d (in: %s)", len(dupmap[k]), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//			//m.PrintUUIDs(os.Stderr, dupmap[k], true)
+	//			//for id := range dupmap[k] {
+	//			//	log.Debugf("Dup UUID: %q", dupmap[k][id])
+	//			//}
+	//		}
+	//	}
+	//}
+
 	return m, nil
 }
 
@@ -506,6 +536,15 @@ func (co *CfgObj) Print(w io.Writer, sorted bool) {
 	prefix := strings.Repeat(" ", co.Indent)
 	fstr := fmt.Sprintf("%s%s%d%s", prefix, "%-", co.Align, "s%s\n")
 	co.generateComment() // this might fail, but don't care yet
+
+	// debug dups
+	//desc, _ := co.GetDescription()
+	//udesc, _ := co.GetUniqueCheckName()
+	//if desc == "ORA TBLSPC Free - gjalrp01 TEMP" {
+	//	log.Debugf("Dup obj: %q (%q) (in: %s)", co.UUID, udesc, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//}
+	// END debug
+
 	fmt.Fprintf(w, "%s\n", co.Comment)
 	fmt.Fprintf(w, "define %s{\n", co.Type.String())
 	if sorted {
@@ -602,6 +641,16 @@ func (cm CfgMap) WriteByFileID(sort bool) error {
 	var wg sync.WaitGroup
 	fmap := cm.SplitByFileID(sort) // sorted and ready
 	schan := make(chan error)
+
+
+	// debug dups
+	//log.Debugf("fmap length: %d (in: %s)", len(fmap), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//for k := range fmap {
+	//	dups := findDups(fmap[k])
+	//	if dups != nil {
+	//		log.Debugf("Dups in fmap[%s]: %q (in: %s)", k, fmap[k], oddebug.DebugInfoMedium(PROJECT_PREFIX))
+	//	}
+	//}
 
 	for fname := range fmap {
 		wg.Add(1)

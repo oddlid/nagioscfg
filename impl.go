@@ -22,6 +22,7 @@ package nagioscfg
 
 import (
 	log "github.com/Sirupsen/logrus"
+	"github.com/oddlid/oddebug"
 	"os"
 	"regexp"
 )
@@ -47,6 +48,34 @@ func (nc *NagiosCfg) LoadFiles(files ...string) error {
 	return nil // can change later if we use another way to read to map
 }
 
+//func (nc *NagiosCfg) LoadFiles(files ...string) error {
+//	// Testing a variant that does not read via channels in parallell
+//	// Only for debugging duplicate entries @2017-07-24 18:58:16
+//	cm := make(CfgMap)
+//	tmpcm := make(CfgMap)
+//	for i := range files {
+//		log.Debugf("Reading file %q (in: %s)", files[i], oddebug.DebugInfoMedium(PROJECT_PREFIX))
+//		rdr := NewFileReader(files[i])
+//		fileID, err := rdr.AbsPath()
+//		if err != nil {
+//			log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
+//			fileID = files[i]
+//		}
+//		tmpcm, err = rdr.ReadAllMap(fileID)
+//		rdr.Close()
+//		if err != nil {
+//			log.Errorf("%s (in: %s)", err.Error(), oddebug.DebugInfoMedium(PROJECT_PREFIX))
+//			return err
+//		}
+//		for k := range tmpcm {
+//			cm[k] = tmpcm[k]
+//		}
+//	}
+//	nc.Config = cm
+//	nc.pipe = false
+//	return nil
+//}
+
 func (nc *NagiosCfg) LoadStdin() (err error) {
 	rdr := NewReader(os.Stdin)
 	nc.Config, err = rdr.ReadAllMap("")
@@ -60,6 +89,9 @@ func (nc *NagiosCfg) DumpStdout() {
 
 func (nc *NagiosCfg) InPipe() bool {
 	return nc.pipe
+	// could use this instead
+	//fi, _ := os.Stdin.Stat()
+	//return (fi.Mode() & os.ModeCharDevice) == 0
 }
 
 func (nc *NagiosCfg) FilterType(ts ...CfgType) UUIDs {
@@ -86,7 +118,7 @@ func (nc *NagiosCfg) InverseResults() UUIDs {
 	}
 	inv := make(UUIDs, 0, nc.Config.Len() - nc.matches.Len())
 	for _, v := range uuidorder {
-		if !v.In(nc.matches) {
+		if !v.In(nc.matches) { // this is probably slow
 			inv = append(inv, v)
 		}
 	}
@@ -124,6 +156,10 @@ func (nc *NagiosCfg) DelKeys(keys []string) int {
 
 func (nc *NagiosCfg) SetKeys(keys, values []string) int {
 	return nc.Config.SetKeys(nc.matches, keys, values)
+}
+
+func (nc *NagiosCfg) HasServiceDups() (bool, map[string]UUIDs) {
+	return nc.Config.hasDups()
 }
 
 // Valid checks if the given CfgType is within valid range
@@ -210,7 +246,7 @@ func (cq CfgQuery) Balanced() bool {
 func (cq *CfgQuery) AddRX(re string) bool {
 	rx, err := regexp.Compile(re)
 	if err != nil {
-		log.Errorf("%s.CfgQuery.AddRX(): %q", PKGNAME, err)
+		log.Errorf("%q (in: %s)", err, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return false
 	}
 	cq.RXs = append(cq.RXs, rx)
@@ -224,7 +260,7 @@ func (cq *CfgQuery) AddKey(key string) bool {
 			return true
 		}
 	}
-	log.Errorf("%s.CfgQuery.AddKey(): Invalid key: %q", key)
+	log.Errorf("Invalid key: %q (in: %s)", key, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 	return false
 }
 
@@ -235,9 +271,27 @@ func (cq *CfgQuery) AddKeyRX(key, re string) bool {
 	}
 
 	if !IsValidProperty(key) {
-		log.Errorf("%s.CfgQuery.AddKeyRX(): Invalid key: %q", key)
+		log.Errorf("Invalid key: %q (in: %s)", key, oddebug.DebugInfoMedium(PROJECT_PREFIX))
 		return false
 	}
 
 	return cq.AddRX(re) && cq.AddKey(key)
 }
+
+// for debugging only
+//func findDups(u UUIDs) UUIDs {
+//	var ret UUIDs
+//	dmap := make(map[UUID]int)
+//	for i := range u {
+//		dmap[u[i]] += 1
+//	}
+//	for k := range dmap {
+//		if dmap[k] > 1 {
+//			if ret == nil {
+//				ret = make(UUIDs, 0, len(u))
+//			}
+//			ret = append(ret, k)
+//		}
+//	}
+//	return ret
+//}
