@@ -367,3 +367,20 @@ func TestCfgObjUnmarshalJSON(t *testing.T) {
 	fmt.Printf("Obj UUID   : %s\n", co.UUID)
 	fmt.Printf("Obj FileID : %s\n", co.FileID)
 }
+
+func TestCfgMapMarshalJSON(t *testing.T) {
+	str_r := strings.NewReader(cfgobjstr)
+	rdr := NewReader(str_r)
+	m, err := rdr.ReadAllMap("/dev/null")
+	if err != nil {
+		t.Error(err)
+	} else {
+		t.Logf("=== Map: ===\n%s\n", m.Dump())
+	}
+	// do actual json shit
+	jval, err := m.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("%s", jval)
+}

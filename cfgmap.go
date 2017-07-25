@@ -19,6 +19,7 @@ package nagioscfg
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"regexp"
@@ -541,7 +542,26 @@ func (cm CfgMap) RemoveDuplicateServices(dups map[string]UUIDs) int {
 // json stuff
 
 func (cm CfgMap) MarshalJSON() ([]byte, error) {
-	return nil, nil
+	mlen := cm.Len()
+	cnt := 0
+	buf := bytes.NewBufferString("{")
+	for k, v := range cm {
+		jk, err := json.Marshal(k)
+		if err != nil {
+			return nil, err
+		}
+		jv, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		buf.WriteString(fmt.Sprintf("%s:%s", string(jk), string(jv)))
+		cnt++
+		if cnt < mlen {
+			buf.WriteString(",")
+		}
+	}
+	buf.WriteString("}")
+	return buf.Bytes(), nil
 }
 
 func (cm CfgMap) UnmarshalJSON(b []byte) error {
