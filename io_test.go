@@ -399,3 +399,24 @@ func TestCfgMapUnmarshalJSON(t *testing.T) {
 	}
 	cm.Print(os.Stdout, true)
 }
+
+func TestNcfgMarshalJSON(t *testing.T) {
+	path := "../op5_automation/cfg/etc/services-mini.cfg"
+	fr := NewFileReader(path)
+	defer fr.Close()
+	cm, err := fr.ReadAllMap(path)
+	if err != nil {
+		t.Error(err)
+	}
+	ncfg := NewNagiosCfg()
+	ncfg.Config = cm
+
+	jbuf, err := ncfg.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("%s", jbuf)
+}
+
+func TestNcfgUnmarshalJSON(t *testing.T) {
+}

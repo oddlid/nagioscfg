@@ -21,13 +21,15 @@ Function/method implementations for types from data.go
 package nagioscfg
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/oddlid/oddebug"
 	"os"
 	"regexp"
+	"time"
 )
-
 
 func dbgStr(override bool) string {
 	noop := (log.StandardLogger().Level != log.DebugLevel) && !override
@@ -129,7 +131,7 @@ func (nc *NagiosCfg) InverseResults() UUIDs {
 	if nc.matches.Empty() {
 		return uuidorder // if previous search yielded nothing, then everything is the inverse
 	}
-	inv := make(UUIDs, 0, nc.Config.Len() - nc.matches.Len())
+	inv := make(UUIDs, 0, nc.Config.Len()-nc.matches.Len())
 	for _, v := range uuidorder {
 		if !v.In(nc.matches) { // this is probably slow
 			inv = append(inv, v)
@@ -312,3 +314,46 @@ func (cq *CfgQuery) AddKeyRX(key, re string) bool {
 //	}
 //	return ret
 //}
+
+func (nc *NagiosCfg) MarshalJSON() ([]byte, error) {
+	buf := bytes.NewBufferString("{")
+
+	var pmap = map[string]interface{}{
+		"sessionid": nc.SessionID,
+		"date":      time.Now(),
+		"version":   VERSION,
+	}
+
+	for k, v := range pmap {
+		jk, err := json.Marshal(k)
+		if err != nil {
+			return nil, err
+		}
+		jv, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		buf.WriteString(fmt.Sprintf("%s:%s,", string(jk), string(jv)))
+	}
+
+	// CfgMap
+	cfg_k, err := json.Marshal("cfg")
+	if err != nil {
+		return nil, err
+	}
+	buf.WriteString(fmt.Sprintf("%s:", string(cfg_k)))
+
+	jcfg, err := json.Marshal(nc.Config)
+	if err != nil {
+		return nil, err
+	}
+	buf.WriteString(fmt.Sprintf("%s", jcfg))
+
+	buf.WriteString("}")
+
+	return buf.Bytes(), nil
+}
+
+func (nc *NagiosCfg) UnmarshalJSON(b []byte) error {
+	return nil
+}
