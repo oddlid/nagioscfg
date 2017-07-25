@@ -45,6 +45,9 @@ func NewCfgObjWithUUID(ct CfgType) *CfgObj {
 
 // Set adds the given key/value to CfgObj.Props, returning true if the key was overwritten, and false if it was added fresh
 func (co *CfgObj) Set(key, val string) bool {
+	if !IsValidProperty(key) {
+		return false
+	}
 	_, exists := co.Props[key]
 	co.Props[key] = val
 	return exists // true = key was overwritten, false = key was added

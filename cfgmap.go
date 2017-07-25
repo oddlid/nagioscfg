@@ -565,5 +565,11 @@ func (cm CfgMap) MarshalJSON() ([]byte, error) {
 }
 
 func (cm CfgMap) UnmarshalJSON(b []byte) error {
+	var tmp map[string]interface{}
+	err := json.Unmarshal(b, &tmp)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
