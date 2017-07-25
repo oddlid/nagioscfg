@@ -537,3 +537,13 @@ func (cm CfgMap) RemoveDuplicateServices(dups map[string]UUIDs) int {
 
 	return num_deleted
 }
+
+// json stuff
+
+func (cm CfgMap) MarshalJSON() ([]byte, error) {
+	return nil, nil
+}
+
+func (cm CfgMap) UnmarshalJSON(b []byte) error {
+	return nil
+}
