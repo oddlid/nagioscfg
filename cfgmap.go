@@ -565,10 +565,23 @@ func (cm CfgMap) MarshalJSON() ([]byte, error) {
 }
 
 func (cm CfgMap) UnmarshalJSON(b []byte) error {
-	var tmp map[string]interface{}
+	var tmp map[string]json.RawMessage
 	err := json.Unmarshal(b, &tmp)
 	if err != nil {
 		return err
+	}
+
+	for k, v := range tmp {
+		u, err := UUIDFromString(k)
+		if err != nil {
+			return fmt.Errorf("%s %s", err.Error(), dbgStr(true))
+		}
+		co := CfgObj{}
+		err = json.Unmarshal(v, &co)
+		if err != nil {
+			return fmt.Errorf("%s %s", err.Error(), dbgStr(true))
+		}
+		cm[u] = &co
 	}
 
 	return nil

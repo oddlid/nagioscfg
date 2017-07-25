@@ -30,19 +30,24 @@ define service {
 # embedded comment
 	  a_key                  Some value
 		singlekey
+	host_name localhost1
+	          check_command check_gris
     }
 	
 define command {
 	command_name gris
 	gris_fest roligt
+	   command_line $USER1$/dont_buy_lynx
 }
 
 # Bla bla, some comment crap
 # I'm really too tired now
+  Just fucking up the format without comment signs....
 
 define service{
 	service_description Disk usage /my/ass
-	contact_group toilet
+	contact_groups toilet
+host_name grevling
 }
 `
 
@@ -383,4 +388,14 @@ func TestCfgMapMarshalJSON(t *testing.T) {
 		t.Error(err)
 	}
 	t.Logf("%s", jval)
+}
+
+func TestCfgMapUnmarshalJSON(t *testing.T) {
+	jbytes := []byte(`{"0e03153b-7182-11e7-ba59-0800279d8583":{"uuid":"0e03153b-7182-11e7-ba59-0800279d8583","fileid":"/dev/null","type":8,"props":{"service_description":"Disk usage /my/ass","contact_groups":"toilet","host_name":"grevling"}},"0e03130a-7182-11e7-ba59-0800279d8583":{"uuid":"0e03130a-7182-11e7-ba59-0800279d8583","fileid":"/dev/null","type":8,"props":{"service_description":"A service name with spaces","host_name":"localhost1","check_command":"check_gris"}},"0e0314cb-7182-11e7-ba59-0800279d8583":{"uuid":"0e0314cb-7182-11e7-ba59-0800279d8583","fileid":"/dev/null","type":0,"props":{"command_line":"$USER1$/dont_buy_lynx","command_name":"gris"}}}`)
+	cm := make(CfgMap)
+	err := cm.UnmarshalJSON(jbytes)
+	if err != nil {
+		t.Error(err)
+	}
+	cm.Print(os.Stdout, true)
 }
