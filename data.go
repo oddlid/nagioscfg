@@ -674,13 +674,13 @@ var CfgKeySortOrder = map[string]map[CfgType]int{
 var uuidorder UUIDs // append to this every time an object is read
 
 type CfgObj struct {
-	Type    CfgType
-	UUID    UUID
-	Indent  int
-	Align   int
-	FileID  string
-	Comment string
-	Props   map[string]string
+	Type    CfgType           `json:"-"`
+	UUID    UUID              `json:"uuid"`
+	Indent  int               `json:"-"`
+	Align   int               `json:"-"`
+	FileID  string            `json:"fileid"`
+	Comment string            `json:"-"`
+	Props   map[string]string `json:"props"`
 }
 
 type CfgQuery struct {

@@ -220,7 +220,7 @@ func TestWriteByFileID(t *testing.T) {
 		cmap[o.UUID] = o
 	}
 	//t.Log("\n", cmap.Dump())
-	err = cmap.WriteByFileID()
+	err = cmap.WriteByFileID(true)
 	if err != nil {
 		t.Error(err)
 	}
@@ -323,21 +323,47 @@ func getLocalObjs() (CfgMap, error) {
 	return mfr.ReadAllMap()
 }
 
-func BenchmarkInvertMap(b *testing.B) {
-	objs, err := getLocalObjs()
+//func BenchmarkInvertMap(b *testing.B) {
+//	objs, err := getLocalObjs()
+//	if err != nil {
+//		b.Fatal(err)
+//	}
+//	for i := 0; i < b.N; i++ {
+//	}
+//}
+
+//func BenchmarkInvertCmpSlice(b *testing.B) {
+//	objs, err := getLocalObjs()
+//	if err != nil {
+//		b.Fatal(err)
+//	}
+//	for i := 0; i < b.N; i++ {
+//	}
+//}
+
+func TestCfgObjMarshalJSON(t *testing.T) {
+	co := NewCfgObjWithUUID(T_SERVICE)
+	co.Add("use", "linux-prod")
+	co.Add("host_name", "localhost")
+	co.Add("service_description", "JSONTest")
+	co.Add("check_command", "check_json_output!param1!param2")
+	co.FileID = "/opt/monitor/etc/services.cfg"
+
+	jval, err := co.MarshalJSON()
 	if err != nil {
-		b.Fatal(err)
+		t.Error(err)
 	}
-	for i := 0; i < b.N; i++ {
-	}
+	t.Logf("%s", jval)
 }
 
-func BenchmarkInvertCmpSlice(b *testing.B) {
-	objs, err := getLocalObjs()
+func TestCfgObjUnmarshalJSON(t *testing.T) {
+	jbytes := []byte(`{"uuid":"3d3f8292-713b-11e7-aa16-0800279d8583","fileid":"/opt/monitor/etc/services.cfg","type":8,"props":{"host_name":"localhost","service_description":"JSON Test","check_command":"check_json_output!param1!param2","use":"linux-prod"}}`)
+	co := &CfgObj{}
+	err := co.UnmarshalJSON(jbytes)
 	if err != nil {
-		b.Fatal(err)
+		t.Error(err)
 	}
-	for i := 0; i < b.N; i++ {
-	}
+	co.Print(os.Stdout, true)
+	fmt.Printf("Obj UUID   : %s\n", co.UUID)
+	fmt.Printf("Obj FileID : %s\n", co.FileID)
 }
-

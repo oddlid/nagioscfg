@@ -17,6 +17,8 @@
 package nagioscfg
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"regexp"
@@ -318,4 +320,99 @@ func (co *CfgObj) generateComment() bool {
 func (co *CfgObj) AutoAlign() int {
 	co.Align = co.LongestKey() + 2
 	return co.Align
+}
+
+// json stuff
+
+func (co *CfgObj) MarshalJSON() ([]byte, error) {
+	// First attempt based on https://gist.github.com/mdwhatcott/8dd2eef0042f7f1c0cd8
+	buf := bytes.NewBufferString("{")
+
+	var pmap = map[string]interface{}{
+		"uuid":   co.UUID.String(),
+		"fileid": co.FileID,
+		"type":   co.Type,
+	}
+
+	for k, v := range pmap {
+		jk, err := json.Marshal(k)
+		if err != nil {
+			return nil, err
+		}
+		jv, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		buf.WriteString(fmt.Sprintf("%s:%s,", string(jk), string(jv)))
+	}
+
+	// Props
+	prop_k, err := json.Marshal("props")
+	if err != nil {
+		return nil, err
+	}
+	buf.WriteString(fmt.Sprintf("%s:{", string(prop_k)))
+
+	// loop through props
+	plen := len(co.Props)
+	cnt := 0
+	for k, v := range co.Props {
+		jkey, err := json.Marshal(k)
+		if err != nil {
+			return nil, err
+		}
+		jval, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		buf.WriteString(fmt.Sprintf("%s:%s", string(jkey), string(jval)))
+		cnt++
+		if cnt < plen {
+			buf.WriteString(",")
+		}
+	}
+	buf.WriteString("}}")
+
+	return buf.Bytes(), nil
+}
+
+func (co *CfgObj) UnmarshalJSON(b []byte) error {
+	var tmp map[string]interface{}
+	err := json.Unmarshal(b, &tmp)
+	if err != nil {
+		return err
+	}
+
+	objtype, found := tmp["type"].(float64)
+	if !found {
+		return fmt.Errorf("Unabble to parse object type %s", dbgStr(true))
+	}
+	obj := NewCfgObj(CfgType(objtype))
+	fileid, found := tmp["fileid"].(string)
+	if found {
+		obj.FileID = fileid
+	}
+	uuidstr, found := tmp["uuid"].(string)
+	if found {
+		u, err := UUIDFromString(uuidstr)
+		if err == nil {
+			obj.UUID = u
+		} else {
+			obj.UUID = NewUUIDv1()
+		}
+	} else {
+		obj.UUID = NewUUIDv1()
+	}
+
+	props, found := tmp["props"].(map[string]interface{})
+	if !found {
+		return fmt.Errorf("Unable to parse object properties %s", dbgStr(true))
+	}
+	for k, v := range props {
+		obj.Add(k, v.(string))
+	}
+
+	*co = *obj
+
+	return nil
 }
