@@ -181,6 +181,10 @@ func (nc *NagiosCfg) RemoveServiceDuplicates(dups map[string]UUIDs) int {
 	return nc.Config.RemoveDuplicateServices(dups)
 }
 
+func (nc *NagiosCfg) UniqueFileIDs(u UUIDs) []string {
+	return nc.Config.UniqueFileIDs(u)
+}
+
 // Valid checks if the given CfgType is within valid range
 func (ct CfgType) Valid() bool {
 	return ct >= T_COMMAND && ct < T_INVALID

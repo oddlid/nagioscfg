@@ -364,6 +364,34 @@ func (cm CfgMap) FilterType(ts ...CfgType) UUIDs {
 	return nil
 }
 
+// UniqueFileIDs returns a list of files the given objects came from
+func (cm CfgMap) UniqueFileIDs(u UUIDs) []string {
+	if u == nil || len(u) == 0 {
+		u = cm.Keys()
+	}
+	fmap := make(map[string]int)
+
+	for i := range u {
+		o, ok := cm.GetByUUID(u[i])
+		if !ok {
+			continue
+		}
+		if o.FileID == "" {
+			continue
+		}
+		fmap[o.FileID]++
+	}
+
+	ret := make([]string, len(fmap))
+	i := 0
+	for k, _ := range fmap {
+		ret[i] = k
+		i++
+	}
+
+	return ret
+}
+
 func (cm CfgMap) SplitByFileID(sort bool) map[string]UUIDs {
 	fmap := make(map[string]UUIDs)
 	var keys UUIDs
